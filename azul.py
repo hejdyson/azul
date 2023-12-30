@@ -111,7 +111,6 @@ class Player():
     def choose_tile(self, board):
         index = self.choose_underlying(board)
         middle_underlying = False
-        indexes_to_remove = []
         if index == board.number_of_players + 3 + (board.number_of_players - 2) * 1:
             print('middle underlying')
             middle_underlying = True
@@ -139,20 +138,16 @@ class Player():
                     break
                 
                 # if middle underlying
-                # else:
-                #     for item, i in enumerate(board.underlyings[index], start=0):
-                #         print('item', item, 'i ', i)
-                #         if i == tile_choice:
-                #             indexes_to_remove.append(item)
-                #             print('indexes to remove', indexes_to_remove)
-                            
-                #     print('indexes to remove', indexes_to_remove)
                 else:     
                     board.underlyings[index] = [value for value in board.underlyings[index] if value != tile_choice]
                     break       
                        
             else:
                 continue
+
+    def choose_line(self):
+        # choose specific tiles
+        line_choice = int(input('Which line do you want? '))
 
             
 def main():
@@ -182,7 +177,7 @@ def main():
 
         print('underlyings', brd.underlyings)
 
-        # print('bag of used tiles: ', brd.bag_of_used_tiles)
+        print('bag of used tiles: ', brd.bag_of_used_tiles)
 
 if __name__ == '__main__':
     main()
