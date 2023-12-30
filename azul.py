@@ -90,11 +90,17 @@ class Player():
         self.first_player = False
         self.take = []
         self.to_the_middle = []
-        self.table = [[            [0], [1, 2, 3, 4, 5]],
-                      [         [0, 0], [5, 1, 2, 3, 4]], 
-                      [      [0, 0, 0], [4, 5, 1, 2, 3]], 
-                      [   [0, 0, 0, 0], [3, 4, 5, 1, 2]], 
-                      [[0, 0, 0, 0, 0], [2, 3, 4, 5, 1]]]
+        self.table_left = [[[], 1],
+                           [[], 2], 
+                           [[], 3], 
+                           [[], 4], 
+                           [[], 5],
+                           [[], 7]]
+        self.table_right = [[1, 2, 3, 4, 5]
+                            [5, 1, 2, 3, 4]
+                            [4, 5, 1, 2, 3]
+                            [3, 4, 5, 1, 2]
+                            [2, 3, 4, 5, 1]]
 
     def choose_underlying(self, board):
         while True:
@@ -141,12 +147,11 @@ class Player():
                 # if middle underlying
                 else:     
                     board.underlyings[index] = [value for value in board.underlyings[index] if value != tile_choice]
-                    break       
-                       
+                    break        
             else:
                 continue
 
-    def check_line_placeable(self):
+    def is_line_placeable(self):
         pass
         # either selected line is empty
 
@@ -160,8 +165,21 @@ class Player():
         
 
     def choose_line(self):
-        # choose specific tiles
-        line_choice = int(input('Which line do you want? '))
+        while True:
+            # choose specific tiles
+            line_choice = int(input('Which line do you want? ') - 1)
+            if self.is_line_placeable():
+                # place all tiles from hand to table left line choice
+                for item in self.take:
+                    self.table_left[line_choice][0].append(item)
+                # empty hand
+                self.take.clear()
+                break
+            else:
+                continue
+
+
+
 
             
 def main():
