@@ -8,6 +8,7 @@ class Board:
         self.bag_of_tiles = []
         self.bag_of_used_tiles = [] # used tiles after plays, wait for bag of tiles to be low on tiles to refill it wit everything
         self.tiles = dict()
+        self.list_of_players = []
     
     def select_num_players(self):
         # input from player for testing
@@ -53,12 +54,13 @@ class Board:
     
     def print_available_underlyings(self):
         print('Available underlyings: ')
-        for underlying in self.underlyings:
+        for index, underlying in enumerate(self.underlyings, start=1):
             if len(underlying) > 0:
-                print(underlying)
+                print(underlying, 'index: ', index)
 
     # checks what tiles are on top of underlying - returns dictionary
     def count_tiles_on_underlying(self, index):
+        self.tiles.clear()
         print('tiles on selected underlying:', self.underlyings[index])
 
         # create a dict with tile and number of the on the underlying
@@ -71,6 +73,7 @@ class Board:
         print('possible takes:')
         for item in self.tiles:
             print(item, ' : ', self.tiles[item])
+        
     
     def valid_tile_selected(self, tile_choice):
         if tile_choice in self.tiles:
@@ -83,12 +86,14 @@ class Board:
 class Player():
     def __init__(self, name):
         self.name = name
+        self.first_player = False
         self.take = []
-        self.table = [[            [0], [0, 0, 0, 0, 0]],
-                      [         [0, 0], [0, 0, 0, 0, 0]], 
-                      [      [0, 0, 0], [0, 0, 0, 0, 0]], 
-                      [   [0, 0, 0, 0], [0, 0, 0, 0, 0]], 
-                      [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]]
+        self.to_the_middle = []
+        self.table = [[            [0], [1, 2, 3, 4, 5]],
+                      [         [0, 0], [5, 1, 2, 3, 4]], 
+                      [      [0, 0, 0], [4, 5, 1, 2, 3]], 
+                      [   [0, 0, 0, 0], [3, 4, 5, 1, 2]], 
+                      [[0, 0, 0, 0, 0], [2, 3, 4, 5, 1]]]
 
     def choose_underlying(self, board):
         while True:
@@ -100,11 +105,17 @@ class Player():
                 continue
             else:
                 board.count_tiles_on_underlying(underlying_choice)
-                print('Player ' + self.name + 'chose ' + str(underlying_choice + 1) + ' -> ' +str(board.underlyings[underlying_choice]))
+                print('Player ' + self.name + ' chose ' + str(underlying_choice + 1) + ' -> ' +str(board.underlyings[underlying_choice]))
                 return underlying_choice
 
     def choose_tile(self, board):
         index = self.choose_underlying(board)
+        middle_underlying = False
+        indexes_to_remove = []
+        if index == board.number_of_players + 3 + (board.number_of_players - 2) * 1:
+            print('middle underlying')
+            middle_underlying = True
+
         while True:
             # choose specific tiles
             tile_choice = int(input('Which tile do you want? '))
@@ -114,20 +125,32 @@ class Player():
                 for tile in board.underlyings[index]:
                     if tile == tile_choice:
                         self.take.append(tile)
-                print('self.take', self.take)
+                    else:
+                        self.to_the_middle.append(tile)
+                    
+                print(self.name, 'took ', self.take)                         
+                print('to the middle goes ', self.to_the_middle)  
 
-                # remove them from underlying
-                for tile in board.underlyings[index]:    
-                   board.underlyings[index].remove(tile_choice)
+                # if not middle underlying selected
+                if not middle_underlying:
+                    for item in self.to_the_middle:
+                        board.underlyings[-1].append(item)
+                    board.underlyings[index].clear()
+                    break
                 
-                # append the rest to the middle underlying
-                for rest_item in board.underlyings[index]:
-                    board.underlyings[-1].append(rest_item)
-                
-                # empty the underlying
-                board.underlyings[index].clear()
-                break
-
+                # if middle underlying
+                # else:
+                #     for item, i in enumerate(board.underlyings[index], start=0):
+                #         print('item', item, 'i ', i)
+                #         if i == tile_choice:
+                #             indexes_to_remove.append(item)
+                #             print('indexes to remove', indexes_to_remove)
+                            
+                #     print('indexes to remove', indexes_to_remove)
+                else:     
+                    board.underlyings[index] = [value for value in board.underlyings[index] if value != tile_choice]
+                    break       
+                       
             else:
                 continue
 
@@ -152,16 +175,14 @@ def main():
 
     print('bag_of_tiles after fill', len(brd.bag_of_tiles), brd.bag_of_tiles)
 
-    player1 = Player('Borec')
+    player1 = Player('Player 1')
 
-    player1.choose_tile(brd)
+    while True:
+        player1.choose_tile(brd)
 
-    print('Print players take: ')
-    print(player1.take)
+        print('underlyings', brd.underlyings)
 
-    print('underlyings', brd.underlyings)
-
-    print('bag of used tiles: ', brd.bag_of_used_tiles)
+        # print('bag of used tiles: ', brd.bag_of_used_tiles)
 
 if __name__ == '__main__':
     main()
