@@ -9,6 +9,7 @@ class Board:
         self.bag_of_used_tiles = [] # used tiles after plays, wait for bag of tiles to be low on tiles to refill it wit everything
         self.tiles = dict()
         self.list_of_players = []
+        self.minus_points = [-1, -1, -2, -2, -2, -3]
     
     def select_num_players(self):
         # input from player for testing
@@ -144,6 +145,19 @@ class Player():
                        
             else:
                 continue
+
+    def check_line_placeable(self):
+        pass
+        # either selected line is empty
+
+
+        # or there are tiles of same value already on the line
+
+
+        # warning if placing more tiles than empty spaces on the line
+
+            # here compute how many minus points will player receive and display warning
+        
 
     def choose_line(self):
         # choose specific tiles
