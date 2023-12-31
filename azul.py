@@ -102,10 +102,15 @@ class Player():
                             [[4, False], [5, False], [1, False], [2, False], [3, False]],
                             [[3, False], [4, False], [5, False], [1, False], [2, False]],
                             [[2, False], [3, False], [4, False], [5, False], [1, False]]]
+        
+    def print_player_table(self):
+        for i in range(5):
+            print(self.table_left[i], ' | ', self.table_right[i])
 
     def choose_underlying(self, board):
         while True:
             # choose underlying
+            print(board.underlyings)
             underlying_choice = int(input('Which underlying do you choose? ')) - 1
             # check if not empty
             if board.underlying_is_empty(underlying_choice):
@@ -169,6 +174,8 @@ class Player():
         free_spaces = self.table_left[line][1] - len(self.table_left[line][0])
         if free_spaces > 0:
             print('line has free space ', free_spaces, ' positions are free')
+            if len(self.take) > free_spaces:
+                print('Warning, not enough space - points will be deducted.')
             return True
         else:
             print('line is full!, Free: ', free_spaces)
@@ -184,9 +191,9 @@ class Player():
     def same_tile_on_line(self, line):
         for tile in self.table_left[line][0]:
             if tile == self.take[0]:
-                print('same tiles on line ', line, 'possible to place here')
+                print('same tiles on line ', line + 1, 'possible to place here')
                 return True
-        print('different tiles on line ', line, 'cannot place here')
+        print('different tiles on line ', line + 1, 'cannot place here')
         return False
 
     def is_line_placeable(self, line):
@@ -211,6 +218,7 @@ class Player():
     def choose_line(self):
         while True:
             # choose specific tiles
+            self.print_player_table()
             line_choice = int(input('Which line do you choose to place your tiles? ' + str(self.take) + ' :')) - 1
             if self.is_line_placeable(line_choice):
                 # place all tiles from hand to table left line choice
@@ -221,7 +229,6 @@ class Player():
                 break
             else:
                 continue
-
 
 
 
@@ -253,6 +260,8 @@ def main():
 
         print('underlyings', brd.underlyings)
         player1.choose_line()
+
+        player1.print_player_table()
 
         print('bag of used tiles: ', brd.bag_of_used_tiles)
 
