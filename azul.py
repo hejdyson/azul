@@ -1,4 +1,4 @@
-from random import randint, shuffle
+from random import shuffle
 
 
 class Board:
@@ -11,6 +11,7 @@ class Board:
         self.list_of_players = []
         self.minus_points = [-1, -1, -2, -2, -2, -3]
     
+    # initialization functions
     def select_num_players(self):
         # input from player for testing
         # self.number_of_players = int(input('How many players will play? <2-4>: '))
@@ -122,6 +123,12 @@ class Player():
             else:
                 board.count_tiles_on_underlying(underlying_choice)
                 print('Player ' + self.name + ' chose ' + str(underlying_choice + 1) + ' -> ' +str(board.underlyings[underlying_choice]))
+                # first to take middle underlying gets start player status and receives -1 to the minus points
+                if -1 in board.underlyings[underlying_choice]:
+                    board.underlyings[underlying_choice].remove(-1)
+                    self.first_player = True
+                    self.minus_points.append(-1)
+                    print('first to take the middle')
                 return underlying_choice
 
     def choose_tile(self, board):
@@ -174,7 +181,7 @@ class Player():
     def line_has_free_space(self, line):
         free_spaces = self.table_left[line][1] - len(self.table_left[line][0])
         if free_spaces > 0:
-            print('line has free space ', free_spaces, ' positions are free')
+            print('line has free space, ', free_spaces, ' positions are free')
             if len(self.take) > free_spaces:
                 print('Warning, not enough space - points will be deducted.')
             return True
@@ -213,17 +220,24 @@ class Player():
     
     # check all lines if there is place for selected tiles
     def no_lines_placeable(self):
+        empty = False
         for i in range(5):
-            print('line: ', i + 1)
+            print('line: ', i + 1, end=' - ')
             # same tiles already on line and still free space -> then OK
             if len(self.table_left[i][0]) > 0 and len(self.table_left[i][0]) < self.table_left[i][1]:
                 if self.take[0] == self.table_left[i][0][0]:
-                    print('still place, not empty, only for ', self.take)
-                    return False
+                    print('still place, not empty, only for ', self.take, 'free places: ', self.table_left[i][1] - len(self.table_left[i][0]))
+                    empty = True
+                else:
+                    print('life occupied with', self.table_left[i][0])
             # or if the line is still empty
             if len(self.table_left[i][0]) == 0:
                 print('still place, line empty')
-                return False
+                empty = True
+            if len(self.table_left[i][0]) >= self.table_left[i][1]:
+                print('line full')
+        if empty == True:
+            return False
         # if no line has free space for selected tile - returns True
         print('no lines placeable')
         return True
