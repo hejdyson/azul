@@ -4,6 +4,7 @@ from random import shuffle
 class Board:
     def __init__(self):
         self.number_of_players = 0
+        self.tiles_on_underlying = 2
         self.underlyings = []
         self.bag_of_tiles = []
         self.bag_of_used_tiles = [] # used tiles after plays, wait for bag of tiles to be low on tiles to refill it wit everything
@@ -15,7 +16,7 @@ class Board:
     def select_num_players(self):
         # input from player for testing
         # self.number_of_players = int(input('How many players will play? <2-4>: '))
-        self.number_of_players = 3
+        self.number_of_players = 2
     
     def draw_underlyings(self):
         # last underlying will be the middle field
@@ -40,18 +41,19 @@ class Board:
     def scramble_bag_of_tiles(self):
         shuffle(self.bag_of_tiles)
 
-    def fill_in_bag_of_tiles(self):
+    def fill_in_underlyings(self):
         for i in range(len(self.underlyings)):
             if i == len(self.underlyings) - 1:
                 self.underlyings[i].append(-1)
                 break
-            for _ in range(4):
+            for _ in range(self.tiles_on_underlying):
                 self.underlyings[i].append(self.bag_of_tiles.pop())
     
-    def underlying_is_empty(self, index):
+    def underlying_is_empty(self, index, printing=True):
         if len(self.underlyings[index]) == 0:
-            print('You can\'t choose empty underlying.')
-            return True
+            if printing:
+                print('You can\'t choose empty underlying.')
+                return True
         return False
     
     def print_available_underlyings(self):
@@ -59,6 +61,7 @@ class Board:
         for index, underlying in enumerate(self.underlyings, start=1):
             if len(underlying) > 0:
                 print(underlying, 'index: ', index)
+        
 
     # checks what tiles are on top of underlying - returns dictionary
     def count_tiles_on_underlying(self, index):
@@ -75,7 +78,6 @@ class Board:
         print('possible takes:')
         for item in self.tiles:
             print(item, ' : ', self.tiles[item])
-        
     
     def valid_tile_selected(self, tile_choice):
         if tile_choice in self.tiles:
@@ -83,6 +85,17 @@ class Board:
         else:
             print('Select a valid tile. ')
             return False
+        
+    # check if all underlyings are empty
+    def all_underlyings_empty(self):
+        count = 0
+        for underlying in self.underlyings:
+            if len(underlying) == 0:
+                count += 1
+        if count == len(self.underlyings):
+            return True
+        return False
+
 
 
 class Player():
@@ -114,7 +127,7 @@ class Player():
     def choose_underlying(self, board):
         while True:
             # choose underlying
-            print('Board underlyings: ' ,board.underlyings)
+            print('Board underlyings: ' , board.underlyings)
             underlying_choice = int(input('Which underlying do you choose? ')) - 1
             # check if not empty
             if board.underlying_is_empty(underlying_choice):
@@ -249,8 +262,8 @@ class Player():
             if self.no_lines_placeable():
                 for item in self.take:
                     self.minus_points.append(item)
-                    self.take.clear()
-                    self.to_the_middle.clear()
+                self.take.clear()
+                self.to_the_middle.clear()
                 break
             # choose specific tiles
             self.print_player_table()
@@ -284,14 +297,14 @@ def main():
     brd.scramble_bag_of_tiles()
     #print('after shuffle', brd.bag_of_tiles)
 
-    brd.fill_in_bag_of_tiles()
+    brd.fill_in_underlyings()
     # print('brd underlyings after fill', brd.underlyings)
 
     #print('bag_of_tiles after fill', len(brd.bag_of_tiles), brd.bag_of_tiles)
 
     player1 = Player('Player 1')
 
-    while True:
+    while not brd.all_underlyings_empty():
         player1.choose_tile(brd)
 
         print('underlyings', brd.underlyings)
@@ -300,6 +313,7 @@ def main():
         player1.print_player_table()
 
         print('bag of used tiles: ', brd.bag_of_used_tiles)
+    print('all underlyings empty - end of round')
 
 if __name__ == '__main__':
     main()
