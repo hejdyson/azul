@@ -80,7 +80,7 @@ class Board:
         if tile_choice in self.tiles:
             return True
         else:
-            print('Select a valif tile. ')
+            print('Select a valid tile. ')
             return False
 
 
@@ -104,13 +104,16 @@ class Player():
                             [[2, False], [3, False], [4, False], [5, False], [1, False]]]
         
     def print_player_table(self):
+        print('Player table: ')
         for i in range(5):
             print(self.table_left[i], ' | ', self.table_right[i])
+        print('Minus points: ', self.minus_points)
+        
 
     def choose_underlying(self, board):
         while True:
             # choose underlying
-            print(board.underlyings)
+            print('Board underlyings: ' ,board.underlyings)
             underlying_choice = int(input('Which underlying do you choose? ')) - 1
             # check if not empty
             if board.underlying_is_empty(underlying_choice):
@@ -127,7 +130,6 @@ class Player():
         if index == board.number_of_players + 3 + (board.number_of_players - 2) * 1:
             print('middle underlying')
             middle_underlying = True
-
         while True:
             # choose specific tiles
             tile_choice = int(input('Which tile do you want? '))
@@ -142,18 +144,17 @@ class Player():
                     
                 print(self.name, 'took ', self.take)                         
                 print('to the middle goes ', self.to_the_middle)  
-
                 # if not middle underlying selected
                 if not middle_underlying:
                     for item in self.to_the_middle:
                         board.underlyings[-1].append(item)
                     board.underlyings[index].clear()
                     break
-                
                 # if middle underlying
                 else:     
                     board.underlyings[index] = [value for value in board.underlyings[index] if value != tile_choice]
-                    break        
+                    break 
+            # if not - select another tile       
             else:
                 continue
     
@@ -209,14 +210,34 @@ class Player():
                         return True
         print('Line not placeable')
         return False
+    
+    # check all lines if there is place for selected tiles
+    def no_lines_placeable(self):
+        for i in range(5):
+            print('line: ', i + 1)
+            # same tiles already on line and still free space -> then OK
+            if len(self.table_left[i][0]) > 0 and len(self.table_left[i][0]) < self.table_left[i][1]:
+                if self.take[0] == self.table_left[i][0][0]:
+                    print('still place, not empty, only for ', self.take)
+                    return False
+            # or if the line is still empty
+            if len(self.table_left[i][0]) == 0:
+                print('still place, line empty')
+                return False
+        # if no line has free space for selected tile - returns True
+        print('no lines placeable')
+        return True
 
-
-        # maybe warning if placing more tiles than empty spaces on the line
-            # here compute how many minus points will player receive and display warning
-        
-
+    # main functions that takes all checking functions above and places seleted tiles to the line
     def choose_line(self):
         while True:
+            # if there are no lines to place selected tiles, tiles ppend to self.minus_points
+            if self.no_lines_placeable():
+                for item in self.take:
+                    self.minus_points.append(item)
+                    self.take.clear()
+                    self.to_the_middle.clear()
+                break
             # choose specific tiles
             self.print_player_table()
             line_choice = int(input('Which line do you choose to place your tiles? ' + str(self.take) + ' :')) - 1
@@ -224,8 +245,9 @@ class Player():
                 # place all tiles from hand to table left line choice
                 for item in self.take:
                     self.table_left[line_choice][0].append(item)
-                # empty hand
+                # empty the hand
                 self.take.clear()
+                self.to_the_middle.clear()
                 break
             else:
                 continue
@@ -235,23 +257,23 @@ class Player():
             
 def main():
     brd = Board()
-    print('number of players', brd.number_of_players)
-    print('underlyings', brd.underlyings)
+    # print('number of players', brd.number_of_players)
+    # print('underlyings', brd.underlyings)
     brd.select_num_players()
     brd.draw_underlyings()
 
-    print('number of players', brd.number_of_players)
-    print('underlyings', brd.underlyings)
+    # print('number of players', brd.number_of_players)
+    # print('underlyings', brd.underlyings)
 
     brd.append_bag_of_tiles()
-    print('after addition', brd.bag_of_tiles)
+    #print('after addition', brd.bag_of_tiles)
     brd.scramble_bag_of_tiles()
-    print('after shuffle', brd.bag_of_tiles)
+    #print('after shuffle', brd.bag_of_tiles)
 
     brd.fill_in_bag_of_tiles()
-    print('brd underlyings after fill', brd.underlyings)
+    # print('brd underlyings after fill', brd.underlyings)
 
-    print('bag_of_tiles after fill', len(brd.bag_of_tiles), brd.bag_of_tiles)
+    #print('bag_of_tiles after fill', len(brd.bag_of_tiles), brd.bag_of_tiles)
 
     player1 = Player('Player 1')
 
