@@ -97,10 +97,10 @@ class Player():
                            [[], 4], 
                            [[], 5]]
         # value of the tile to be placed there and bool if already placed
-        self.table_right = [[[1, False], [2, False], [3, False], [4, False], [5, False]]
-                            [[5, False], [1, False], [2, False], [3, False], [4, False]]
-                            [[4, False], [5, False], [1, False], [2, False], [3, False]]
-                            [[3, False], [4, False], [5, False], [1, False], [2, False]]
+        self.table_right = [[[1, False], [2, False], [3, False], [4, False], [5, False]],
+                            [[5, False], [1, False], [2, False], [3, False], [4, False]],
+                            [[4, False], [5, False], [1, False], [2, False], [3, False]],
+                            [[3, False], [4, False], [5, False], [1, False], [2, False]],
                             [[2, False], [3, False], [4, False], [5, False], [1, False]]]
 
     def choose_underlying(self, board):
@@ -153,7 +153,7 @@ class Player():
                 continue
     
     # FUNCTIONS TO HANDLE INPUT OF TAKEN TILE TO THE LEFT OF THE BOARD #
-    def is_tile_already_placed_on_right(self, line):
+    def tile_already_placed_on_right(self, line):
         for i in range(len(self.table_right[line])):
             if self.table_right[line][i][0] == self.take[0]:
                 index = i
@@ -165,8 +165,8 @@ class Player():
             print('tile is not on the right, free to place here')
             return False
 
-    def has_line_free_space(self, line):
-        free_spaces = self.table_left[line][0] - self.table_left[line][1]
+    def line_has_free_space(self, line):
+        free_spaces = self.table_left[line][1] - len(self.table_left[line][0])
         if free_spaces > 0:
             print('line has free space ', free_spaces, ' positions are free')
             return True
@@ -174,33 +174,34 @@ class Player():
             print('line is full!, Free: ', free_spaces)
             return False
     
-    def is_line_fully_free(self, line):
+    def line_fully_free(self, line):
         if len(self.table_left[line][0]) == 0:
-            print('line ', line, 'is fully free')
+            print('line ', line + 1, 'is fully free')
             return True
-        print('line ', line, 'is not fully free')
+        print('line ', line + 1, 'is not fully free')
         return False
     
-    def is_same_tile_on_line(self, line):
+    def same_tile_on_line(self, line):
         for tile in self.table_left[line][0]:
             if tile == self.take[0]:
                 print('same tiles on line ', line, 'possible to place here')
                 return True
         print('different tiles on line ', line, 'cannot place here')
         return False
-    
-
 
     def is_line_placeable(self, line):
-        pass
-        # either selected line is empty
-
-
-        # or there are tiles of same value already on the line
-
-
-        # if the line is full already also not possible
-    
+        # first check if tile is not already placed on the right
+        if not self.tile_already_placed_on_right(line):
+            if self.line_has_free_space(line):
+                if self.line_fully_free(line):
+                    print('Line placeable - free')
+                    return True
+                else:
+                    if self.same_tile_on_line(line):
+                        print('Line placeable - same tiles')
+                        return True
+        print('Line not placeable')
+        return False
 
 
         # maybe warning if placing more tiles than empty spaces on the line
@@ -210,7 +211,7 @@ class Player():
     def choose_line(self):
         while True:
             # choose specific tiles
-            line_choice = int(input('Which line do you want? ') - 1)
+            line_choice = int(input('Which line do you choose to place your tiles? ' + str(self.take) + ' :')) - 1
             if self.is_line_placeable(line_choice):
                 # place all tiles from hand to table left line choice
                 for item in self.take:
@@ -251,6 +252,7 @@ def main():
         player1.choose_tile(brd)
 
         print('underlyings', brd.underlyings)
+        player1.choose_line()
 
         print('bag of used tiles: ', brd.bag_of_used_tiles)
 
