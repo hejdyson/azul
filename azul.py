@@ -10,7 +10,7 @@ class Board:
         self.bag_of_used_tiles = [] # used tiles after plays, wait for bag of tiles to be low on tiles to refill it wit everything
         self.tiles = dict()
         self.list_of_players = []
-        self.minus_points = [-1, -1, -2, -2, -2, -3]
+        self.minus_points = [-1, -1, -2, -2, -2, -3, -3]
     
     # initialization functions
     def select_num_players(self):
@@ -86,7 +86,7 @@ class Board:
             print('Select a valid tile. ')
             return False
         
-    # check if all underlyings are empty
+    # check if all underlyings are empty - end of round
     def all_underlyings_empty(self):
         count = 0
         for underlying in self.underlyings:
@@ -97,11 +97,12 @@ class Board:
         return False
 
 
-
 class Player():
     def __init__(self, name):
         self.name = name
         self.first_player = False
+        self.point_from_round = 0
+        self.points_total = 0
         self.take = []
         self.to_the_middle = []
         self.minus_points = []
@@ -117,6 +118,8 @@ class Player():
                             [[3, False], [4, False], [5, False], [1, False], [2, False]],
                             [[2, False], [3, False], [4, False], [5, False], [1, False]]]
         
+
+    # Function to print player table
     def print_player_table(self):
         print('Player table: ')
         # compute longest left side
@@ -134,6 +137,7 @@ class Player():
         print('Minus points: ', self.minus_points)
         
 
+    # Function to choose underlying
     def choose_underlying(self, board):
         while True:
             # choose underlying
@@ -154,6 +158,8 @@ class Player():
                     print('first to take the middle')
                 return underlying_choice
 
+
+    # Function to choose specific tile from the the underlying
     def choose_tile(self, board):
         index = self.choose_underlying(board)
         middle_underlying = False
@@ -187,6 +193,7 @@ class Player():
             # if not - select another tile       
             else:
                 continue
+
     
     # FUNCTIONS TO HANDLE INPUT OF TAKEN TILE TO THE LEFT OF THE BOARD #
     def tile_already_placed_on_right(self, line):
@@ -265,7 +272,8 @@ class Player():
         print('no lines placeable')
         return True
 
-    # main functions that takes all checking functions above and places seleted tiles to the line
+
+    # Main functions that takes all checking functions above and places seleted tiles to the line
     def choose_line(self):
         while True:
             # if there are no lines to place selected tiles, tiles ppend to self.minus_points
@@ -289,8 +297,40 @@ class Player():
             else:
                 continue
 
+    
+    # FUNCTIONS TO HANDLE MINUS POINTS ON THE LEFT SIDE #
+    # calculate number of minus points to move from single line, move them and remove them
+    def calculate_minus_points_to_move(self, line):
+        # if line is fully free - dont do this calculation
+        if self.line_fully_free(line[1] - 1):
+            return
+        value = line[0][0]
+        # if there are more tiles on line than allowed
+        if len(line[0]) > line[1]:
+            num_to_move = len(line[0]) - line[1]
+            print('Line: ', line[1], 'num of tiles to move to minus points:', num_to_move)
+            # append all of them to the self.minus_points
+            for _ in range(num_to_move):
+                print(value, 'goes to minus points')
+                self.minus_points.append(value)
+            # and remove them from the line - kepp only the number of tiles that is allowed
+            for _ in range(num_to_move):
+                line[0].remove(value)
+        else:
+            print('Line: ', line[1],': Nothing to move')
+
+    # move all minus point from all lines
+    def move_all_minus_points(self):
+        for line in self.table_left:
+            self.calculate_minus_points_to_move(line)
+    
+    def move_minus_points(self):
+        pass
+    
 
 
+
+    
             
 def main():
     brd = Board()
@@ -319,7 +359,7 @@ def main():
 
         print('underlyings', brd.underlyings)
         player1.choose_line()
-
+        player1.move_all_minus_points()
         player1.print_player_table()
 
         print('bag of used tiles: ', brd.bag_of_used_tiles)
