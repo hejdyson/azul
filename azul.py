@@ -4,7 +4,7 @@ from random import shuffle
 class Board:
     def __init__(self):
         self.number_of_players = 0
-        self.tiles_on_underlying = 4
+        self.tiles_on_underlying = 2
         self.underlyings = []
         self.bag_of_tiles = []
         self.bag_of_used_tiles = [] # used tiles after plays, wait for bag of tiles to be low on tiles to refill it wit everything
@@ -101,7 +101,7 @@ class Player():
     def __init__(self, name):
         self.name = name
         self.first_player = False
-        self.point_from_round = 0
+        self.points_from_round = 0
         self.points_total = 0
         self.take = []
         self.to_the_middle = []
@@ -219,12 +219,15 @@ class Player():
             print('line is full!, Free: ', free_spaces)
             return False
     
-    def line_fully_free(self, line):
+    def line_fully_free(self, line, printing=True):
         if len(self.table_left[line][0]) == 0:
-            print('line ', line + 1, 'is fully free')
+            if printing:
+                print('line ', line + 1, 'is fully free')
             return True
-        print('line ', line + 1, 'is not fully free')
-        return False
+        else:
+            if printing:
+                print('line ', line + 1, 'is not fully free')
+            return False
     
     def same_tile_on_line(self, line):
         for tile in self.table_left[line][0]:
@@ -302,7 +305,7 @@ class Player():
     # calculate number of minus points to move from single line, move them and remove them
     def calculate_minus_points_to_move(self, line):
         # if line is fully free - dont do this calculation
-        if self.line_fully_free(line[1] - 1):
+        if self.line_fully_free(line[1] - 1, printing=False):
             return
         value = line[0][0]
         # if there are more tiles on line than allowed
@@ -321,11 +324,52 @@ class Player():
 
     # move all minus point from all lines
     def move_all_minus_points(self):
+        print('Handling of minus points')
         for line in self.table_left:
             self.calculate_minus_points_to_move(line)
+
+    # adding minus points to score from round
+    def add_minus_points_to_points_from_round(self, board):
+        if len(self.minus_points) > 0:
+            for i in range(len(self.minus_points)):
+                self.points_from_round += board.minus_points[i]
+            # and clear minus points list
+            self.minus_points.clear()
+            print('Points from round after minus points accounted:', self.points_from_round)
+        else:
+            print('No minus points taken this round')
     
-    def move_minus_points(self):
-        pass
+
+    # SECTION FOR PLACING FULL LINE TILES TO THE RIGHT TABLE after end of each round #
+    def place_tile_to_right(self, board, i):
+        print('start placing full tiles to right, line', i + 1)
+        if len(self.table_left[i][0]) == self.table_left[i][1]:
+            print('line full - will be placed to the right')
+            # go through right and place to right place on the right side of the table
+            for item in self.table_right[i]:
+                if item[0] == self.table_left[i][0][0]:
+                    item[1] = True
+                    # HERE WILL BE THE FUNCTION TO GO THROUGH ALL OF THE RIGHT SIDE AND COUNT POINTS SO FAR
+                    
+            # remove 1 tile from left line
+            self.table_left[i][0].pop()
+            # and rest put into bag of used tiles
+            if len(self.table_left[i][0]) != 0:
+                for item in self.table_left[i][0]:
+                    board.bag_of_tiles.append(item)
+                # and clear the line
+                self.table_left[i][0].clear()
+    
+    def place_all_tiles_to_right(self, board):
+        for i in range(5):
+            self.place_tile_to_right(board, i)
+
+
+        
+
+            
+
+
     
 
 
@@ -363,6 +407,12 @@ def main():
         player1.print_player_table()
 
         print('bag of used tiles: ', brd.bag_of_used_tiles)
+    player1.add_minus_points_to_points_from_round(brd)
+    player1.place_all_tiles_to_right(brd)
+    print('After move to right')
+    # print(player1.table_left)
+    # print(player1.table_right)
+    player1.print_player_table()
     print('all underlyings empty - end of round')
 
 if __name__ == '__main__':
