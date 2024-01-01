@@ -4,7 +4,7 @@ from random import shuffle
 class Board:
     def __init__(self):
         self.number_of_players = 0
-        self.tiles_on_underlying = 2
+        self.tiles_on_underlying = 4
         self.underlyings = []
         self.bag_of_tiles = []
         self.bag_of_used_tiles = [] # used tiles after plays, wait for bag of tiles to be low on tiles to refill it wit everything
@@ -119,8 +119,18 @@ class Player():
         
     def print_player_table(self):
         print('Player table: ')
+        # compute longest left side
+        max_len = 0
         for i in range(5):
-            print(self.table_left[i], ' | ', self.table_right[i])
+            if len(self.table_left[i][0]) > max_len:
+                max_len = len(self.table_left[i][0])
+        # then print
+        for i in range(5):
+            len_to_print = max_len - len(self.table_left[i][0])
+            print_setup = len_to_print
+            if len(self.table_left[i][0]) > 0:
+                print_setup = len_to_print + 2
+            print(print_setup*' ', len_to_print*'  ', self.table_left[i], ' | ', self.table_right[i])
         print('Minus points: ', self.minus_points)
         
 
