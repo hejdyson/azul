@@ -112,11 +112,13 @@ class Player():
                            [[], 4], 
                            [[], 5]]
         # value of the tile to be placed there and bool if already placed
-        self.table_right = [[[1, False], [2, False], [3, False], [4, False], [5, False]],
-                            [[5, False], [1, False], [2, False], [3, False], [4, False]],
-                            [[4, False], [5, False], [1, False], [2, False], [3, False]],
-                            [[3, False], [4, False], [5, False], [1, False], [2, False]],
-                            [[2, False], [3, False], [4, False], [5, False], [1, False]]]
+        self.table_right = [[[1, True], [2, False], [3, False], [4, True], [5, False]],
+                            [[5, True], [1, True], [2, False], [3, False], [4, False]],
+                            [[4, False], [5, True], [1, True], [2, False], [3, False]],
+                            [[3, False], [4, False], [5, True], [1, False], [2, True]],
+                            [[2, False], [3, False], [4, True], [5, False], [1, False]]]
+        
+        self.table_right_transposed = [list(i) for i in zip(*self.table_right)]
         
 
     # Function to print player table
@@ -264,7 +266,7 @@ class Player():
                 else:
                     print('life occupied with', self.table_left[i][0])
             # or if the line is still empty
-            if len(self.table_left[i][0]) == 0:
+            if len(self.table_left[i][0]) == 0 and not self.tile_already_placed_on_right(i):
                 print('still place, line empty')
                 empty = True
             if len(self.table_left[i][0]) >= self.table_left[i][1]:
@@ -322,7 +324,7 @@ class Player():
         else:
             print('Line: ', line[1],': Nothing to move')
 
-    # move all minus point from all lines
+    # move all minus point from all lines to the minus_points list - just moving the points
     def move_all_minus_points(self):
         print('Handling of minus points')
         for line in self.table_left:
@@ -330,6 +332,7 @@ class Player():
 
     # adding minus points to score from round
     def add_minus_points_to_points_from_round(self, board):
+        print('Adding minus points...')
         if len(self.minus_points) > 0:
             for i in range(len(self.minus_points)):
                 self.points_from_round += board.minus_points[i]
@@ -341,16 +344,26 @@ class Player():
     
 
     # SECTION FOR PLACING FULL LINE TILES TO THE RIGHT TABLE after end of each round #
+    # Main function for placing ONE tile to right - under more functions to calculate points while placing
     def place_tile_to_right(self, board, i):
         print('start placing full tiles to right, line', i + 1)
         if len(self.table_left[i][0]) == self.table_left[i][1]:
             print('line full - will be placed to the right')
             # go through right and place to right place on the right side of the table
-            for item in self.table_right[i]:
+            for index, item in enumerate(self.table_right[i]):
                 if item[0] == self.table_left[i][0][0]:
                     item[1] = True
+                    print('item 0:', item[0])
+                    print('i:', i)
                     # HERE WILL BE THE FUNCTION TO GO THROUGH ALL OF THE RIGHT SIDE AND COUNT POINTS SO FAR
-                    
+                    # ROW COUNTER: i = line_number, value = item[0], table = self.table_right
+                    points_from_row = self.count_points_from_row(item[0], i, self.table_right)
+                    # COLUMN COUNTER: i = line_number, value = item[0]
+                    points_from_col = self.count_points_from_row(item[0], index, self.table_right_transposed)
+                    substraction = self.compute_row_col_point_subtraction(points_from_row, points_from_col)
+                    self.points_from_round += points_from_row
+                    self.points_from_round += points_from_col
+                    self.points_from_round += substraction
             # remove 1 tile from left line
             self.table_left[i][0].pop()
             # and rest put into bag of used tiles
@@ -359,22 +372,58 @@ class Player():
                     board.bag_of_tiles.append(item)
                 # and clear the line
                 self.table_left[i][0].clear()
+            # and add points to whole counter
     
+    # -> THIS GOES INTO MAIN
+    # Places tiles from all lines 
     def place_all_tiles_to_right(self, board):
         for i in range(5):
             self.place_tile_to_right(board, i)
 
+    # input - value of tile, line number from function above and table - For column the same only table and line_number are transposed
+    def count_points_from_row(self, value, line_number, table, row=True):
+        print('value', value)
+        print('line number', line_number)
+        print('table', table)
+        lock = False
+        row_points_counter = 0
+        count_further = True
+        # goes through single row
+        for item in table[line_number]:
+            if item[1] == True:
+                print('filled value hit')
+                if item[0] == value:
+                    print('value hit, locking counter')
+                    lock = True
+                if count_further:
+                    print('adding + 1')
+                    row_points_counter += 1
+            else:
+                print('empty value')
+                if not lock:
+                    print('not locked yet')
+                    row_points_counter = 0
+                else:
+                    print('false after true hit, stop adding points')
+                    count_further = False
+        print('Adding + ', row_points_counter, 'points.')
+        print(type(row_points_counter))
+        return row_points_counter
+    
+    def compute_row_col_point_subtraction(self, row_points, col_points):
+        if row_points > 1 and col_points > 1:
+            print('bot row and col have more than1 point - no substraction')
+            return 0
+        else: 
+            print('row or col or both have 1 point - substracting -1')
+            return -1
 
-        
-
-            
-
-
+    # help function to print all attributes
+    def print_all_attributes(self):
+        attrs = vars(self)
+        print(', '.join("%s: %s" % item for item in attrs.items()))
     
 
-
-
-    
             
 def main():
     brd = Board()
@@ -407,12 +456,12 @@ def main():
         player1.print_player_table()
 
         print('bag of used tiles: ', brd.bag_of_used_tiles)
-    player1.add_minus_points_to_points_from_round(brd)
     player1.place_all_tiles_to_right(brd)
+    player1.add_minus_points_to_points_from_round(brd)
     print('After move to right')
-    # print(player1.table_left)
-    # print(player1.table_right)
     player1.print_player_table()
+    print('Print all attributes')
+    player1.print_all_attributes()
     print('all underlyings empty - end of round')
 
 if __name__ == '__main__':
