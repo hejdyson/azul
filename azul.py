@@ -4,7 +4,7 @@ from random import shuffle
 class Board:
     def __init__(self):
         self.number_of_players = 2
-        self.tiles_on_underlying = 2
+        self.tiles_on_underlying = 4
         self.underlyings = []
         self.bag_of_tiles = []
         self.bag_of_used_tiles = [] # used tiles after plays, wait for bag of tiles to be low on tiles to refill it wit everything
@@ -147,7 +147,7 @@ class Player():
 
     # Function to print player table
     def print_player_table(self):
-        print('Player table: ')
+        print('Player', self.name, 'table: ')
         # compute longest left side
         max_len = 0
         for i in range(5):
@@ -549,7 +549,7 @@ class Player():
         attrs = vars(self)
         print(', '.join("%s: %s" % item for item in attrs.items()))
 
-
+# create players with generic names
 def create_players(board):
     for i in range(board.number_of_players):
         player = Player('Player ' + str(i + 1))
@@ -558,16 +558,23 @@ def create_players(board):
     for player in board.list_of_players:
         print('player name', player.name)
 
+
+# TODO
+    # Function that determins who won
+        # comparing player stats
+    
+    # Function which displays some statistict from the game in nice format
+
             
 def main():
     brd = Board()
 
-    player1 = Player('Player 1')
+    # player = Player('Player 1')
 
-    create_players(brd)
     # print('number of players', brd.number_of_players)
     # print('underlyings', brd.underlyings)
     brd.select_num_players()
+    create_players(brd)
     brd.draw_underlyings()
     brd.append_bag_of_tiles()
     #print('after addition', brd.bag_of_tiles)
@@ -577,42 +584,54 @@ def main():
     # print('underlyings', brd.underlyings)
 
     round_counter = 1
-    while not player1.row_completed():
+    while True:
         print('Round:', round_counter)
-
-
 
         brd.fill_in_underlyings()
         # print('brd underlyings after fill', brd.underlyings)
 
-        #print('bag_of_tiles after fill', len(brd.bag_of_tiles), brd.bag_of_tiles)
+        # print('bag_of_tiles after fill', len(brd.bag_of_tiles), brd.bag_of_tiles)
 
+        # ONE ROUND
+        player_index = 0
         while not brd.all_underlyings_empty():
-            player1.choose_tile(brd)
-
+            player = brd.list_of_players[player_index]
+            print('Player on turn:', player.name)
+            player.choose_tile(brd)
             print('underlyings', brd.underlyings)
-            player1.choose_line()
-            player1.move_all_minus_points()
-            player1.print_player_table()
+            player.choose_line()
+            player.move_all_minus_points()
+            player.print_player_table()
+            player_index += 1
+            if player_index == len(brd.list_of_players):
+                player_index = 0
         
-        print('all underlyings empty - end of round. Start counting points..')
 
-        player1.place_all_tiles_to_right(brd)
-        player1.add_minus_points_to_points_from_round(brd)
-        print('After move to right')
-        player1.print_player_table()
-        print('bag of used tiles: ', brd.bag_of_used_tiles)
-        print()
-        print('Print all player attributes')
-        player1.print_all_attributes()
+        # COUNTING POINTS AFTER END OF A ROUND
+        game_over = False
+        for player in brd.list_of_players:
+            print()
+            print('all underlyings empty - end of round. Start counting points..')
+            player.print_player_table()
+            player.place_all_tiles_to_right(brd)
+            player.add_minus_points_to_points_from_round(brd)
+            print('After move to right')
+            player.print_player_table()
 
+            # check if row of player completed
+            if player.row_completed():
+                game_over = True
         
+        # print of board stats
         print()
         print('Print all board attributes')
         brd.print_board_stats()
+        print('bag of used tiles: ', brd.bag_of_used_tiles)
+        print()
 
-        # if player1.row_completed():
-
+        if game_over:
+            print('GAME ENDS, round', round_counter)
+            break
 
         round_counter += 1
 
