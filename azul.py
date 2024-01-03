@@ -95,6 +95,13 @@ class Board:
         if count == len(self.underlyings):
             return True
         return False
+    
+    
+    def print_board_stats(self):
+        print('len bag of tiles', len(self.bag_of_tiles))
+        print('len bag of used tiles', len(self.bag_of_used_tiles))
+        attrs = vars(self)
+        print(', '.join("%s: %s" % item for item in attrs.items()))
 
 
 class Player():
@@ -372,18 +379,19 @@ class Player():
                     points_from_row = self.count_points_from_row(item[0], i, self.table_right)
                     # COLUMN COUNTER: i = line_number, value = item[0]
                     points_from_col = self.count_points_from_row(item[0], index, self.table_right_transposed)
-                    substraction = self.compute_row_col_point_substraction(points_from_row, points_from_col)
+                    row_col_substraction = self.compute_row_col_point_substraction(points_from_row, points_from_col)
                     points_from_value_placed += points_from_row
                     points_from_value_placed += points_from_col
-                    points_from_value_placed += substraction
+                    points_from_value_placed += row_col_substraction
                     print('Total points from value placed: ', points_from_value_placed)
                     self.points_from_round += points_from_value_placed
+            print('Points from round after tiles placed to the right: ', self.points_from_round)
             # remove 1 tile from left line
             self.table_left[i][0].pop()
             # and rest put into bag of used tiles
             if len(self.table_left[i][0]) != 0:
                 for item in self.table_left[i][0]:
-                    board.bag_of_tiles.append(item)
+                    board.bag_of_used_tiles.append(item)
                 # and clear the line
                 self.table_left[i][0].clear()
             # and add points to whole counter
@@ -470,15 +478,21 @@ def main():
         player1.choose_line()
         player1.move_all_minus_points()
         player1.print_player_table()
+    
+    print('all underlyings empty - end of round. Start counting points..')
 
-        print('bag of used tiles: ', brd.bag_of_used_tiles)
     player1.place_all_tiles_to_right(brd)
     player1.add_minus_points_to_points_from_round(brd)
     print('After move to right')
     player1.print_player_table()
-    print('Print all attributes')
+    print('bag of used tiles: ', brd.bag_of_used_tiles)
+    print()
+    print('Print all player attributes')
     player1.print_all_attributes()
-    print('all underlyings empty - end of round')
+    print()
+    print('Print all board attributes')
+    brd.print_board_stats()
+
 
 if __name__ == '__main__':
     main()
