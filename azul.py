@@ -12,18 +12,20 @@ class Board:
         self.list_of_players = []
         self.minus_points = [-1, -1, -2, -2, -2, -3, -3]
     
-    # initialization functions
+    # INITIALIZING FUNCTION - only happens once at the beginning
     def select_num_players(self):
         # input from player for testing
         # self.number_of_players = int(input('How many players will play? <2-4>: '))
         self.number_of_players = 2
     
+    # INITIALIZING FUNCTION
     def draw_underlyings(self):
         # last underlying will be the middle field
         num_underlyings = self.number_of_players + 3 + (self.number_of_players - 2) * 1 + 1
         for _ in range(num_underlyings):
             self.underlyings.append([])
 
+    # INITIALIZING FUNCTION
     def append_bag_of_tiles(self):
         for i in range(5):
             for _ in range(20):
@@ -37,7 +39,9 @@ class Board:
                     self.bag_of_tiles.append(4)
                 else:
                     self.bag_of_tiles.append(5)
+            
 
+    # Functions for every round:
     def scramble_bag_of_tiles(self):
         shuffle(self.bag_of_tiles)
 
@@ -359,6 +363,8 @@ class Player():
 
     # adding minus points to score from round
     def add_minus_points_to_points_from_round(self, board):
+        print()
+        print('Points from round after tiles placed to the right: ', self.points_from_round)
         print('Adding minus points...')
         minus_points = 0
         if len(self.minus_points) > 0:
@@ -396,7 +402,6 @@ class Player():
                     points_from_value_placed += row_col_substraction
                     print('Total points from value placed: ', points_from_value_placed)
                     self.points_from_round += points_from_value_placed
-            print('Points from round after tiles placed to the right: ', self.points_from_round)
             # remove 1 tile from left line
             self.table_left[i][0].pop()
             # and rest put into bag of used tiles
@@ -452,6 +457,20 @@ class Player():
         else: 
             print('row or col or both have 1 point - substracting -1')
             return -1
+        
+    # to check AFTER ROUND ENDS if one whole row on the right is filled - when yes - game ends
+    def row_completed(self):
+        for index, row in enumerate(self.table_right):
+            true_counter = 0
+            for item in row:
+                if item[1] == True:
+                    true_counter += 1
+                    if true_counter == 5:
+                        print('Row', index + 1, 'is completed. GAME ENDS')
+                        return True
+        print('No rows completed yet, game continues.')
+        return False
+
 
     # help function to print all attributes
     def print_all_attributes(self):
@@ -462,48 +481,55 @@ class Player():
             
 def main():
     brd = Board()
+
+    player1 = Player('Player 1')
+
     # print('number of players', brd.number_of_players)
     # print('underlyings', brd.underlyings)
     brd.select_num_players()
     brd.draw_underlyings()
+    brd.append_bag_of_tiles()
+    #print('after addition', brd.bag_of_tiles)
 
     # print('number of players', brd.number_of_players)
     # print('underlyings', brd.underlyings)
 
-    brd.append_bag_of_tiles()
-    #print('after addition', brd.bag_of_tiles)
-    brd.scramble_bag_of_tiles()
-    #print('after shuffle', brd.bag_of_tiles)
+    round_counter = 1
+    while not player1.row_completed():
+        print('Round:', round_counter)
 
-    brd.fill_in_underlyings()
-    # print('brd underlyings after fill', brd.underlyings)
+        brd.scramble_bag_of_tiles()
+        #print('after shuffle', brd.bag_of_tiles)
 
-    #print('bag_of_tiles after fill', len(brd.bag_of_tiles), brd.bag_of_tiles)
+        brd.fill_in_underlyings()
+        # print('brd underlyings after fill', brd.underlyings)
 
-    player1 = Player('Player 1')
+        #print('bag_of_tiles after fill', len(brd.bag_of_tiles), brd.bag_of_tiles)
 
-    while not brd.all_underlyings_empty():
-        player1.choose_tile(brd)
+        while not brd.all_underlyings_empty():
+            player1.choose_tile(brd)
 
-        print('underlyings', brd.underlyings)
-        player1.choose_line()
-        player1.move_all_minus_points()
+            print('underlyings', brd.underlyings)
+            player1.choose_line()
+            player1.move_all_minus_points()
+            player1.print_player_table()
+        
+        print('all underlyings empty - end of round. Start counting points..')
+
+        player1.place_all_tiles_to_right(brd)
+        player1.add_minus_points_to_points_from_round(brd)
+        print('After move to right')
         player1.print_player_table()
-    
-    print('all underlyings empty - end of round. Start counting points..')
-
-    player1.place_all_tiles_to_right(brd)
-    player1.add_minus_points_to_points_from_round(brd)
-    print('After move to right')
-    player1.print_player_table()
-    print('bag of used tiles: ', brd.bag_of_used_tiles)
-    print()
-    print('Print all player attributes')
-    player1.print_all_attributes()
-    print()
-    print('Print all board attributes')
-    brd.print_board_stats()
-
+        print('bag of used tiles: ', brd.bag_of_used_tiles)
+        print()
+        print('Print all player attributes')
+        player1.print_all_attributes()
+        print()
+        print('Print all board attributes')
+        brd.print_board_stats()
+        if round_counter == 5:
+            break
+        round_counter += 1
 
 if __name__ == '__main__':
     main()
