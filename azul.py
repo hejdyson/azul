@@ -43,11 +43,17 @@ class Board:
 
     def fill_in_underlyings(self):
         for i in range(len(self.underlyings)):
+            # if middle underlying, also append -1
             if i == len(self.underlyings) - 1:
                 self.underlyings[i].append(-1)
                 break
             for _ in range(self.tiles_on_underlying):
-                self.underlyings[i].append(self.bag_of_tiles.pop())
+                # if no tiles in the bag and still tiles in the used bad -> refill bag with tiles
+                if len(self.bag_of_tiles) == 0 and len(self.bag_of_used_tiles) != 0:
+                    self.refil_bag_of_tiles()
+                # if there are tiles in the bag, append to underlying
+                if len(self.bag_of_tiles) > 0:
+                    self.underlyings[i].append(self.bag_of_tiles.pop())                
     
     def underlying_is_empty(self, index, printing=True):
         if len(self.underlyings[index]) == 0:
@@ -62,19 +68,16 @@ class Board:
             if len(underlying) > 0:
                 print(underlying, 'index: ', index)
         
-
     # checks what tiles are on top of underlying - returns dictionary
     def count_tiles_on_underlying(self, index):
         self.tiles.clear()
         print('tiles on selected underlying:', self.underlyings[index])
-
         # create a dict with tile and number of the on the underlying
         for tile in self.underlyings[index]:
             if tile not in self.tiles:
                 self.tiles[tile] = 1
             else:
                 self.tiles[tile] += 1
-        
         print('possible takes:')
         for item in self.tiles:
             print(item, ' : ', self.tiles[item])
@@ -96,6 +99,14 @@ class Board:
             return True
         return False
     
+    # refilling empty bag of tiles from bag of used tiles
+    def refil_bag_of_tiles(self):
+        for tile in self.bag_of_used_tiles:
+            self.bag_of_tiles.append(tile)
+        # empty bag of used tiles 
+        self.bag_of_used_tiles.clear()
+        # and scramble bag of tiles
+        self.scramble_bag_of_tiles()
     
     def print_board_stats(self):
         print('len bag of tiles', len(self.bag_of_tiles))
