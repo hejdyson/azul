@@ -3,7 +3,7 @@ from random import shuffle
 
 class Board:
     def __init__(self):
-        self.number_of_players = 0
+        self.number_of_players = 2
         self.tiles_on_underlying = 2
         self.underlyings = []
         self.bag_of_tiles = []
@@ -38,12 +38,14 @@ class Board:
                 elif i == 3:
                     self.bag_of_tiles.append(4)
                 else:
-                    self.bag_of_tiles.append(5)
-            
+                    self.bag_of_tiles.append(5)            
 
     # Functions for every round:
     def scramble_bag_of_tiles(self):
         shuffle(self.bag_of_tiles)
+        
+        # FOR TESTING -  to play with the number of tiles
+        # self.bag_of_tiles = self.bag_of_tiles[:15]
 
     def fill_in_underlyings(self):
         for i in range(len(self.underlyings)):
@@ -134,7 +136,7 @@ class Player():
                            [[], 4], 
                            [[], 5]]
         # value of the tile to be placed there and bool if already placed
-        self.table_right = [[[1, True], [2, True], [3, False], [4, True], [5, True]],
+        self.table_right = [[[1, True], [2, True], [3, False], [4, True], [5, False]],
                             [[5, True], [1, True], [2, True], [3, False], [4, False]],
                             [[4, False], [5, True], [1, True], [2, False], [3, False]],
                             [[3, False], [4, False], [5, True], [1, True], [2, True]],
@@ -546,7 +548,15 @@ class Player():
     def print_all_attributes(self):
         attrs = vars(self)
         print(', '.join("%s: %s" % item for item in attrs.items()))
+
+
+def create_players(board):
+    for i in range(board.number_of_players):
+        player = Player('Player ' + str(i + 1))
+        board.list_of_players.append(player)
     
+    for player in board.list_of_players:
+        print('player name', player.name)
 
             
 def main():
@@ -554,13 +564,15 @@ def main():
 
     player1 = Player('Player 1')
 
+    create_players(brd)
     # print('number of players', brd.number_of_players)
     # print('underlyings', brd.underlyings)
     brd.select_num_players()
     brd.draw_underlyings()
     brd.append_bag_of_tiles()
     #print('after addition', brd.bag_of_tiles)
-
+    brd.scramble_bag_of_tiles()
+    #print('after shuffle', brd.bag_of_tiles)
     # print('number of players', brd.number_of_players)
     # print('underlyings', brd.underlyings)
 
@@ -568,8 +580,7 @@ def main():
     while not player1.row_completed():
         print('Round:', round_counter)
 
-        brd.scramble_bag_of_tiles()
-        #print('after shuffle', brd.bag_of_tiles)
+
 
         brd.fill_in_underlyings()
         # print('brd underlyings after fill', brd.underlyings)
@@ -592,11 +603,16 @@ def main():
         player1.print_player_table()
         print('bag of used tiles: ', brd.bag_of_used_tiles)
         print()
-        # print('Print all player attributes')
-        # player1.print_all_attributes()
-        # print()
-        # print('Print all board attributes')
-        # brd.print_board_stats()
+        print('Print all player attributes')
+        player1.print_all_attributes()
+
+        
+        print()
+        print('Print all board attributes')
+        brd.print_board_stats()
+
+        # if player1.row_completed():
+
 
         round_counter += 1
 
