@@ -134,11 +134,11 @@ class Player():
                            [[], 4], 
                            [[], 5]]
         # value of the tile to be placed there and bool if already placed
-        self.table_right = [[[1, True], [2, False], [3, False], [4, True], [5, False]],
-                            [[5, True], [1, True], [2, False], [3, False], [4, False]],
+        self.table_right = [[[1, True], [2, True], [3, False], [4, True], [5, True]],
+                            [[5, True], [1, True], [2, True], [3, False], [4, False]],
                             [[4, False], [5, True], [1, True], [2, False], [3, False]],
-                            [[3, False], [4, False], [5, True], [1, False], [2, True]],
-                            [[2, False], [3, False], [4, True], [5, False], [1, False]]]
+                            [[3, False], [4, False], [5, True], [1, True], [2, True]],
+                            [[2, False], [3, False], [4, True], [5, False], [1, True]]]
         
         self.table_right_transposed = [list(i) for i in zip(*self.table_right)]
         
@@ -376,7 +376,6 @@ class Player():
         print('Points from round after minus points accounted:', self.points_from_round)
         self.points_total += self.points_from_round
         self.minus_points.clear()
-        self.points_from_round = 0
     
 
     # SECTION FOR PLACING FULL LINE TILES TO THE RIGHT TABLE after end of each round #
@@ -467,9 +466,80 @@ class Player():
                     true_counter += 1
                     if true_counter == 5:
                         print('Row', index + 1, 'is completed. GAME ENDS')
+                        print()
+                        self.print_player_table()
+                        self.count_ending_points()
                         return True
         print('No rows completed yet, game continues.')
+        print()
         return False
+    
+    # FUNCTIONS TO COUNT EXTRA POINTS AFTER GAME ENDS #
+    # Counting full rows
+    def count_completed_rows(self):
+        full_rows_counter = 0
+        for index, row in enumerate(self.table_right):
+            true_counter = 0
+            for item in row:
+                if item[1] == True:
+                    true_counter += 1
+                    if true_counter == 5:
+                        print('Row', index + 1, 'completed. + 2 points.')
+                        full_rows_counter += 1
+        print('Rows completed: ', full_rows_counter)
+        print('Points from rows: ', full_rows_counter * 2)
+        return full_rows_counter
+
+    # Counting full columns
+    def count_completed_cols(self):
+        full_cols_counter = 0
+        for index, row in enumerate(self.table_right_transposed):
+            true_counter = 0
+            for item in row:
+                if item[1] == True:
+                    true_counter += 1
+                    if true_counter == 5:
+                        print('Column', index + 1, 'completed. + 7 points.')
+                        full_cols_counter += 1
+        print('Columns completed: ', full_cols_counter)
+        print('Points from columns: ', full_cols_counter * 7)
+        return full_cols_counter
+    
+    # Counting full colors
+    def count_completed_colors(self):
+        all_placed_tiles_dict = dict()
+        # append all placed tiles (True on right) to a dict
+        for row in self.table_right:
+            for item in row:
+                if item[1] == True:
+                    if item[0] not in all_placed_tiles_dict:
+                        all_placed_tiles_dict[item[0]] = 1
+                    else:
+                        all_placed_tiles_dict[item[0]] += 1
+        full_color_counter = 0
+        for item in all_placed_tiles_dict:
+            if all_placed_tiles_dict[item] == 5:
+                print('Color', item, 'completed, + 10 points.')
+                full_color_counter += 1
+        print('Colors completed: ', full_color_counter)
+        print('Points from colors: ', full_color_counter * 10)
+        return full_color_counter
+    
+    # main function
+    def count_ending_points(self):
+        ending_points = 0
+        ending_points += self.count_completed_rows() * 2
+        ending_points += self.count_completed_cols() * 7
+        ending_points += self.count_completed_colors() * 10
+        print('Points from rows, columns and colors: ', ending_points)
+        # add ending points to points from round
+        self.points_from_round += ending_points
+        print('Points from round after ending points: ', self.points_from_round)
+        # add points from round to total points
+        self.points_total += self.points_from_round
+        print('Total points: ', self.points_total)
+        # reseting points from round
+        self.points_from_round = 0
 
 
     # help function to print all attributes
@@ -522,14 +592,14 @@ def main():
         player1.print_player_table()
         print('bag of used tiles: ', brd.bag_of_used_tiles)
         print()
-        print('Print all player attributes')
-        player1.print_all_attributes()
-        print()
-        print('Print all board attributes')
-        brd.print_board_stats()
-        if round_counter == 5:
-            break
+        # print('Print all player attributes')
+        # player1.print_all_attributes()
+        # print()
+        # print('Print all board attributes')
+        # brd.print_board_stats()
+
         round_counter += 1
+
 
 if __name__ == '__main__':
     main()
