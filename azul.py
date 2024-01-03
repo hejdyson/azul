@@ -204,39 +204,37 @@ class Player():
                 index = i
                 break
         if self.table_right[line][index][1] == True:
-            print('tile already placed on the right')
+            # print('tile already placed on the right')
             return True
         else:
-            print('tile is not on the right, free to place here')
+            # print('tile is not on the right, free to place here')
             return False
 
     def line_has_free_space(self, line):
         free_spaces = self.table_left[line][1] - len(self.table_left[line][0])
         if free_spaces > 0:
-            print('line has free space, ', free_spaces, ' positions are free')
-            if len(self.take) > free_spaces:
-                print('Warning, not enough space - points will be deducted.')
+            # print('line has free space, ', free_spaces, ' positions are free')
+            # if len(self.take) > free_spaces:
+                # print('Warning, not enough space - points will be deducted.')
             return True
         else:
-            print('line is full!, Free: ', free_spaces)
+            # print('line is full!, Free: ', free_spaces)
             return False
     
-    def line_fully_free(self, line, printing=True):
+    def line_fully_free(self, line):
         if len(self.table_left[line][0]) == 0:
-            if printing:
-                print('line ', line + 1, 'is fully free')
+            # print('line ', line + 1, 'is fully free')
             return True
         else:
-            if printing:
-                print('line ', line + 1, 'is not fully free')
+            # print('line ', line + 1, 'is not fully free')
             return False
     
     def same_tile_on_line(self, line):
         for tile in self.table_left[line][0]:
             if tile == self.take[0]:
-                print('same tiles on line ', line + 1, 'possible to place here')
+                # print('same tiles on line ', line + 1, 'possible to place here')
                 return True
-        print('different tiles on line ', line + 1, 'cannot place here')
+        # print('different tiles on line ', line + 1, 'cannot place here')
         return False
 
     def is_line_placeable(self, line):
@@ -253,7 +251,18 @@ class Player():
         print('Line not placeable')
         return False
     
-    # check all lines if there is place for selected tiles
+    # v2 version of no lines placeable function
+    def no_lines_placeable_v2(self):
+        placeable = False
+        for i in range(5):
+            print('line:', i + 1, ' - ', end='')
+            if self.is_line_placeable(i):
+                placeable = True
+        if placeable:
+            return False
+        return True
+    
+    # NOT USED check all lines if there is place for selected tiles
     def no_lines_placeable(self):
         empty = False
         for i in range(5):
@@ -282,7 +291,7 @@ class Player():
     def choose_line(self):
         while True:
             # if there are no lines to place selected tiles, tiles ppend to self.minus_points
-            if self.no_lines_placeable():
+            if self.no_lines_placeable_v2():
                 for item in self.take:
                     self.minus_points.append(item)
                 self.take.clear()
@@ -307,7 +316,7 @@ class Player():
     # calculate number of minus points to move from single line, move them and remove them
     def calculate_minus_points_to_move(self, line):
         # if line is fully free - dont do this calculation
-        if self.line_fully_free(line[1] - 1, printing=False):
+        if self.line_fully_free(line[1] - 1):
             return
         value = line[0][0]
         # if there are more tiles on line than allowed
@@ -360,7 +369,7 @@ class Player():
                     points_from_row = self.count_points_from_row(item[0], i, self.table_right)
                     # COLUMN COUNTER: i = line_number, value = item[0]
                     points_from_col = self.count_points_from_row(item[0], index, self.table_right_transposed)
-                    substraction = self.compute_row_col_point_subtraction(points_from_row, points_from_col)
+                    substraction = self.compute_row_col_point_substraction(points_from_row, points_from_col)
                     self.points_from_round += points_from_row
                     self.points_from_round += points_from_col
                     self.points_from_round += substraction
@@ -381,7 +390,7 @@ class Player():
             self.place_tile_to_right(board, i)
 
     # input - value of tile, line number from function above and table - For column the same only table and line_number are transposed
-    def count_points_from_row(self, value, line_number, table, row=True):
+    def count_points_from_row(self, value, line_number, table):
         print('value', value)
         print('line number', line_number)
         print('table', table)
@@ -410,7 +419,7 @@ class Player():
         print(type(row_points_counter))
         return row_points_counter
     
-    def compute_row_col_point_subtraction(self, row_points, col_points):
+    def compute_row_col_point_substraction(self, row_points, col_points):
         if row_points > 1 and col_points > 1:
             print('bot row and col have more than1 point - no substraction')
             return 0
