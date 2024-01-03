@@ -263,7 +263,7 @@ class Player():
         return True
     
     # NOT USED check all lines if there is place for selected tiles
-    def no_lines_placeable(self):
+    def NOT_USED_no_lines_placeable(self):
         empty = False
         for i in range(5):
             print('line: ', i + 1, end=' - ')
@@ -312,7 +312,7 @@ class Player():
                 continue
 
     
-    # FUNCTIONS TO HANDLE MINUS POINTS ON THE LEFT SIDE #
+    # FUNCTIONS TO HANDLE MINUS POINTS ON THE LEFT SIDE - if more than allowed ammount of tiles is placet to a line #
     # calculate number of minus points to move from single line, move them and remove them
     def calculate_minus_points_to_move(self, line):
         # if line is fully free - dont do this calculation
@@ -342,37 +342,42 @@ class Player():
     # adding minus points to score from round
     def add_minus_points_to_points_from_round(self, board):
         print('Adding minus points...')
+        minus_points = 0
         if len(self.minus_points) > 0:
             for i in range(len(self.minus_points)):
-                self.points_from_round += board.minus_points[i]
+                minus_points += board.minus_points[i]
             # and clear minus points list
-            self.minus_points.clear()
-            print('Points from round after minus points accounted:', self.points_from_round)
-        else:
-            print('No minus points taken this round')
+            self.points_from_round += minus_points
+        print('Minus points this round:', minus_points)
+        print('Points from round after minus points accounted:', self.points_from_round)
+        self.points_total += self.points_from_round
+        self.minus_points.clear()
+        self.points_from_round = 0
     
 
     # SECTION FOR PLACING FULL LINE TILES TO THE RIGHT TABLE after end of each round #
     # Main function for placing ONE tile to right - under more functions to calculate points while placing
     def place_tile_to_right(self, board, i):
+        points_from_value_placed = 0
+        print()
         print('start placing full tiles to right, line', i + 1)
         if len(self.table_left[i][0]) == self.table_left[i][1]:
-            print('line full - will be placed to the right')
+            print('line full - will be placed to the right, value:', self.table_left[i][0][0])
             # go through right and place to right place on the right side of the table
             for index, item in enumerate(self.table_right[i]):
                 if item[0] == self.table_left[i][0][0]:
                     item[1] = True
-                    print('item 0:', item[0])
-                    print('i:', i)
                     # HERE WILL BE THE FUNCTION TO GO THROUGH ALL OF THE RIGHT SIDE AND COUNT POINTS SO FAR
                     # ROW COUNTER: i = line_number, value = item[0], table = self.table_right
                     points_from_row = self.count_points_from_row(item[0], i, self.table_right)
                     # COLUMN COUNTER: i = line_number, value = item[0]
                     points_from_col = self.count_points_from_row(item[0], index, self.table_right_transposed)
                     substraction = self.compute_row_col_point_substraction(points_from_row, points_from_col)
-                    self.points_from_round += points_from_row
-                    self.points_from_round += points_from_col
-                    self.points_from_round += substraction
+                    points_from_value_placed += points_from_row
+                    points_from_value_placed += points_from_col
+                    points_from_value_placed += substraction
+                    print('Total points from value placed: ', points_from_value_placed)
+                    self.points_from_round += points_from_value_placed
             # remove 1 tile from left line
             self.table_left[i][0].pop()
             # and rest put into bag of used tiles
@@ -391,34 +396,36 @@ class Player():
 
     # input - value of tile, line number from function above and table - For column the same only table and line_number are transposed
     def count_points_from_row(self, value, line_number, table):
-        print('value', value)
-        print('line number', line_number)
-        print('table', table)
+        # print('value', value)
+        # print('line number', line_number + 1)
         lock = False
         row_points_counter = 0
         count_further = True
         # goes through single row
         for item in table[line_number]:
             if item[1] == True:
-                print('filled value hit')
+                # print('filled value hit')
                 if item[0] == value:
-                    print('value hit, locking counter')
+                    # print('value hit, locking counter')
                     lock = True
                 if count_further:
-                    print('adding + 1')
+                    # print('adding + 1')
                     row_points_counter += 1
             else:
-                print('empty value')
+                # print('empty value')
                 if not lock:
-                    print('not locked yet')
+                    # print('not locked yet')
                     row_points_counter = 0
                 else:
-                    print('false after true hit, stop adding points')
+                    # print('false after true hit, stop adding points')
                     count_further = False
         print('Adding + ', row_points_counter, 'points.')
-        print(type(row_points_counter))
         return row_points_counter
     
+    # to remove duplicit points when column or row have only single tile
+    #   # # #                            #
+    #   #                    # # #       #
+    #   #    ... 6 points ,         or   #  ... 3 points (function calculates 4 - therefore this function to substract -1)
     def compute_row_col_point_substraction(self, row_points, col_points):
         if row_points > 1 and col_points > 1:
             print('bot row and col have more than1 point - no substraction')
