@@ -1,10 +1,10 @@
-from random import shuffle
+from random import shuffle, randint
 
 
 class Board:
     def __init__(self):
         self.number_of_players = 2
-        self.tiles_on_underlying = 2
+        self.tiles_on_underlying = 4
         self.underlyings = []
         self.bag_of_tiles = []
         self.bag_of_used_tiles = [] # used tiles after plays, wait for bag of tiles to be low on tiles to refill it wit everything
@@ -16,7 +16,7 @@ class Board:
     def select_num_players(self):
         # input from player for testing
         # self.number_of_players = int(input('How many players will play? <2-4>: '))
-        self.number_of_players = 2
+        self.number_of_players = 3
     
     # INITIALIZING FUNCTION
     def draw_underlyings(self):
@@ -136,11 +136,11 @@ class Player():
                            [[], 4], 
                            [[], 5]]
         # value of the tile to be placed there and bool if already placed
-        self.table_right = [[[1, True], [2, True], [3, False], [4, True], [5, True]],
-                            [[5, True], [1, True], [2, True], [3, False], [4, False]],
-                            [[4, False], [5, True], [1, True], [2, False], [3, False]],
-                            [[3, False], [4, False], [5, True], [1, True], [2, True]],
-                            [[2, False], [3, False], [4, True], [5, False], [1, True]]]
+        self.table_right = [[[1, False], [2, False], [3, False], [4, False], [5, False]],
+                            [[5, False], [1, False], [2, False], [3, False], [4, False]],
+                            [[4, False], [5, False], [1, False], [2, False], [3, False]],
+                            [[3, False], [4, False], [5, False], [1, False], [2, False]],
+                            [[2, False], [3, False], [4, False], [5, False], [1, False]]]
         
         self.table_right_transposed = [list(i) for i in zip(*self.table_right)]
         
@@ -168,7 +168,11 @@ class Player():
         while True:
             # choose underlying
             print('Board underlyings: ' , board.underlyings)
-            underlying_choice = int(input('Which underlying do you choose? ')) - 1
+            # PLAYER
+            # underlying_choice = int(input('Which underlying do you choose? ')) - 1
+            # RANDOM BOT FOR TESTING
+            underlying_choice = randint(1, len(board.underlyings)) - 1
+            print('underlying choice: ', underlying_choice + 1)
             # check if not empty
             if board.underlying_is_empty(underlying_choice):
                 board.print_available_underlyings()
@@ -194,7 +198,11 @@ class Player():
             middle_underlying = True
         while True:
             # choose specific tiles
-            tile_choice = int(input('Which tile do you want? '))
+            # PLAYER CHOICE
+            # tile_choice = int(input('Which tile do you want? '))
+            # RANDOM BOT CHOICE
+            tile_choice = randint(1, 5)
+            print('tile choice: ', tile_choice)
             # check if tiles available
             if board.valid_tile_selected(tile_choice):
                 # if yes - give them to players hand
@@ -323,7 +331,11 @@ class Player():
                 break
             # choose specific tiles
             self.print_player_table()
-            line_choice = int(input('Which line do you choose to place your tiles? ' + str(self.take) + ' :')) - 1
+            # PLAYER CHOICE
+            # line_choice = int(input('Which line do you choose to place your tiles? ' + str(self.take) + ' :')) - 1
+            # RANDOM BOT CHOICE
+            line_choice = randint(1, 5) - 1
+            print('line choice: ', line_choice)
             if self.is_line_placeable(line_choice):
                 # place all tiles from hand to table left line choice
                 for item in self.take:
@@ -371,6 +383,8 @@ class Player():
         minus_points = 0
         if len(self.minus_points) > 0:
             for i in range(len(self.minus_points)):
+                if i == len(board.minus_points):
+                    break
                 minus_points += board.minus_points[i]
             # and clear minus points list
             self.points_from_round += minus_points
@@ -611,6 +625,7 @@ def main():
         while not brd.all_underlyings_empty():
             player = brd.list_of_players[player_index]
             print()
+            player.print_player_table()
             print('Player on turn:', player.name)
             player.choose_tile(brd)
             print('underlyings', brd.underlyings)
@@ -628,9 +643,9 @@ def main():
             print('all underlyings empty - end of round. Start counting points..')
             player.print_player_table()
             player.place_all_tiles_to_right(brd)
+            player.add_minus_points_to_points_from_round(brd)
             print('After move to right')
             player.print_player_table()
-            player.add_minus_points_to_points_from_round(brd)
 
             # check if row of player completed
             if player.row_completed():
@@ -640,7 +655,8 @@ def main():
         print()
         # print('Print all board attributes')
         # brd.print_board_stats()
-        print('bag of used tiles: ', brd.bag_of_used_tiles)
+        print('bag of tiles: ', brd.bag_of_tiles, '(', len(brd.bag_of_tiles), ')')
+        print('bag of used tiles: ', brd.bag_of_used_tiles, '(', len(brd.bag_of_used_tiles), ')')
         print()
 
         if game_over:
