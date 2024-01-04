@@ -355,15 +355,20 @@ class Player():
     # BOT LINE CHOICE
     def bot_line_choice(self):
         # list of line indexes
-        line_choice_list = [1, 2, 3, 4, 5]
+        line_choice_list = []
+        # goes through all lines and chooses good ones
         for index, line in enumerate(self.table_left):
-            if len(line[0]) > 0:
+            # condition 1 - same tile already on line
+            if line[1] > len(line[0]) > 0:
                 if line[0][0] == self.take[0]:
-                    for _ in range(15):
+                    for _ in range(20):
                         line_choice_list.append(index + 1)
-            if line[1] == len(self.take):
-                for _ in range(4):
+            # condition 2 - line empty and equal length of take
+            if line[1] == len(self.take) and len(line[0]) == 0:
+                for _ in range(15):
                     line_choice_list.append(index + 1)
+        # if no lines chosen - generic list
+        line_choice_list = [1, 2, 3, 4, 4, 5, 5]
         line_choice = line_choice_list[randint(0, len(line_choice_list) - 1)]
         print('line_choice_list', line_choice_list)
         return line_choice
@@ -405,10 +410,11 @@ class Player():
         minus_points = 0
         if len(self.minus_points) > 0:
             for i in range(len(self.minus_points)):
+                # maximum of minus points defined in board (-1, -1, -2, -2, -2, -3, -3)
                 if i == len(board.minus_points):
                     break
                 minus_points += board.minus_points[i]
-            # and clear minus points list
+            # add minus points to points from round
             self.points_from_round += minus_points
         print('Minus points this round:', minus_points)
         print('Points from round after minus points accounted:', self.points_from_round)
@@ -417,6 +423,10 @@ class Player():
         print('Total points so far: ', self.points_total)
         # TODO HERE IS THE PLACE TO ADD FUNCTION TO TAKE STATS FOR EVERY ROUND FOR ALL PLAYERS
 
+        # move minus points to bag of used tiles
+        for minus_point in self.minus_points:
+            if minus_point != -1:
+                board.bag_of_used_tiles.append(minus_point)
         # reset minus points and reset points from round to 0
         self.minus_points.clear()
         self.points_from_round = 0
@@ -686,6 +696,8 @@ def main():
                 player.count_ending_points()
             display_final_score(brd)
             break
+        
+        # another = int(input('Continue?'))
 
         round_counter += 1
 
