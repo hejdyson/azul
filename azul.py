@@ -182,10 +182,13 @@ class Player():
                 print('Player ' + self.name + ' chose ' + str(underlying_choice + 1) + ' -> ' +str(board.underlyings[underlying_choice]))
                 # first to take middle underlying gets start player status and receives -1 to the minus points
                 if -1 in board.underlyings[underlying_choice]:
-                    board.underlyings[underlying_choice].remove(-1)
-                    self.first_player = True
-                    self.minus_points.append(-1)
-                    print('first to take the middle')
+                    if len(board.underlyings[underlying_choice]) == 1:
+                        continue
+                    else:
+                        board.underlyings[underlying_choice].remove(-1)
+                        self.first_player = True
+                        self.minus_points.append(-1)
+                        print('first to take the middle')
                 return underlying_choice
 
 
@@ -334,8 +337,9 @@ class Player():
             # PLAYER CHOICE
             # line_choice = int(input('Which line do you choose to place your tiles? ' + str(self.take) + ' :')) - 1
             # RANDOM BOT CHOICE
-            line_choice = randint(1, 5) - 1
+            line_choice = self.bot_line_choice()
             print('line choice: ', line_choice)
+            line_choice -= 1
             if self.is_line_placeable(line_choice):
                 # place all tiles from hand to table left line choice
                 for item in self.take:
@@ -346,6 +350,24 @@ class Player():
                 break
             else:
                 continue
+    
+
+    # BOT LINE CHOICE
+    def bot_line_choice(self):
+        # list of line indexes
+        line_choice_list = [1, 2, 3, 4, 5]
+        for index, line in enumerate(self.table_left):
+            if len(line[0]) > 0:
+                if line[0][0] == self.take[0]:
+                    for _ in range(15):
+                        line_choice_list.append(index + 1)
+            if line[1] == len(self.take):
+                for _ in range(4):
+                    line_choice_list.append(index + 1)
+        line_choice = line_choice_list[randint(0, len(line_choice_list) - 1)]
+        print('line_choice_list', line_choice_list)
+        return line_choice
+        
 
     
     # FUNCTIONS TO HANDLE MINUS POINTS ON THE LEFT SIDE - if more than allowed ammount of tiles is placet to a line #
@@ -561,6 +583,7 @@ class Player():
         self.points_total += ending_points
         print()
         print('Total points: ', self.points_total)
+        print('\n')
         # reseting points from round
         self.points_from_round = 0
 
@@ -604,10 +627,6 @@ def display_final_score(board):
 def main():
     brd = Board()
 
-    # player = Player('Player 1')
-
-    # print('number of players', brd.number_of_players)
-    # print('underlyings', brd.underlyings)
     brd.select_num_players()
     create_players(brd)
     brd.draw_underlyings()
