@@ -4,7 +4,7 @@ from random import shuffle
 class Board:
     def __init__(self):
         self.number_of_players = 2
-        self.tiles_on_underlying = 4
+        self.tiles_on_underlying = 2
         self.underlyings = []
         self.bag_of_tiles = []
         self.bag_of_used_tiles = [] # used tiles after plays, wait for bag of tiles to be low on tiles to refill it wit everything
@@ -136,7 +136,7 @@ class Player():
                            [[], 4], 
                            [[], 5]]
         # value of the tile to be placed there and bool if already placed
-        self.table_right = [[[1, True], [2, True], [3, False], [4, True], [5, False]],
+        self.table_right = [[[1, True], [2, True], [3, False], [4, True], [5, True]],
                             [[5, True], [1, True], [2, True], [3, False], [4, False]],
                             [[4, False], [5, True], [1, True], [2, False], [3, False]],
                             [[3, False], [4, False], [5, True], [1, True], [2, True]],
@@ -377,7 +377,13 @@ class Player():
         print('Minus points this round:', minus_points)
         print('Points from round after minus points accounted:', self.points_from_round)
         self.points_total += self.points_from_round
+        print()
+        print('Total points so far: ', self.points_total)
+        # TODO HERE IS THE PLACE TO ADD FUNCTION TO TAKE STATS FOR EVERY ROUND FOR ALL PLAYERS
+
+        # reset minus points and reset points from round to 0
         self.minus_points.clear()
+        self.points_from_round = 0
     
 
     # SECTION FOR PLACING FULL LINE TILES TO THE RIGHT TABLE after end of each round #
@@ -398,6 +404,7 @@ class Player():
                     # COLUMN COUNTER: i = line_number, value = item[0]
                     points_from_col = self.count_points_from_row(item[0], index, self.table_right_transposed)
                     row_col_substraction = self.compute_row_col_point_substraction(points_from_row, points_from_col)
+                    # THIS IS DURING GAME!! NOT AFTER - IT IS CORRECT
                     points_from_value_placed += points_from_row
                     points_from_value_placed += points_from_col
                     points_from_value_placed += row_col_substraction
@@ -453,7 +460,7 @@ class Player():
     #   #    ... 6 points ,         or   #  ... 3 points (function calculates 4 - therefore this function to substract -1)
     def compute_row_col_point_substraction(self, row_points, col_points):
         if row_points > 1 and col_points > 1:
-            print('bot row and col have more than1 point - no substraction')
+            print('both row and col have more than 1 point - no substraction')
             return 0
         else: 
             print('row or col or both have 1 point - substracting -1')
@@ -467,11 +474,11 @@ class Player():
                 if item[1] == True:
                     true_counter += 1
                     if true_counter == 5:
+                        print()
                         print('Row', index + 1, 'is completed. GAME ENDS')
                         print()
-                        self.print_player_table()
-                        self.count_ending_points()
                         return True
+        print()
         print('No rows completed yet, game continues.')
         print()
         return False
@@ -533,12 +540,12 @@ class Player():
         ending_points += self.count_completed_rows() * 2
         ending_points += self.count_completed_cols() * 7
         ending_points += self.count_completed_colors() * 10
+        print('Total points so far: ', self.points_total)
+        # print ending points
         print('Points from rows, columns and colors: ', ending_points)
-        # add ending points to points from round
-        self.points_from_round += ending_points
-        print('Points from round after ending points: ', self.points_from_round)
-        # add points from round to total points
-        self.points_total += self.points_from_round
+        # add ending points to total points
+        self.points_total += ending_points
+        print()
         print('Total points: ', self.points_total)
         # reseting points from round
         self.points_from_round = 0
@@ -559,10 +566,24 @@ def create_players(board):
         print('player name', player.name)
 
 
+def display_final_score(board):
+    players_to_sort = []
+    for player in board.list_of_players:
+        players_to_sort.append((player.name, player.points_total))
+    players_sorted = sorted(players_to_sort, key=lambda player: player[1], reverse=True)
+    print('')
+    print('---------------------------')
+    print('The Winner is: ', players_sorted[0][0])
+    print('---------------------------')
+    print()
+    print('Final score:')
+    print('---------------------------')
+    print('Player Name\tTotal Points')
+    print('-------------+--------------')
+    for player in players_sorted:
+        print(player[0], '\t', player[1])
+
 # TODO
-    # Function that determins who won
-        # comparing player stats
-    
     # Function which displays some statistict from the game in nice format
 
             
@@ -579,23 +600,17 @@ def main():
     brd.append_bag_of_tiles()
     #print('after addition', brd.bag_of_tiles)
     brd.scramble_bag_of_tiles()
-    #print('after shuffle', brd.bag_of_tiles)
-    # print('number of players', brd.number_of_players)
-    # print('underlyings', brd.underlyings)
 
     round_counter = 1
     while True:
         print('Round:', round_counter)
-
         brd.fill_in_underlyings()
-        # print('brd underlyings after fill', brd.underlyings)
-
-        # print('bag_of_tiles after fill', len(brd.bag_of_tiles), brd.bag_of_tiles)
 
         # ONE ROUND
         player_index = 0
         while not brd.all_underlyings_empty():
             player = brd.list_of_players[player_index]
+            print()
             print('Player on turn:', player.name)
             player.choose_tile(brd)
             print('underlyings', brd.underlyings)
@@ -605,7 +620,6 @@ def main():
             player_index += 1
             if player_index == len(brd.list_of_players):
                 player_index = 0
-        
 
         # COUNTING POINTS AFTER END OF A ROUND
         game_over = False
@@ -614,9 +628,9 @@ def main():
             print('all underlyings empty - end of round. Start counting points..')
             player.print_player_table()
             player.place_all_tiles_to_right(brd)
-            player.add_minus_points_to_points_from_round(brd)
             print('After move to right')
             player.print_player_table()
+            player.add_minus_points_to_points_from_round(brd)
 
             # check if row of player completed
             if player.row_completed():
@@ -624,13 +638,18 @@ def main():
         
         # print of board stats
         print()
-        print('Print all board attributes')
-        brd.print_board_stats()
+        # print('Print all board attributes')
+        # brd.print_board_stats()
         print('bag of used tiles: ', brd.bag_of_used_tiles)
         print()
 
         if game_over:
             print('GAME ENDS, round', round_counter)
+            print('Counting final points for all players')
+            for player in brd.list_of_players:
+                player.print_player_table()
+                player.count_ending_points()
+            display_final_score(brd)
             break
 
         round_counter += 1
