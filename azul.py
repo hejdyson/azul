@@ -274,6 +274,7 @@ class Player():
         # print('different tiles on line ', line + 1, 'cannot place here')
         return False
 
+    
     def is_line_placeable(self, line):
         # first check if tile is not already placed on the right
         if not self.tile_already_placed_on_right(line):
@@ -298,31 +299,6 @@ class Player():
         if placeable:
             return False
         return True
-    
-    # NOT USED check all lines if there is place for selected tiles
-    def NOT_USED_no_lines_placeable(self):
-        empty = False
-        for i in range(5):
-            print('line: ', i + 1, end=' - ')
-            # same tiles already on line and still free space -> then OK
-            if len(self.table_left[i][0]) > 0 and len(self.table_left[i][0]) < self.table_left[i][1]:
-                if self.take[0] == self.table_left[i][0][0]:
-                    print('still place, not empty, only for ', self.take, 'free places: ', self.table_left[i][1] - len(self.table_left[i][0]))
-                    empty = True
-                else:
-                    print('life occupied with', self.table_left[i][0])
-            # or if the line is still empty
-            if len(self.table_left[i][0]) == 0 and not self.tile_already_placed_on_right(i):
-                print('still place, line empty')
-                empty = True
-            if len(self.table_left[i][0]) >= self.table_left[i][1]:
-                print('line full')
-        if empty == True:
-            return False
-        # if no line has free space for selected tile - returns True
-        print('no lines placeable')
-        return True
-
 
     # Main functions that takes all checking functions above and places seleted tiles to the line
     def choose_line(self):
@@ -360,20 +336,35 @@ class Player():
         line_choice_list = []
         # goes through all lines and chooses good ones
         for index, line in enumerate(self.table_left):
-            # condition 1 - same tile already on line
+            # condition 1 - same tile already on line - 
             if line[1] > len(line[0]) > 0:
                 if line[0][0] == self.take[0]:
-                    for _ in range(20):
+                    # print('line: ', line[1])
+                    # ideal_take = int(input('take same as line value, continue?'))
+                    for _ in range(5):
                         line_choice_list.append(index + 1)
+                    if line[1] - len(line[0]) == len(self.take):
+                        for _ in range(10):
+                            line_choice_list.append(index + 1)
+                        # print('line: ', line[1])
+                        # ideal_take = int(input('ideal value hit, continue?'))
             # condition 2 - line empty and equal length of take
             if line[1] == len(self.take) and len(line[0]) == 0:
-                for _ in range(15):
+                # print('line: ', line[1])
+                # ideal_take = int(input('line empty and equal length of take, continue?'))
+                for _ in range(8):
                     line_choice_list.append(index + 1)
         # if no lines chosen - generic list
         line_choice_list = [1, 2, 3, 4, 4, 5, 5]
         line_choice = line_choice_list[randint(0, len(line_choice_list) - 1)]
         print('line_choice_list', line_choice_list)
         return line_choice
+
+        
+    def bot_underlying_choice(self):
+        pass
+    
+
         
 
     
@@ -616,19 +607,19 @@ def create_players(board):
     for player in board.list_of_players:
         print('player name', player.name)
 
-
+# Displaying final score
 def display_final_score(board):
     players_to_sort = []
     for player in board.list_of_players:
         players_to_sort.append(player)
     players_sorted = sorted(players_to_sort, key=lambda player: player.points_total, reverse=True)
     print('')
-    print('---------------------------')
+    print('----------------------------')
     print('The Winner is: ', players_sorted[0].name)
-    print('---------------------------')
+    print('----------------------------')
     print()
     print('Final score:')
-    print('---------------------------')
+    print('----------------------------')
     print('Player Name\tTotal Points')
     print('-------------+--------------')
     for player in players_sorted:
@@ -636,7 +627,7 @@ def display_final_score(board):
     
     display_stats_from_rounds(players_sorted)
 
-
+# Displaying stats from all rounds
 def display_stats_from_rounds(players_sorted):
     print()
     print('Stats from all rounds:')
@@ -653,12 +644,14 @@ def display_stats_from_rounds(players_sorted):
         for player in players_sorted:
             print(player.list_of_total_points[round_index], ' (', player.list_of_points_from_rounds[round_index], ') ', end='\t')
         print()
-    print('-'*50)
+    print('-'*60)
     # printing total points from the end
     print('Total', end='\t\t')
+    sum_points_total = 0
     for player in players_sorted:
         print(player.points_total, end='\t\t')
-
+        sum_points_total += player.points_total
+    print('||', sum_points_total, '||')
 
             
 def main():
