@@ -128,6 +128,7 @@ class Player():
         self.points_from_round = 0
         self.list_of_points_from_rounds = []
         self.list_of_total_points = []
+        self.ending_points = 0
         self.points_total = 0
         self.take = []
         self.to_the_middle = []
@@ -173,7 +174,7 @@ class Player():
             # PLAYER
             # underlying_choice = int(input('Which underlying do you choose? ')) - 1
             # RANDOM BOT FOR TESTING
-            underlying_choice = randint(1, len(board.underlyings)) - 1
+            underlying_choice = self.bot_underlying_choice(board) - 1
             print('underlying choice: ', underlying_choice + 1)
             # check if not empty
             if board.underlying_is_empty(underlying_choice):
@@ -333,36 +334,49 @@ class Player():
     # BOT LINE CHOICE
     def bot_line_choice(self):
         # list of line indexes
-        line_choice_list = []
+        line_choice_list = [1, 2, 3, 4, 4, 5, 5]
         # goes through all lines and chooses good ones
         for index, line in enumerate(self.table_left):
-            # condition 1 - same tile already on line - 
+            # condition - same tile already on line - 
             if line[1] > len(line[0]) > 0:
                 if line[0][0] == self.take[0]:
                     # print('line: ', line[1])
                     # ideal_take = int(input('take same as line value, continue?'))
-                    for _ in range(5):
+                    for _ in range(2):
                         line_choice_list.append(index + 1)
-                    if line[1] - len(line[0]) == len(self.take):
-                        for _ in range(10):
+                    # condition - exactly same remaining places on line as taken
+                    if (line[1] - len(line[0])) == len(self.take):
+                        for _ in range(20):
                             line_choice_list.append(index + 1)
                         # print('line: ', line[1])
-                        # ideal_take = int(input('ideal value hit, continue?'))
-            # condition 2 - line empty and equal length of take
+                        # ideal_take = int(input('ideal value hit, continue?')) 
+            # condition - line empty and equal length of take
             if line[1] == len(self.take) and len(line[0]) == 0:
                 # print('line: ', line[1])
                 # ideal_take = int(input('line empty and equal length of take, continue?'))
-                for _ in range(8):
+                for _ in range(5):
                     line_choice_list.append(index + 1)
-        # if no lines chosen - generic list
-        line_choice_list = [1, 2, 3, 4, 4, 5, 5]
+            
         line_choice = line_choice_list[randint(0, len(line_choice_list) - 1)]
         print('line_choice_list', line_choice_list)
         return line_choice
 
         
-    def bot_underlying_choice(self):
-        pass
+    def bot_underlying_choice(self, board):
+        # select only non empty underlyings
+        underlying_choice_list = []
+        for index, underlying in enumerate(board.underlyings):
+            if len(underlying) != 0:
+                underlying_choice_list.append(index + 1)
+            # condition if underlying is longer than 7 - more probability to take it
+            if len(underlying) >= 7:
+                for i in range(5):
+                    underlying_choice_list.append(index + 1)
+        underlying_choice = underlying_choice_list[randint(0, len(underlying_choice_list) - 1)]
+        print('underlying choice list', underlying_choice_list)
+        # print('underlying choice:', underlying_choice)
+        # ideal_take = int(input('underlying choice check, continue?'))
+        return underlying_choice
     
 
         
@@ -577,15 +591,16 @@ class Player():
     
     # main function
     def count_ending_points(self):
-        ending_points = 0
-        ending_points += self.count_completed_rows() * 2
-        ending_points += self.count_completed_cols() * 7
-        ending_points += self.count_completed_colors() * 10
+        self.ending_points += self.count_completed_rows() * 2
+        self.ending_points += self.count_completed_cols() * 7
+        self.ending_points += self.count_completed_colors() * 10
         print('Total points so far: ', self.points_total)
         # print ending points
-        print('Points from rows, columns and colors: ', ending_points)
+        print('Points from rows, columns and colors: ', self.ending_points)
+        # and add them to ending points list
+
         # add ending points to total points
-        self.points_total += ending_points
+        self.points_total += self.ending_points
         print()
         print('Total points: ', self.points_total)
         print('\n')
@@ -644,6 +659,10 @@ def display_stats_from_rounds(players_sorted):
         for player in players_sorted:
             print(player.list_of_total_points[round_index], ' (', player.list_of_points_from_rounds[round_index], ') ', end='\t')
         print()
+    print('Ending points', end='\t')
+    for player in players_sorted:
+        print(player.ending_points, end='\t\t')
+    print()
     print('-'*60)
     # printing total points from the end
     print('Total', end='\t\t')
