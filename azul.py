@@ -126,6 +126,8 @@ class Player():
         self.name = name
         self.first_player = False
         self.points_from_round = 0
+        self.list_of_points_from_rounds = []
+        self.list_of_total_points = []
         self.points_total = 0
         self.take = []
         self.to_the_middle = []
@@ -427,7 +429,9 @@ class Player():
         for minus_point in self.minus_points:
             if minus_point != -1:
                 board.bag_of_used_tiles.append(minus_point)
-        # reset minus points and reset points from round to 0
+        # append points from round to list of points from rounds, reset minus points and reset points from round to 0
+        self.list_of_points_from_rounds.append(self.points_from_round)
+        self.list_of_total_points.append(self.points_total)
         self.minus_points.clear()
         self.points_from_round = 0
     
@@ -616,11 +620,11 @@ def create_players(board):
 def display_final_score(board):
     players_to_sort = []
     for player in board.list_of_players:
-        players_to_sort.append((player.name, player.points_total))
-    players_sorted = sorted(players_to_sort, key=lambda player: player[1], reverse=True)
+        players_to_sort.append(player)
+    players_sorted = sorted(players_to_sort, key=lambda player: player.points_total, reverse=True)
     print('')
     print('---------------------------')
-    print('The Winner is: ', players_sorted[0][0])
+    print('The Winner is: ', players_sorted[0].name)
     print('---------------------------')
     print()
     print('Final score:')
@@ -628,10 +632,33 @@ def display_final_score(board):
     print('Player Name\tTotal Points')
     print('-------------+--------------')
     for player in players_sorted:
-        print(player[0], '\t', player[1])
+        print(player.name, '\t', player.points_total)
+    
+    display_stats_from_rounds(players_sorted)
 
-# TODO
-    # Function which displays some statistict from the game in nice format
+
+def display_stats_from_rounds(players_sorted):
+    print()
+    print('Stats from all rounds:')
+    print('----------------------')
+    # header print
+    print('Round   ', end='\t')
+    for player in players_sorted:
+        print(player.name, end='\t')
+    print()
+    # first for loop - number of rounds (printing rows)
+    for round_index in range(len(players_sorted[0].list_of_points_from_rounds)):
+        print('Round', round_index + 1, end='\t\t')
+        # for every player print points from each round (columns)
+        for player in players_sorted:
+            print(player.list_of_total_points[round_index], ' (', player.list_of_points_from_rounds[round_index], ') ', end='\t')
+        print()
+    print('-'*50)
+    # printing total points from the end
+    print('Total', end='\t\t')
+    for player in players_sorted:
+        print(player.points_total, end='\t\t')
+
 
             
 def main():
