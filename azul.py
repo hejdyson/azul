@@ -204,12 +204,17 @@ class Player():
         if index == board.number_of_players + 3 + (board.number_of_players - 2) * 1:
             print('middle underlying')
             middle_underlying = True
+        # max 5 tiles can be selected - counter will run max 5 times
+        counter_index = 0
         while True:
             # choose specific tiles
-            # PLAYER CHOICE
+            # PLAYER
             # tile_choice = int(input('Which tile do you want? '))
-            # RANDOM BOT CHOICE
-            tile_choice = randint(1, 5)
+            # ADVANCED BOT
+            list_of_ideal_tiles = self.bot_tile_choice_advanced(board)
+            tile_choice = list_of_ideal_tiles[counter_index][0]
+            # RANDOM BOT
+            # tile_choice = randint(1, 5)
             print('tile choice: ', tile_choice)
             # check if tiles available
             if board.valid_tile_selected(tile_choice):
@@ -234,6 +239,7 @@ class Player():
                     break 
             # if not - select another tile       
             else:
+                counter_index += 1
                 continue
 
     
@@ -391,7 +397,7 @@ class Player():
                 expected_points_from_tile = 0
                 # if item is not occupied
                 if item[1] == False:
-                    print('item', item[0], 'line', i + 1)
+                    # print('item', item[0], 'line', i + 1)
                     item[1] = True
                     # count the expected value
                     points_from_row = self.count_points_from_row(item[0], i, self.table_right)
@@ -399,7 +405,10 @@ class Player():
                     expected_points_from_tile += points_from_row
                     expected_points_from_tile += points_from_col
                     expected_points_from_tile += self.compute_row_col_point_substraction(points_from_row, points_from_col)
-                    print('expected points', expected_points_from_tile)
+                    # if column can be completed (5 points from column)
+                    if points_from_col == 5:
+                        expected_points_from_tile += 5
+                    # print('expected points', expected_points_from_tile)
                     item[1] = False
                     # add expected value from the tile to the list
                     for tile in list_of_possible_tile_choices:
@@ -426,6 +435,7 @@ class Player():
             if len(ideal_underlyings) > 0:
                 break
         sorted_ideal_underlyings = sorted(ideal_underlyings, key=lambda x: x[0], reverse=True)
+        shuffle(sorted_ideal_underlyings)
         choices = [sorted_list_of_possible_tile_choices, sorted_ideal_underlyings]
         print('choices', choices)
         return choices
@@ -436,10 +446,11 @@ class Player():
         return choices[0][0] - 1
 
     def bot_tile_choice_advanced(self, board):
-        choice = self.self.bot_underlying_tile_choice_advanced(board)
-        return choice[0]
-    # TODO
+        choice = self.bot_underlying_tile_choice_advanced(board)[0]
+        return choice
     
+
+
         
             
         
@@ -768,8 +779,9 @@ def main():
         while not brd.all_underlyings_empty():
             player = brd.list_of_players[player_index]
             print()
-            player.print_player_table()
             print('Player on turn:', player.name)
+            player.print_player_table()
+            print()
             player.choose_tile(brd)
             print('underlyings', brd.underlyings)
             player.choose_line()
@@ -811,7 +823,7 @@ def main():
             display_final_score(brd)
             break
         
-        another = int(input('Continue?'))
+        # another = int(input('Continue?'))
 
         round_counter += 1
 
