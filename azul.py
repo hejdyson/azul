@@ -174,7 +174,9 @@ class Player():
             # PLAYER
             # underlying_choice = int(input('Which underlying do you choose? ')) - 1
             # RANDOM BOT FOR TESTING
-            underlying_choice = self.bot_underlying_choice(board) - 1
+            # underlying_choice = self.bot_underlying_choice_simple(board) - 1
+            # BETTER BOT FOR TESTING
+            underlying_choice = self.bot_underlying_choice_advanced(board)
             print('underlying choice: ', underlying_choice + 1)
             # check if not empty
             if board.underlying_is_empty(underlying_choice):
@@ -236,9 +238,9 @@ class Player():
 
     
     # FUNCTIONS TO HANDLE INPUT OF TAKEN TILE TO THE LEFT OF THE BOARD #
-    def tile_already_placed_on_right(self, line):
+    def tile_already_placed_on_right(self, line, take):
         for i in range(len(self.table_right[line])):
-            if self.table_right[line][i][0] == self.take[0]:
+            if self.table_right[line][i][0] == take:
                 index = i
                 break
         if self.table_right[line][index][1] == True:
@@ -267,35 +269,35 @@ class Player():
             # print('line ', line + 1, 'is not fully free')
             return False
     
-    def same_tile_on_line(self, line):
+    def same_tile_on_line(self, line, take):
         for tile in self.table_left[line][0]:
-            if tile == self.take[0]:
+            if tile == take:
                 # print('same tiles on line ', line + 1, 'possible to place here')
                 return True
         # print('different tiles on line ', line + 1, 'cannot place here')
         return False
 
     
-    def is_line_placeable(self, line):
+    def is_line_placeable(self, line, take):
         # first check if tile is not already placed on the right
-        if not self.tile_already_placed_on_right(line):
+        if not self.tile_already_placed_on_right(line, take):
             if self.line_has_free_space(line):
                 if self.line_fully_free(line):
                     print('Line placeable - free')
                     return True
                 else:
-                    if self.same_tile_on_line(line):
+                    if self.same_tile_on_line(line, take):
                         print('Line placeable - same tiles')
                         return True
         print('Line not placeable')
         return False
     
     # v2 version of no lines placeable function
-    def no_lines_placeable_v2(self):
+    def no_lines_placeable_v2(self, take):
         placeable = False
         for i in range(5):
             print('line:', i + 1, ' - ', end='')
-            if self.is_line_placeable(i):
+            if self.is_line_placeable(i, take):
                 placeable = True
         if placeable:
             return False
@@ -305,7 +307,7 @@ class Player():
     def choose_line(self):
         while True:
             # if there are no lines to place selected tiles, tiles ppend to self.minus_points
-            if self.no_lines_placeable_v2():
+            if self.no_lines_placeable_v2(self.take[0]):
                 for item in self.take:
                     self.minus_points.append(item)
                 self.take.clear()
@@ -319,7 +321,7 @@ class Player():
             line_choice = self.bot_line_choice()
             print('line choice: ', line_choice)
             line_choice -= 1
-            if self.is_line_placeable(line_choice):
+            if self.is_line_placeable(line_choice, self.take[0]):
                 # place all tiles from hand to table left line choice
                 for item in self.take:
                     self.table_left[line_choice][0].append(item)
@@ -362,7 +364,7 @@ class Player():
         return line_choice
 
         
-    def bot_underlying_choice(self, board):
+    def bot_underlying_choice_simple(self, board):
         # select only non empty underlyings
         underlying_choice_list = []
         for index, underlying in enumerate(board.underlyings):
@@ -370,7 +372,7 @@ class Player():
                 underlying_choice_list.append(index + 1)
             # condition if underlying is longer than 7 - more probability to take it
             if len(underlying) >= 7:
-                for i in range(5):
+                for _ in range(5):
                     underlying_choice_list.append(index + 1)
         underlying_choice = underlying_choice_list[randint(0, len(underlying_choice_list) - 1)]
         print('underlying choice list', underlying_choice_list)
@@ -379,7 +381,80 @@ class Player():
         return underlying_choice
     
 
+    # function for determining best tiles and underlyings
+    def bot_underlying_tile_choice_advanced(self, board):
+        # first determine which tile is most desired, then find underlying with this tile
+        list_of_possible_tile_choices = [[1, 1], [2, 1], [3, 1], [4, 1], [5, 1]]
+        # Search on RIGHT
+        for i, line in enumerate(self.table_right):
+            for index, item in enumerate(line):
+                expected_points_from_tile = 0
+                # if item is not occupied
+                if item[1] == False:
+                    print('item', item[0], 'line', i + 1)
+                    item[1] = True
+                    # count the expected value
+                    points_from_row = self.count_points_from_row(item[0], i, self.table_right)
+                    points_from_col = self.count_points_from_row(item[0], index, self.table_right_transposed)
+                    expected_points_from_tile += points_from_row
+                    expected_points_from_tile += points_from_col
+                    expected_points_from_tile += self.compute_row_col_point_substraction(points_from_row, points_from_col)
+                    print('expected points', expected_points_from_tile)
+                    item[1] = False
+                    # add expected value from the tile to the list
+                    for tile in list_of_possible_tile_choices:
+                        if tile[0] == item[0]:
+                            tile[1] += expected_points_from_tile
+        # Search on LEFT
+        # value to increase if line on left is neither full nor empty
+        increase_value = 2
+        for line in self.table_left:
+            if len(line[0]) > 0 and len(line[0]) < line[1]:
+                ideal_tile = line[0][0]
+                # add increase value from the tile to the list
+                for tile in list_of_possible_tile_choices:
+                    if tile[0] == ideal_tile:
+                        tile[1] += increase_value
+        # sort the list accroding to expected value
+        sorted_list_of_possible_tile_choices = sorted(list_of_possible_tile_choices, key=lambda x: x[1], reverse=True)
+        # find desired underlying - for each best tile - go from the best ti the worst - if it finds it - cycle will break so only the best remains
+        for tile_choice in sorted_list_of_possible_tile_choices:
+            ideal_underlyings = []
+            for index, underlying in enumerate(board.underlyings):
+                if tile_choice[0] in underlying:
+                    ideal_underlyings.append([index + 1, tile_choice[0]])
+            if len(ideal_underlyings) > 0:
+                break
+        sorted_ideal_underlyings = sorted(ideal_underlyings, key=lambda x: x[0], reverse=True)
+        choices = [sorted_list_of_possible_tile_choices, sorted_ideal_underlyings]
+        print('choices', choices)
+        return choices
+    
+
+    def bot_underlying_choice_advanced(self, board):
+        choices = self.bot_underlying_tile_choice_advanced(board)[1]
+        return choices[0][0] - 1
+
+    def bot_tile_choice_advanced(self, board):
+        choice = self.self.bot_underlying_tile_choice_advanced(board)
+        return choice[0]
+    # TODO
+    
         
+            
+        
+
+
+        
+
+
+
+        
+
+
+
+
+    
 
     
     # FUNCTIONS TO HANDLE MINUS POINTS ON THE LEFT SIDE - if more than allowed ammount of tiles is placet to a line #
@@ -506,7 +581,7 @@ class Player():
                 else:
                     # print('false after true hit, stop adding points')
                     count_further = False
-        print('Adding + ', row_points_counter, 'points.')
+        # print('Adding + ', row_points_counter, 'points.')
         return row_points_counter
     
     # to remove duplicit points when column or row have only single tile
@@ -515,10 +590,10 @@ class Player():
     #   #    ... 6 points ,         or   #  ... 3 points (function calculates 4 - therefore this function to substract -1)
     def compute_row_col_point_substraction(self, row_points, col_points):
         if row_points > 1 and col_points > 1:
-            print('both row and col have more than 1 point - no substraction')
+            # print('both row and col have more than 1 point - no substraction')
             return 0
         else: 
-            print('row or col or both have 1 point - substracting -1')
+            # print('row or col or both have 1 point - substracting -1')
             return -1
         
     # to check AFTER ROUND ENDS if one whole row on the right is filled - when yes - game ends
@@ -736,7 +811,7 @@ def main():
             display_final_score(brd)
             break
         
-        # another = int(input('Continue?'))
+        another = int(input('Continue?'))
 
         round_counter += 1
 
