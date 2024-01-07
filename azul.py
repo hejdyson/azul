@@ -125,6 +125,7 @@ class Board:
 class Player():
     def __init__(self, name):
         self.name = name
+        self.position_on_board = 0
         self.first_player = False
         self.points_from_round = 0
         self.list_of_points_from_rounds = []
@@ -688,6 +689,7 @@ class Player():
 def create_players(board):
     for i in range(board.number_of_players):
         player = Player('Player ' + str(i + 1))
+        player.position_on_board = i + 1
         board.list_of_players.append(player)
     
     for player in board.list_of_players:
@@ -699,11 +701,13 @@ def choose_player_order(board):
     if board.round_counter == 1:
         shuffle(board.list_of_players)
         for player in board.list_of_players:
-            print('player ', player.name)
+            print('player ', player.name, 'position on board', player.position_on_board)
+        cont = int(input('after shuffle'))
     else:
         index = 0
         start_appending = False
         player_order = []
+        # creating looped list 1 -> 2 -> 3 -> 4 -> 1   - first will be the one with first player mark - every round this can change
         while True:
             if board.list_of_players[index].first_player == True:
                 start_appending = True
@@ -792,7 +796,7 @@ def main():
         choose_player_order(brd)
 
         for index, player in enumerate(brd.list_of_players):
-            print('index:', index, 'Player:', player.name, 'first player', player.first_player)
+            print('index:', index, 'Player:', player.name, 'first player', player.first_player, 'position on board', player.position_on_board)
         cont = int(input('cont?'))
         # REMOVING FIRST PLAYER MARK
         for player in brd.list_of_players:
