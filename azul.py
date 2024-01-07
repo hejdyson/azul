@@ -3,6 +3,7 @@ from random import shuffle, randint
 
 class Board:
     def __init__(self):
+        self.round_counter = 1
         self.number_of_players = 2
         self.tiles_on_underlying = 4
         self.underlyings = []
@@ -405,6 +406,7 @@ class Player():
                     expected_points_from_tile += points_from_row
                     expected_points_from_tile += points_from_col
                     expected_points_from_tile += self.compute_row_col_point_substraction(points_from_row, points_from_col)
+                    # TODO ADD COUNT OF COLORS AND IF 5 THEN INCREASE EXPECTED VALUE
                     # if column can be completed (5 points from column)
                     if points_from_col == 5:
                         expected_points_from_tile += 5
@@ -448,23 +450,6 @@ class Player():
     def bot_tile_choice_advanced(self, board):
         choice = self.bot_underlying_tile_choice_advanced(board)[0]
         return choice
-    
-
-
-        
-            
-        
-
-
-        
-
-
-
-        
-
-
-
-
     
 
     
@@ -708,6 +693,36 @@ def create_players(board):
     for player in board.list_of_players:
         print('player name', player.name)
 
+# choose player order - starts player with first player = True
+def choose_player_order(board):
+    # first round - random order
+    if board.round_counter == 1:
+        shuffle(board.list_of_players)
+        for player in board.list_of_players:
+            print('player ', player.name)
+    else:
+        index = 0
+        start_appending = False
+        player_order = []
+        while True:
+            if board.list_of_players[index].first_player == True:
+                start_appending = True
+            if start_appending:
+                player_order.append(board.list_of_players[index])
+            if index + 1 == len(board.list_of_players):
+                index = -1
+            if len(player_order) == len(board.list_of_players):
+                break
+
+            index += 1
+        board.list_of_players.clear()
+        for i in range(len(player_order)):
+            board.list_of_players.append(player_order[i])
+        for player in board.list_of_players:
+            print('player ', player.name)
+        player_order.clear()
+
+
 # Displaying final score
 def display_final_score(board):
     players_to_sort = []
@@ -769,10 +784,20 @@ def main():
     #print('after addition', brd.bag_of_tiles)
     brd.scramble_bag_of_tiles()
 
-    round_counter = 1
     while True:
-        print('Round:', round_counter)
+        print('Round:', brd.round_counter)
         brd.fill_in_underlyings()
+        # Assign player order
+        print('choosing order')
+        choose_player_order(brd)
+
+        for index, player in enumerate(brd.list_of_players):
+            print('index:', index, 'Player:', player.name, 'first player', player.first_player)
+        cont = int(input('cont?'))
+        # REMOVING FIRST PLAYER MARK
+        for player in brd.list_of_players:
+            if player.first_player == True:
+                player.first_player = False
 
         # ONE ROUND
         player_index = 0
@@ -781,6 +806,8 @@ def main():
             print()
             print('Player on turn:', player.name)
             player.print_player_table()
+            if brd.round_counter == 2:
+                cont = int(input('cont?'))
             print()
             player.choose_tile(brd)
             print('underlyings', brd.underlyings)
@@ -815,7 +842,7 @@ def main():
         print()
 
         if game_over:
-            print('GAME ENDS, round', round_counter)
+            print('GAME ENDS, round', brd.round_counter)
             print('Counting final points for all players')
             for player in brd.list_of_players:
                 player.print_player_table()
@@ -825,7 +852,7 @@ def main():
         
         # another = int(input('Continue?'))
 
-        round_counter += 1
+        brd.round_counter += 1
 
 
 if __name__ == '__main__':
