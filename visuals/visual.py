@@ -18,6 +18,10 @@ table_right = pygame.image.load('table_right.png').convert_alpha()
 
 blue_img = pygame.image.load('blue.png').convert_alpha()
 
+
+blue_stone_img = pygame.image.load('blue_stone.png').convert_alpha()
+
+
 # Creating sigle player table
 def create_table(player_index, pos):
     # PLAYER
@@ -57,6 +61,15 @@ def create_board(num_players):
 list_of_tables = create_board(4)
 # list_of_tables = create_table(1, (250, 400))
 
+
+# COORDINATES LINE 3, PLAYER 4
+blue_stone = button.Button('None', 'blue_stone', 146, 135, blue_stone_img, 0.2, 0.2)
+blue_stone2 = button.Button('None', 'blue_stone2', 186, 135, blue_stone_img, 0.2, 0.2)
+blue_stone3 = button.Button('None', 'blue_stone3', 226, 135, blue_stone_img, 0.2, 0.2)
+
+
+
+
 # blue button just for testing
 blue_button = button.Button('blue test player index', 'blue test', 300, 200, blue_img, 0.7, 0.7)
 
@@ -85,9 +98,18 @@ while run:
     #     print('square5')
     # if table_right_label.draw(screen):
     #     print('table right')
+                
 
 
-    
+    if blue_stone.draw(screen):
+        print(blue_stone.name)
+    if blue_stone2.draw(screen):
+        print(blue_stone2.name)
+    if blue_stone3.draw(screen):
+        print(blue_stone3.name)
+
+
+    # test button after press changes background
     if blue_button.draw(screen):
         print('blue')
         screen.fill((0, 228, 241))
