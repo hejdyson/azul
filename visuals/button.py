@@ -2,7 +2,9 @@ import pygame
 
 # button class
 class Button():
-    def __init__(self, x, y, image, width_scale, height_scale):
+    def __init__(self, player_index, name, x, y, image, width_scale, height_scale):
+        self.player_index = player_index
+        self.name = name
         width = image.get_width()
         height = image.get_height()
         self.image = pygame.transform.scale(image, (int(width*width_scale), int(height*height_scale)))
