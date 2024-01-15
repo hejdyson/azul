@@ -3,7 +3,7 @@ import button
 
 # create display window
 SCREEN_HEIGHT = 700
-SCREEN_WIDTH = 1200
+SCREEN_WIDTH = 1300
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Button Demo')
@@ -19,7 +19,13 @@ table_right = pygame.image.load('table_right.png').convert_alpha()
 blue_img = pygame.image.load('blue.png').convert_alpha()
 
 
-blue_stone_img = pygame.image.load('blue_stone.png').convert_alpha()
+underlying_img = pygame.image.load('underlying.png').convert_alpha()
+
+blue_stone_img = pygame.image.load('stone_blue.png').convert_alpha()
+
+
+
+
 
 
 # Creating sigle player table
@@ -45,27 +51,55 @@ def create_table(player_index, pos):
     return player_table
 
 
+def create_underlying(player_index, pos):
+    x = pos[0]
+    y =  pos[1]
+    scale = 0.20
+    underlying_button = button.Button(player_index, 'underlying', x, y, underlying_img, scale, scale)
+
+    return underlying_button
+    
+
+
 # creating all tables for all players
 def create_board(num_players):
-    pos_list = [(230, 450), (930 , 450), (930, 50), ((230, 50))]
+    table_pos_list = [(230, 450), (1030 , 450), (1030, 50), ((230, 50))]
     tables_list = []
     for i in range(num_players):
-        table = create_table('Player' + str(i), pos_list[i])
+        table = create_table('Player' + str(i), table_pos_list[i])
         tables_list.append(table)
-
-    for table in tables_list:
-        print('table', table)
+    
     return tables_list
 
 
-list_of_tables = create_board(4)
-# list_of_tables = create_table(1, (250, 400))
+def create_underlyings():
+    underlying_pos_list2 = [(533, 152), (489, 345), (675, 437), (802, 300), (735, 144)]
+    underlying_pos_list3 = [(550)]
+    underlying_pos_list4 = [(550)]
+
+    underlyings_list = []
+    # for i in range(num_players + 3 + (num_players - 2) * 1 + 1):
+    for i in range(5):
+        underlying = create_underlying('Underlying' + str(i), underlying_pos_list2[i])
+        underlyings_list.append(underlying)
+
+    return underlyings_list
+
+
+
+# crating all tables
+# 4 - number of players
+list_of_tables = create_board(2)
+
+# creating all underlyings
+list_of_underlyings = create_underlyings()
+
 
 
 # COORDINATES LINE 3, PLAYER 4
 blue_stone = button.Button('None', 'blue_stone', 146, 135, blue_stone_img, 0.2, 0.2)
 blue_stone2 = button.Button('None', 'blue_stone2', 186, 135, blue_stone_img, 0.2, 0.2)
-blue_stone3 = button.Button('None', 'blue_stone3', 226, 135, blue_stone_img, 0.2, 0.2)
+blue_stone3 = button.Button('None', 'blue_stone3', 356, 135, blue_stone_img, 0.2, 0.2)
 
 
 
@@ -85,6 +119,11 @@ while run:
                 print(butt.player_index)
                 print(butt.name)
 
+    for underlying in list_of_underlyings:
+        if underlying.draw(screen):
+            print(underlying.player_index)
+            print(underlying.name)
+
 
     # if square_button.draw(screen):
     #     print('square')
@@ -100,13 +139,21 @@ while run:
     #     print('table right')
                 
 
+    
+    # underlying tests
+        
 
+
+
+    # blue stones testing
     if blue_stone.draw(screen):
         print(blue_stone.name)
     if blue_stone2.draw(screen):
         print(blue_stone2.name)
     if blue_stone3.draw(screen):
         print(blue_stone3.name)
+
+
 
 
     # test button after press changes background
