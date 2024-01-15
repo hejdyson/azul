@@ -73,13 +73,13 @@ def create_board(num_players):
 
 
 def create_underlyings():
-    underlying_pos_list2 = [(533, 152), (489, 345), (675, 437), (802, 300), (735, 144)]
+    underlying_pos_list2 = [(545, 460), (645, 460), (745, 460), (820, 368), (820, 278), (545, 180), (645, 180), (745, 180), (495, 325)]
     underlying_pos_list3 = [(550)]
     underlying_pos_list4 = [(550)]
 
     underlyings_list = []
     # for i in range(num_players + 3 + (num_players - 2) * 1 + 1):
-    for i in range(5):
+    for i in range(9):
         underlying = create_underlying('Underlying' + str(i), underlying_pos_list2[i])
         underlyings_list.append(underlying)
 
@@ -89,7 +89,7 @@ def create_underlyings():
 
 # crating all tables
 # 4 - number of players
-list_of_tables = create_board(2)
+list_of_tables = create_board(4)
 
 # creating all underlyings
 list_of_underlyings = create_underlyings()
@@ -112,6 +112,10 @@ screen.fill((202, 228, 241))
 # game loop
 run = True
 while run:
+
+    # if pygame.mouse.get_pressed():
+    #     print(pygame.mouse.get_pos())
+
 
     for table in list_of_tables:
         for butt in table:
