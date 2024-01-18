@@ -33,6 +33,7 @@ middle_underlying_img_hover = pygame.image.load('underlying_middle_hover.png').c
 
 # load stone images
 blue_stone_img = pygame.image.load('stone_blue.png').convert_alpha()
+red_stone_img = pygame.image.load('stone_red.png').convert_alpha()
 
 
 
@@ -189,10 +190,21 @@ blue_stone8 = button.Stone('None', 'not needed', 'blue_stone8', 946, 535, blue_s
 
 
 
+# button loop test stone on underlying WORKS
+for i in range(4):
+    x = list_of_underlyings[1].stone_pos[i][0]
+    y = list_of_underlyings[1].stone_pos[i][1]
+    red_stone = button.Stone('None', 'not needed', 'red_stone' + str(i), x, y, red_stone_img, red_stone_img, 0.2, 0.2)
+    list_of_underlyings[1].stones.append(red_stone)
+
+
+
+
 # blue button just for testing
 blue_button = button.Stone('blue test player index', 'test stone pos', 'blue test', 300, 200, blue_img, blue_img, 0.7, 0.7)
 
 screen.fill((202, 228, 241))
+
 
 
 # main game loop
@@ -222,6 +234,8 @@ while run:
             print(underlying.player_index)
             print(underlying.name)
             print(underlying.stone_pos)
+        for i in range(len(underlying.stones)):
+            underlying.stones[i].draw(screen)
         
 
 
@@ -258,11 +272,18 @@ while run:
         if event.type == pygame.QUIT:
             run = False
 
+        # if event.type == pygame.MOUSEBUTTONDOWN:
+        #     if blue_stone8.rect.collidepoint(event.pos):
+        #         print('collideeee')
+        #         blue_stone8.x += 10
+        #         blue_stone8.y += 10
+
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if blue_stone8.rect.collidepoint(event.pos):
-                print('collideeee')
-                blue_stone8.x += 10
-                blue_stone8.y += 10
+            for stone in list_of_underlyings[1].stones:
+                if stone.rect.collidepoint(event.pos):
+                    print('collideeee')
+                    stone.x += 10
+                    stone.y += 10
         
 
     pygame.display.update()
