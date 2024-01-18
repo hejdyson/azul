@@ -206,6 +206,7 @@ blue_button = button.Stone('blue test player index', 'test stone pos', 'blue tes
 screen.fill((202, 228, 241))
 
 
+stone_move_handler = []
 
 # main game loop
 run = True
@@ -266,6 +267,7 @@ while run:
         screen.fill((0, 228, 241))
 
 
+
     # event handler
     for event in pygame.event.get():
     # quit game
@@ -278,12 +280,31 @@ while run:
         #         blue_stone8.x += 10
         #         blue_stone8.y += 10
 
+
+        # handle stone click
+
         if event.type == pygame.MOUSEBUTTONDOWN:
+
             for stone in list_of_underlyings[1].stones:
                 if stone.rect.collidepoint(event.pos):
+                    stone_move_handler.append(stone)
+                    print('stone move handle', stone_move_handler)
                     print('collideeee')
-                    stone.x += 10
-                    stone.y += 10
+                    # stone.x += 10
+                    # stone.y += 10
+
+            # TODO LIST GETS EMPTY - LOOP DOESNT WAIT FOR NEXT CLICK - MUST IMPLEMENT SOME CLOCK OR WAIT MECHANISM
+            # handle line choice
+            if list_of_tables[0][0].rect.collidepoint(event.pos):
+
+                print('stone_move_handler[0].x, list_of_tables[0][0].stone_pos[0]')
+                print('stone move handle', stone_move_handler)
+                stone_move_handler[0].x = list_of_tables[0][0].stone_pos[0][0]
+                stone_move_handler[0].y = list_of_tables[0][0].stone_pos[0][1]
+
+            # handle stone move to line chosen
+        # for stone in stone_move_handler:
+                
         
 
     pygame.display.update()
