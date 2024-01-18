@@ -24,11 +24,14 @@ middle_underlying_img = pygame.image.load('underlying_middle.png').convert_alpha
 blue_stone_img = pygame.image.load('stone_blue.png').convert_alpha()
 
 
+# test hover line 3
+square_img3_hover = pygame.image.load('square3_hover.png').convert_alpha()
+
 
 blue_img = pygame.image.load('blue.png').convert_alpha()
 
 
-
+# TODO create same list of coordinates for stones for each line
 
 # creating sigle player table
 def create_table(player_index, pos):
@@ -41,12 +44,12 @@ def create_table(player_index, pos):
     diff_tables = scale * 1000 + 10
 
     # create button instance
-    square_button = button.Button(player_index, 'line 1', 'stone pos here', x, y, square_img1, scale, scale)
-    square2_button = button.Button(player_index, 'line 2', 'stone pos here', x, y + diff_line, square_img2, scale, scale)
-    square3_button = button.Button(player_index, 'line 3', 'stone pos here', x, y + diff_line * 2, square_img3, scale, scale)
-    square4_button = button.Button(player_index, 'line 4', 'stone pos here', x, y + diff_line * 3, square_img4, scale, scale)
-    square5_button = button.Button(player_index, 'line 5', 'stone pos here', x, y + diff_line * 4, square_img5, scale, scale)
-    table_right_label = button.Button(player_index, 'table right', 'stone pos here', x + diff_tables, y, table_right, scale, scale)
+    square_button = button.Button(player_index, 'stone pos here', 'line 1', x, y, square_img1, square_img1, scale, scale)
+    square2_button = button.Button(player_index, 'stone pos here', 'line 2', x, y + diff_line, square_img2, square_img2, scale, scale)
+    square3_button = button.Button(player_index, 'stone pos here', 'line 3', x, y + diff_line * 2, square_img3, square_img3_hover, scale, scale)
+    square4_button = button.Button(player_index, 'stone pos here', 'line 4', x, y + diff_line * 3, square_img4, square_img4, scale, scale)
+    square5_button = button.Button(player_index, 'stone pos here', 'line 5', x, y + diff_line * 4, square_img5, square_img5, scale, scale)
+    table_right_label = button.Button(player_index, 'stone pos here', 'table right', x + diff_tables, y, table_right, table_right, scale, scale)
 
     player_table = [square_button, square2_button, square3_button, square4_button, square5_button, table_right_label]
 
@@ -58,7 +61,7 @@ def create_underlying(player_index, pos, stone_pos):
     x = pos[0]
     y =  pos[1]
     scale = 0.20
-    underlying_button = button.Button(player_index, 'underlying', stone_pos, x, y, underlying_img, scale, scale)
+    underlying_button = button.Button(player_index, 'underlying', stone_pos, x, y, underlying_img, underlying_img, scale, scale)
 
     return underlying_button
     
@@ -85,13 +88,6 @@ def create_underlyings(num_players):
     # 540, 435            pos[i][0] - 5, pos[i][1] + 5
     # 503, 472            pos[i][0] - 42, pos[i][1] + 42   
     # 540, 472            pos[i][0] - 5, pos[i][1] + 42 
-
-
-    # TODO set of coordinates for each underlying where stones will be
-    underlying_stone_pos_list2 = []
-    underlying_stone_pos_list3 = []
-    underlying_stone_pos_list4 = []
-
 
 
     underlyings_list = []
@@ -131,7 +127,7 @@ def create_underlyings(num_players):
                 diff = 5
             middle_stone_pos = (middle_pos[0] - 42 * (j + 1) + diff, middle_pos[1] + 5 + i * 42)
             middle_stone_pos_list.append(middle_stone_pos)
-    middle_underlying_button = button.Button('middle u index', 'middle underlying', middle_stone_pos_list, middle_pos[0], middle_pos[1], middle_underlying_img, 0.2, 0.2)
+    middle_underlying_button = button.Button('middle u index', 'middle underlying', middle_stone_pos_list, middle_pos[0], middle_pos[1], middle_underlying_img, middle_underlying_img, 0.2, 0.2)
     underlyings_list.append(middle_underlying_button)
 
     return underlyings_list
@@ -148,20 +144,20 @@ list_of_underlyings = create_underlyings(4)
 
 
 # COORDINATES LINE 3, PLAYER 4
-blue_stone = button.Button('None', 'not needed', 'blue_stone', 146, 135, blue_stone_img, 0.2, 0.2)
-blue_stone2 = button.Button('None', 'not needed', 'blue_stone2', 186, 135, blue_stone_img, 0.2, 0.2)
-blue_stone3 = button.Button('None', 'not needed', 'blue_stone3', 226, 135, blue_stone_img, 0.2, 0.2)
-blue_stone4 = button.Button('None', 'not needed', 'blue_stone4', 356, 135, blue_stone_img, 0.2, 0.2)
+blue_stone = button.Button('None', 'not needed', 'blue_stone', 146, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone2 = button.Button('None', 'not needed', 'blue_stone2', 186, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone3 = button.Button('None', 'not needed', 'blue_stone3', 226, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone4 = button.Button('None', 'not needed', 'blue_stone4', 356, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
 
-blue_stone5 = button.Button('None', 'not needed', 'blue_stone5', 503, 435, blue_stone_img, 0.2, 0.2)
-blue_stone6 = button.Button('None', 'not needed', 'blue_stone6', 540, 435, blue_stone_img, 0.2, 0.2)
-blue_stone7 = button.Button('None', 'not needed', 'blue_stone7', 503, 472, blue_stone_img, 0.2, 0.2)
-blue_stone8 = button.Button('None', 'not needed', 'blue_stone8', 540, 472, blue_stone_img, 0.2, 0.2)
+blue_stone5 = button.Button('None', 'not needed', 'blue_stone5', 503, 435, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone6 = button.Button('None', 'not needed', 'blue_stone6', 540, 435, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone7 = button.Button('None', 'not needed', 'blue_stone7', 503, 472, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone8 = button.Button('None', 'not needed', 'blue_stone8', 540, 472, blue_stone_img, blue_stone_img, 0.2, 0.2)
 
 
 
 # blue button just for testing
-blue_button = button.Button('blue test player index', 'blue test', 'test stone pos', 300, 200, blue_img, 0.7, 0.7)
+blue_button = button.Button('blue test player index', 'blue test', 'test stone pos', 300, 200, blue_img, blue_img, 0.7, 0.7)
 
 screen.fill((202, 228, 241))
 
@@ -170,15 +166,15 @@ screen.fill((202, 228, 241))
 run = True
 while run:
 
-    # if pygame.mouse.get_pressed():
-    #     print(pygame.mouse.get_pos())
-
     # handle drawing of tables
     for table in list_of_tables:
         for butt in table:
+            # print('screen', butt.draw(screen))
             if butt.draw(screen):
+                print('clicked true')
                 print(butt.player_index)
                 print(butt.name)
+                
 
     # handle drawing underlyings
     for underlying in list_of_underlyings:
