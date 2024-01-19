@@ -1,5 +1,6 @@
 import pygame
 import button
+from random import shuffle
 
 # create display window
 SCREEN_HEIGHT = 700
@@ -32,8 +33,11 @@ underlying_img_hover = pygame.image.load('underlying_hover.png').convert_alpha()
 middle_underlying_img_hover = pygame.image.load('underlying_middle_hover.png').convert_alpha()
 
 # load stone images
-blue_stone_img = pygame.image.load('stone_blue.png').convert_alpha()
-red_stone_img = pygame.image.load('stone_red.png').convert_alpha()
+blue_stone_img = pygame.image.load('stone_blue.png').convert_alpha()        # VALUE 1
+yellow_stone_img = pygame.image.load('stone_yellow.png').convert_alpha()    # VALUE 2
+black_stone_img = pygame.image.load('stone_black.png').convert_alpha()      # VALUE 3
+green_stone_img = pygame.image.load('stone_green.png').convert_alpha()      # VALUE 4
+red_stone_img = pygame.image.load('stone_red.png').convert_alpha()          # VALUE 5
 
 
 
@@ -104,7 +108,7 @@ def create_board(num_players):
     table_pos_list = [(230, 450), (1030 , 450), (1030, 50), (230, 50)]
     tables_list = []
     for i in range(num_players):
-        table = create_table('Player' + str(i), table_pos_list[i])
+        table = create_table(i, table_pos_list[i])
         tables_list.append(table)
     
     return tables_list
@@ -176,6 +180,7 @@ list_of_tables = create_board(4)
 list_of_underlyings = create_underlyings(4)
 
 
+# STONE MANUAL TESTING
 # MOVE X = 40
 # COORDINATES LINE 3, PLAYER 4
 blue_stone = button.Stone(1, 'not needed', 'blue_stone', 146, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
@@ -183,25 +188,63 @@ blue_stone2 = button.Stone(1, 'not needed', 'blue_stone2', 186, 135, blue_stone_
 blue_stone3 = button.Stone(1, 'not needed', 'blue_stone3', 226, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
 blue_stone4 = button.Stone(1, 'not needed', 'blue_stone4', 356, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
 
-blue_stone5 = button.Stone(1, 'not needed', 'blue_stone5', 503, 435, blue_stone_img, blue_stone_img, 0.2, 0.2)
-blue_stone6 = button.Stone(1, 'not needed', 'blue_stone6', 540, 435, blue_stone_img, blue_stone_img, 0.2, 0.2)
-blue_stone7 = button.Stone(1, 'not needed', 'blue_stone7', 503, 472, blue_stone_img, blue_stone_img, 0.2, 0.2)
 blue_stone8 = button.Stone(1, 'not needed', 'blue_stone8', 946, 535, blue_stone_img, blue_stone_img, 0.2, 0.2)
 
 
+def create_bag_of_stones():
+    bag_of_tiles = []
+    for i in range(5):
+        for _ in range(20):
+            if i == 0:
+                bag_of_tiles.append(1)
+            elif i == 1:
+                bag_of_tiles.append(2)
+            elif i == 2:
+                bag_of_tiles.append(3)
+            elif i == 3:
+                bag_of_tiles.append(4)
+            else:
+                bag_of_tiles.append(5)  
+    print('bag of tiles', bag_of_tiles)
+    return bag_of_tiles
+    
 
 # button loop test stone on underlying WORKS
-for i in range(4):
-    x = list_of_underlyings[1].stone_pos[i][0]
-    y = list_of_underlyings[1].stone_pos[i][1]
-    if i != 3:
-        stone = button.Stone(5, 'not needed', 'red_stone' + str(i), x, y, red_stone_img, red_stone_img, 0.2, 0.2)
-    else:
-        # also testing for different stone
-        stone = button.Stone(1, 'not needed', 'stone' + str(i), x, y, blue_stone_img, blue_stone_img, 0.2, 0.2)
-    list_of_underlyings[1].stones.append(stone)
+# HERE STONES WILL APPEND ACCORDING TO BAG OF TILES - SAME AS IN BACKEND
+# IN GAME THE VALUE WILL COME FROM board.fill_in_underlyings - self.bag_of_tiles.pop()
+def draw_stones_on_underlyings():
+    bag_of_tiles = create_bag_of_stones()
+    shuffle(bag_of_tiles)
+    print('bag of tiles shuffled', bag_of_tiles)
+    counter = 0
+    for index, underlying in enumerate(list_of_underlyings):
+
+        # skip the middle underlying for now
+        if index + 1 == len(list_of_underlyings):
+            break
+
+        for i in range(4):
+            value = bag_of_tiles[counter]
+            x = underlying.stone_pos[i][0]
+            y = underlying.stone_pos[i][1]
+            # print('x', x, 'y', y)
+            if value == 1:
+                stone = button.Stone(value, 'not needed', 'blue_stone' + str(counter), x, y, blue_stone_img, blue_stone_img, 0.2, 0.2)
+            elif value == 2:
+                stone = button.Stone(value, 'not needed', 'yellow_stone' + str(counter), x, y, yellow_stone_img, yellow_stone_img, 0.2, 0.2)
+            elif value == 3:
+                stone = button.Stone(value, 'not needed', 'black_stone' + str(counter), x, y, black_stone_img, black_stone_img, 0.2, 0.2)
+            elif value == 4:
+                stone = button.Stone(value, 'not needed', 'green_stone' + str(counter), x, y, green_stone_img, green_stone_img, 0.2, 0.2)
+            elif value == 5:
+                stone = button.Stone(value, 'not needed', 'red_stone' + str(counter), x, y, red_stone_img, red_stone_img, 0.2, 0.2)
+            print(id(stone))
+            # list of stones on underlying
+            underlying.stones.append(stone)
+            counter += 1
 
 
+draw_stones_on_underlyings()
 
 
 # blue button just for testing
@@ -212,7 +255,11 @@ screen.fill((202, 228, 241))
 # appends stones from selected underlying, then used to compute how many fresh stones appended
 stone_move_handler = []
 
-# main game loop
+# 
+middle_stone_move_handler = []
+
+# MAIN GAME LOOP
+# drawing stuff and handling events (key presses)
 run = True
 while run:
 
@@ -227,18 +274,22 @@ while run:
             if butt.draw(screen):
                 print('clicked true')
                 print(butt.name)
-                print(butt.player_index)
+                print('player', butt.player_index)
                 print(butt.stone_pos)
+            # ALWAYS ALSO DRAW STONE THATS ON THE LINE
+            for stone in butt.stones:
+                stone.draw(screen)
 
 
 
 
     # handle drawing underlyings
     for underlying in list_of_underlyings:
-        if underlying.draw(screen):
-            print(underlying.player_index)
-            print(underlying.name)
-            print(underlying.stone_pos)
+        underlying.draw(screen)
+        # print(underlying.player_index)
+        # print(underlying.name)
+        # print(underlying.stone_pos)
+        # ALWAYS ALSO DRAW STONES THAT ARE ON UNDERLYING
         for i in range(len(underlying.stones)):
             underlying.stones[i].draw(screen)
         
@@ -253,17 +304,9 @@ while run:
         print(blue_stone3.name)
     if blue_stone4.draw(screen):
         print(blue_stone4.name)
-    if blue_stone5.draw(screen):
-        print(blue_stone5.name)
-    if blue_stone6.draw(screen):
-        print(blue_stone6.name)
-    if blue_stone7.draw(screen):
-        print(blue_stone7.name)
     
     blue_stone8.draw(screen)
         # print(blue_stone8.name)
-
-
 
     # test button after press changes background
     if blue_button.draw(screen):
@@ -272,6 +315,8 @@ while run:
 
 
 
+    # TODO HERE ADD SECOND LOOP FOR EACH PLAYERS PLAY
+    
     # event handler
     for event in pygame.event.get():
     # quit game
@@ -298,20 +343,45 @@ while run:
             for stone in list_of_underlyings[1].stones:
                 if stone.rect.collidepoint(event.pos):
                     stone_move_handler.append(stone)
+                    print('stone id', id(stone))
                     checker = True
                     print('stone move handler after first append', len(stone_move_handler))
                     print('collideeee')
                     # stone.x += 10
                     # stone.y += 10
 
+            # CONDITION:   IF CLICKED ON STONE
             if len(stone_move_handler) > 0:
+
                 # append all stones from underlying with same value
+                print('stone move handler appending')
                 for stone in list_of_underlyings[1].stones:
                     if stone.value == stone_move_handler[-1].value:
                         stone_move_handler.append(stone)
+                        print(id(stone))
+
+
+                    # rest of stones append to the MIDDLE
+                    else:
+                        list_of_underlyings[-1].stones.append(stone)
+                
+                        
+                        # print('len middle stone handler', len(middle_stone_move_handler))
+                        # print('middle pos check')
+                        for stone_pos in (list_of_underlyings[-1].stone_pos):
+                            if stone_pos[1] == False:
+                                stone.x = stone_pos[0][0]
+                                stone.y = stone_pos[0][1]
+                                # print('stone x', stone.x)
+                                # print('stone y', stone.y)
+                                stone_pos[1] = True
+                                break
+                            
+                list_of_underlyings[1].stones.clear()
+
                 # removing last duplicate
                 if checker == True:
-                    stone_move_handler.pop()
+                    print('removing', id(stone_move_handler.pop(0)))
                     checker = False
 
             # tracking actual length to loop over when selecting same value stones
@@ -320,9 +390,25 @@ while run:
 
             # TESTING WHOLE CYCLE - still only line 4!!
             if list_of_tables[0][3].rect.collidepoint(event.pos):
-                for i in range(len_stone_move_handler_after):
+                print('stone move handler')
+                for stone in stone_move_handler:
+                    print(id(stone))
+                for i in range(len_stone_move_handler_before):
+                    list_of_tables[0][3].stones.append(stone_move_handler[-i-1])
+                    print('moving stone x', stone_move_handler[-i-1].x, 'y', stone_move_handler[-i-1].y)
                     stone_move_handler[-i-1].x = list_of_tables[0][3].stone_pos[i][0]
                     stone_move_handler[-i-1].y = list_of_tables[0][3].stone_pos[i][1]
+                    print('moving stone after x', list_of_tables[0][3].stone_pos[i][0], 'y', list_of_tables[0][3].stone_pos[i][1])
+                    
+                
+                # for stone in middle_stone_move_handler:
+                # for stone_pos in (list_of_underlyings[-1].stone_pos):
+                #     if stone_pos[1] == False:
+                #         stone.x = stone_pos[0][0]
+                #         stone.y = stone_pos[0][1]
+                #         print('stone x', stone.x)
+                #         print('stone y', stone.y)
+                #         break
 
 
             # TODO LIST GETS EMPTY - LOOP DOESNT WAIT FOR NEXT CLICK - MUST IMPLEMENT SOME CLOCK OR WAIT MECHANISM
