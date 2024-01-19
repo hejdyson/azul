@@ -304,14 +304,15 @@ while run:
                     # stone.x += 10
                     # stone.y += 10
 
-            # append all stones from underlying with same value
-            for stone in list_of_underlyings[1].stones:
-                if stone.value == stone_move_handler[-1].value:
-                    stone_move_handler.append(stone)
-            # removing last duplicate
-            if checker == True:
-                stone_move_handler.pop()
-                checker = False
+            if len(stone_move_handler) > 0:
+                # append all stones from underlying with same value
+                for stone in list_of_underlyings[1].stones:
+                    if stone.value == stone_move_handler[-1].value:
+                        stone_move_handler.append(stone)
+                # removing last duplicate
+                if checker == True:
+                    stone_move_handler.pop()
+                    checker = False
 
             # tracking actual length to loop over when selecting same value stones
             len_stone_move_handler_after = len(stone_move_handler) - len_stone_move_handler_before
