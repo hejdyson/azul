@@ -178,15 +178,15 @@ list_of_underlyings = create_underlyings(4)
 
 # MOVE X = 40
 # COORDINATES LINE 3, PLAYER 4
-blue_stone = button.Stone('None', 'not needed', 'blue_stone', 146, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
-blue_stone2 = button.Stone('None', 'not needed', 'blue_stone2', 186, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
-blue_stone3 = button.Stone('None', 'not needed', 'blue_stone3', 226, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
-blue_stone4 = button.Stone('None', 'not needed', 'blue_stone4', 356, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone = button.Stone(1, 'not needed', 'blue_stone', 146, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone2 = button.Stone(1, 'not needed', 'blue_stone2', 186, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone3 = button.Stone(1, 'not needed', 'blue_stone3', 226, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone4 = button.Stone(1, 'not needed', 'blue_stone4', 356, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
 
-blue_stone5 = button.Stone('None', 'not needed', 'blue_stone5', 503, 435, blue_stone_img, blue_stone_img, 0.2, 0.2)
-blue_stone6 = button.Stone('None', 'not needed', 'blue_stone6', 540, 435, blue_stone_img, blue_stone_img, 0.2, 0.2)
-blue_stone7 = button.Stone('None', 'not needed', 'blue_stone7', 503, 472, blue_stone_img, blue_stone_img, 0.2, 0.2)
-blue_stone8 = button.Stone('None', 'not needed', 'blue_stone8', 946, 535, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone5 = button.Stone(1, 'not needed', 'blue_stone5', 503, 435, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone6 = button.Stone(1, 'not needed', 'blue_stone6', 540, 435, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone7 = button.Stone(1, 'not needed', 'blue_stone7', 503, 472, blue_stone_img, blue_stone_img, 0.2, 0.2)
+blue_stone8 = button.Stone(1, 'not needed', 'blue_stone8', 946, 535, blue_stone_img, blue_stone_img, 0.2, 0.2)
 
 
 
@@ -194,18 +194,22 @@ blue_stone8 = button.Stone('None', 'not needed', 'blue_stone8', 946, 535, blue_s
 for i in range(4):
     x = list_of_underlyings[1].stone_pos[i][0]
     y = list_of_underlyings[1].stone_pos[i][1]
-    red_stone = button.Stone('None', 'not needed', 'red_stone' + str(i), x, y, red_stone_img, red_stone_img, 0.2, 0.2)
-    list_of_underlyings[1].stones.append(red_stone)
+    if i != 3:
+        stone = button.Stone(5, 'not needed', 'red_stone' + str(i), x, y, red_stone_img, red_stone_img, 0.2, 0.2)
+    else:
+        # also testing for different stone
+        stone = button.Stone(1, 'not needed', 'stone' + str(i), x, y, blue_stone_img, blue_stone_img, 0.2, 0.2)
+    list_of_underlyings[1].stones.append(stone)
 
 
 
 
 # blue button just for testing
-blue_button = button.Stone('blue test player index', 'test stone pos', 'blue test', 300, 200, blue_img, blue_img, 0.7, 0.7)
+blue_button = button.Stone('blue test value', 'test stone pos', 'blue test', 300, 200, blue_img, blue_img, 0.7, 0.7)
 
 screen.fill((202, 228, 241))
 
-
+# appends stones from selected underlying, then used to compute how many fresh stones appended
 stone_move_handler = []
 
 # main game loop
@@ -282,28 +286,53 @@ while run:
 
 
         # handle stone click
+            
+
 
         if event.type == pygame.MOUSEBUTTONDOWN:
+            # track len of stone move handler before and after to loop only through new stones
+            len_stone_move_handler_before = len(stone_move_handler)
+            print('len_stone_move_handler_before', len_stone_move_handler_before)
 
+            # first click on stone on underlying - takes all stones from underlying and appends them into list
             for stone in list_of_underlyings[1].stones:
                 if stone.rect.collidepoint(event.pos):
                     stone_move_handler.append(stone)
-                    print('stone move handle', stone_move_handler)
+                    checker = True
+                    print('stone move handler after first append', len(stone_move_handler))
                     print('collideeee')
                     # stone.x += 10
                     # stone.y += 10
 
+            # append all stones from underlying with same value
+            for stone in list_of_underlyings[1].stones:
+                if stone.value == stone_move_handler[-1].value:
+                    stone_move_handler.append(stone)
+            # removing last duplicate
+            if checker == True:
+                stone_move_handler.pop()
+                checker = False
+
+            # tracking actual length to loop over when selecting same value stones
+            len_stone_move_handler_after = len(stone_move_handler) - len_stone_move_handler_before
+            print('stone move handler after', len_stone_move_handler_after)
+
+            # TESTING WHOLE CYCLE - still only line 4!!
+            if list_of_tables[0][3].rect.collidepoint(event.pos):
+                for i in range(len_stone_move_handler_after):
+                    stone_move_handler[-i-1].x = list_of_tables[0][3].stone_pos[i][0]
+                    stone_move_handler[-i-1].y = list_of_tables[0][3].stone_pos[i][1]
+
+
             # TODO LIST GETS EMPTY - LOOP DOESNT WAIT FOR NEXT CLICK - MUST IMPLEMENT SOME CLOCK OR WAIT MECHANISM
             # handle line choice
-            if list_of_tables[0][0].rect.collidepoint(event.pos):
+            # if list_of_tables[0][3].rect.collidepoint(event.pos):
 
-                print('stone_move_handler[0].x, list_of_tables[0][0].stone_pos[0]')
-                print('stone move handle', stone_move_handler)
-                stone_move_handler[0].x = list_of_tables[0][0].stone_pos[0][0]
-                stone_move_handler[0].y = list_of_tables[0][0].stone_pos[0][1]
+                # print('stone_move_handler[0].x, list_of_tables[0][0].stone_pos[0]')
+                # print('stone move handle', stone_move_handler)
+                # stone_move_handler[-1].x = list_of_tables[0][3].stone_pos[0][0]
+                # stone_move_handler[-1].y = list_of_tables[0][3].stone_pos[0][1]
 
-            # handle stone move to line chosen
-        # for stone in stone_move_handler:
                 
         
 
