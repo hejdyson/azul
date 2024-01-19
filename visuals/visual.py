@@ -150,14 +150,14 @@ def create_underlyings(num_players):
     # add middle underlying
     middle_pos = (720, 280)
     middle_stone_pos_list = []
-    diff = 0
     for i in range(4):
         for j in range(4):
-            if j > 0:
-                diff = 5
+            diff = 5
+            print('i', i, 'j', j, 'diff', diff)
             # same coordinates logit as in normal underlying, but also Bool to track if stone is placed there or not. It's dynamic underlying
-            middle_stone_pos = [(middle_pos[0] - 42 * (j + 1) + diff, middle_pos[1] + 5 + i * 42), False]
+            middle_stone_pos = [(middle_pos[0] - (37 * j) - diff, middle_pos[1] + 5 + i * 42), False]
             middle_stone_pos_list.append(middle_stone_pos)
+            print('middle_stone_pos', middle_stone_pos)
     middle_underlying_button = button.Underlying('middle u index', middle_stone_pos_list, 'middle underlying', middle_pos[0], middle_pos[1], middle_underlying_img, middle_underlying_img_hover, 0.2, 0.2)
     underlyings_list.append(middle_underlying_button)
 
@@ -343,6 +343,7 @@ while run:
             for stone in list_of_underlyings[1].stones:
                 if stone.rect.collidepoint(event.pos):
                     stone_move_handler.append(stone)
+                    # check for memory adress
                     print('stone id', id(stone))
                     checker = True
                     print('stone move handler after first append', len(stone_move_handler))
