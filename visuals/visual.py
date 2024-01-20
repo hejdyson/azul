@@ -229,15 +229,15 @@ def draw_stones_on_underlyings():
             y = underlying.stone_pos[i][1]
             # print('x', x, 'y', y)
             if value == 1:
-                stone = button.Stone(value, 'not needed', 'blue_stone' + str(counter), x, y, blue_stone_img, blue_stone_img, 0.2, 0.2)
+                stone = button.Stone(value, underlying, 'blue_stone' + str(counter), x, y, blue_stone_img, blue_stone_img, 0.2, 0.2)
             elif value == 2:
-                stone = button.Stone(value, 'not needed', 'yellow_stone' + str(counter), x, y, yellow_stone_img, yellow_stone_img, 0.2, 0.2)
+                stone = button.Stone(value, underlying, 'yellow_stone' + str(counter), x, y, yellow_stone_img, yellow_stone_img, 0.2, 0.2)
             elif value == 3:
-                stone = button.Stone(value, 'not needed', 'black_stone' + str(counter), x, y, black_stone_img, black_stone_img, 0.2, 0.2)
+                stone = button.Stone(value, underlying, 'black_stone' + str(counter), x, y, black_stone_img, black_stone_img, 0.2, 0.2)
             elif value == 4:
-                stone = button.Stone(value, 'not needed', 'green_stone' + str(counter), x, y, green_stone_img, green_stone_img, 0.2, 0.2)
+                stone = button.Stone(value, underlying, 'green_stone' + str(counter), x, y, green_stone_img, green_stone_img, 0.2, 0.2)
             elif value == 5:
-                stone = button.Stone(value, 'not needed', 'red_stone' + str(counter), x, y, red_stone_img, red_stone_img, 0.2, 0.2)
+                stone = button.Stone(value, underlying, 'red_stone' + str(counter), x, y, red_stone_img, red_stone_img, 0.2, 0.2)
             print(id(stone))
             # list of stones on underlying
             underlying.stones.append(stone)
@@ -258,29 +258,31 @@ stone_move_handler = []
 # 
 middle_stone_move_handler = []
 
+
+possible_to_click_on_stones = True
+
 # MAIN GAME LOOP
 # drawing stuff and handling events (key presses)
 run = True
 while run:
+    # THERE MUST BE ALWAYS TWO PARTS IN THE MAIN PYGAME LOOP
+        # DRAWING OF STUFF ON SCREEN and
+        # HANDLING USER INPUTS
 
-
-
-    # print(blue_stone8.x, blue_stone8.y)
+    # DRAWING ---------------------------------------------------------------------->
 
     # handle drawing of tables
     for table in list_of_tables:
-        for butt in table:
+        for line in table:
             # print('screen', butt.draw(screen))
-            if butt.draw(screen):
+            if line.draw(screen):
                 print('clicked true')
-                print(butt.name)
-                print('player', butt.player_index)
-                print(butt.stone_pos)
+                print(line.name)
+                print('player', line.player_index)
+                print(line.stone_pos)
             # ALWAYS ALSO DRAW STONE THATS ON THE LINE
-            for stone in butt.stones:
+            for stone in line.stones:
                 stone.draw(screen)
-
-
 
 
     # handle drawing underlyings
@@ -293,6 +295,7 @@ while run:
         for i in range(len(underlying.stones)):
             underlying.stones[i].draw(screen)
         
+
 
 
     # blue stones testing
@@ -315,114 +318,82 @@ while run:
 
 
 
+
+
     # TODO HERE ADD SECOND LOOP FOR EACH PLAYERS PLAY
     
+    # HANDLING OF PLAYER INPUTS -------------------------------------------------->
+
     # event handler
     for event in pygame.event.get():
+
     # quit game
         if event.type == pygame.QUIT:
             run = False
 
-        # if event.type == pygame.MOUSEBUTTONDOWN:
-        #     if blue_stone8.rect.collidepoint(event.pos):
-        #         print('collideeee')
-        #         blue_stone8.x += 10
-        #         blue_stone8.y += 10
-
-
-        # handle stone click
             
 
-
+        # ONE CLICK
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # track len of stone move handler before and after to loop only through new stones
-            len_stone_move_handler_before = len(stone_move_handler)
-            print('len_stone_move_handler_before', len_stone_move_handler_before)
 
-            # first click on stone on underlying - takes all stones from underlying and appends them into list
-            for stone in list_of_underlyings[1].stones:
-                if stone.rect.collidepoint(event.pos):
-                    stone_move_handler.append(stone)
-                    # check for memory adress
-                    print('stone id', id(stone))
-                    checker = True
-                    print('stone move handler after first append', len(stone_move_handler))
-                    print('collideeee')
-                    # stone.x += 10
-                    # stone.y += 10
+            # FIRST - CLICK MUST BE ON STONE ON UNDERLYING -> SEARCH ONLY FOR THOSE CLICKS
+            for underlying in list_of_underlyings:
+                for stone in underlying.stones:
+                    # it is possible only at first, then it needst click on line, no other stones can be clicked
+                    if possible_to_click_on_stones:
+                        # when clicked stone found
+                        if stone.rect.collidepoint(event.pos):
+                            # disable anotther stone click - now only line click is accepted - ONLY CLICK SWITCHES THIS TO FALSE
+                            possible_to_click_on_stones = False
+                            print('possible_to_click_on_stones', possible_to_click_on_stones)
+                            # helpful prints
+                            print('stone placement, stones, name', stone.placement, stone.placement.stones, stone.placement.name)
+                            # loop through all stones on the placement - decide what will go to line and what to the middle
+                            to_line = []
+                            to_the_middle = []
+                            for tile in stone.placement.stones:
+                                if tile.value == stone.value:
+                                    to_line.append(tile)
+                                else:
+                                    to_the_middle.append(tile)
+                            print('to line goes', to_line)
+                            for item in to_line:
+                                print(item.name)
+                            print('to the middle goes', to_the_middle)
+                            for item in to_the_middle:
+                                print(item.name)
 
-            # CONDITION:   IF CLICKED ON STONE
-            if len(stone_move_handler) > 0:
+                            # HANDLE ADDING TILES TO MIDDLE
+                            # append to the list of stones of middle underlying
+                            for tile in to_the_middle:
+                                list_of_underlyings[-1].stones.append(tile)
+                            # change coordinates of stone to the ones from the middle that are available
+                            for tile in to_the_middle:
+                                for stone_pos in list_of_underlyings[-1].stone_pos:
+                                    if stone_pos[1] == False:
+                                        tile.x = stone_pos[0][0]
+                                        tile.y = stone_pos[0][1]
+                                        stone_pos[1] = True
+                                        break
+            
 
-                # append all stones from underlying with same value
-                print('stone move handler appending')
-                for stone in list_of_underlyings[1].stones:
-                    if stone.value == stone_move_handler[-1].value:
-                        stone_move_handler.append(stone)
-                        print(id(stone))
-
-
-                    # rest of stones append to the MIDDLE
-                    else:
-                        list_of_underlyings[-1].stones.append(stone)
+            # SEDOND CLICK MUST BE ON LINE OF PLAYER WHICH IS ON TURN - for now only player 1
+            if not possible_to_click_on_stones:
+                # now only player 1 - first table
+                for line in list_of_tables[0]:
+                    if line.rect.collidepoint(event.pos):
+                        # first enable clicking on stone on underlying again
+                        possible_to_click_on_stones = True
+                        print('possible_to_click_on_stones', possible_to_click_on_stones)
+                        # append to the line list of stones
+                        for stone in to_line:
+                            line.stones.append(stone)
+                        # change coordiates to the line coordinates
+                        for i in range(len(line.stones)):
+                            line.stones[i].x = line.stone_pos[i][0]
+                            line.stones[i].y = line.stone_pos[i][1]
                 
-                        
-                        # print('len middle stone handler', len(middle_stone_move_handler))
-                        # print('middle pos check')
-                        for stone_pos in (list_of_underlyings[-1].stone_pos):
-                            if stone_pos[1] == False:
-                                stone.x = stone_pos[0][0]
-                                stone.y = stone_pos[0][1]
-                                # print('stone x', stone.x)
-                                # print('stone y', stone.y)
-                                stone_pos[1] = True
-                                break
-                            
-                list_of_underlyings[1].stones.clear()
 
-                # removing last duplicate
-                if checker == True:
-                    print('removing', id(stone_move_handler.pop(0)))
-                    checker = False
-
-            # tracking actual length to loop over when selecting same value stones
-            len_stone_move_handler_after = len(stone_move_handler) - len_stone_move_handler_before
-            print('stone move handler after', len_stone_move_handler_after)
-
-            # TESTING WHOLE CYCLE - still only line 4!!
-            if list_of_tables[0][3].rect.collidepoint(event.pos):
-                print('stone move handler')
-                for stone in stone_move_handler:
-                    print(id(stone))
-                for i in range(len_stone_move_handler_before):
-                    list_of_tables[0][3].stones.append(stone_move_handler[-i-1])
-                    print('moving stone x', stone_move_handler[-i-1].x, 'y', stone_move_handler[-i-1].y)
-                    stone_move_handler[-i-1].x = list_of_tables[0][3].stone_pos[i][0]
-                    stone_move_handler[-i-1].y = list_of_tables[0][3].stone_pos[i][1]
-                    print('moving stone after x', list_of_tables[0][3].stone_pos[i][0], 'y', list_of_tables[0][3].stone_pos[i][1])
-                    
-                
-                # for stone in middle_stone_move_handler:
-                # for stone_pos in (list_of_underlyings[-1].stone_pos):
-                #     if stone_pos[1] == False:
-                #         stone.x = stone_pos[0][0]
-                #         stone.y = stone_pos[0][1]
-                #         print('stone x', stone.x)
-                #         print('stone y', stone.y)
-                #         break
-
-
-            # TODO LIST GETS EMPTY - LOOP DOESNT WAIT FOR NEXT CLICK - MUST IMPLEMENT SOME CLOCK OR WAIT MECHANISM
-            # handle line choice
-            # if list_of_tables[0][3].rect.collidepoint(event.pos):
-
-                # print('stone_move_handler[0].x, list_of_tables[0][0].stone_pos[0]')
-                # print('stone move handle', stone_move_handler)
-                # stone_move_handler[-1].x = list_of_tables[0][3].stone_pos[0][0]
-                # stone_move_handler[-1].y = list_of_tables[0][3].stone_pos[0][1]
-
-                
-        
 
     pygame.display.update()
 

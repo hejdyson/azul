@@ -15,6 +15,7 @@ class Line():
         self.rect.topright = (x, y)
         self.clicked = False
         self.hovered = False
+        self.stones = []
     
     def draw(self, surface):
         action = False
@@ -91,9 +92,10 @@ class Underlying():
 
 
 class Stone():
-    def __init__(self, player_index, stone_pos, name, x, y, image, image_hover, width_scale, height_scale):
-        self.player_index = player_index
-        self.stone_pos = stone_pos
+    # placement - object where its now placed -> underlying, line or table right
+    def __init__(self, value, placement, name, x, y, image, image_hover, width_scale, height_scale):
+        self.value = value
+        self.placement = placement
         self.name = name
         self.x = x
         self.y = y
