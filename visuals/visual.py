@@ -16,7 +16,7 @@ square_img3 = pygame.image.load('pictures\square3.png').convert_alpha()
 square_img4 = pygame.image.load('pictures\square4.png').convert_alpha()
 square_img5 = pygame.image.load('pictures\square5.png').convert_alpha()
 table_right_img = pygame.image.load('pictures\\table_right.png').convert_alpha()
-table_right_img = pygame.transform.scale(table_right_img, (int(0.2 * table_right_img.get_width()), (0.2 * table_right_img.get_height())))
+# table_right_img = pygame.transform.scale(table_right_img, (int(0.2 * table_right_img.get_width()), (0.2 * table_right_img.get_height())))
 
 # load line hover images
 square_img1_hover = pygame.image.load('pictures\square_hover.png').convert_alpha()
@@ -87,9 +87,9 @@ def create_table(player_index, pos):
     square4_button = button.Line(player_index, stone_pos_list_line4, 'line 4', 4, x, y + diff_line * 3, square_img4, square_img4_hover, scale, scale)
     square5_button = button.Line(player_index, stone_pos_list_line5, 'line 5', 5, x, y + diff_line * 4, square_img5, square_img5_hover, scale, scale)
     
-    # table_right_label = button.Line(player_index, 'stone pos here', 'table right', None, x + diff_tables, y, table_right, table_right, scale, scale)
+    table_right_label = button.Line(player_index, 'stone pos here', 'table right', None, x + diff_tables, y, table_right_img, table_right_img, scale, scale)
 
-    player_table = [square_button, square2_button, square3_button, square4_button, square5_button]
+    player_table = [square_button, square2_button, square3_button, square4_button, square5_button, table_right_label]
 
     return player_table
 
@@ -269,7 +269,7 @@ while run:
 
     # handle drawing of tables
     draw_player_backgrounds(NUM_PLAYERS)
-    draw_table_right(NUM_PLAYERS)
+    # draw_table_right(NUM_PLAYERS)
     for table in list_of_tables:
         for line in table:
             # print('screen', butt.draw(screen))
@@ -373,6 +373,9 @@ while run:
                 # now only player 1 - first table
                 for line in list_of_tables[0]:
                     if line.rect.collidepoint(event.pos):
+                        if line == list_of_tables[0][-1]:
+                            print('last line')
+                            break
                         # first enable clicking on stone on underlying again
                         possible_to_click_on_stones = True
                         print('possible_to_click_on_stones', possible_to_click_on_stones)
