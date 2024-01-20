@@ -7,7 +7,7 @@ SCREEN_HEIGHT = 700
 SCREEN_WIDTH = 1300
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption('Stone Demo')
+pygame.display.set_caption('AZUL ONLINE')
 
 # load line images
 square_img1 = pygame.image.load('square.png').convert_alpha()
@@ -150,12 +150,13 @@ def create_underlyings(num_players):
     # add middle underlying
     middle_pos = (720, 280)
     middle_stone_pos_list = []
+    # TODO MAYBE ADD MORE PLACES IN THE MIDDLE
     for i in range(4):
         for j in range(4):
-            diff = 5
+            diff = 7
             print('i', i, 'j', j, 'diff', diff)
             # same coordinates logit as in normal underlying, but also Bool to track if stone is placed there or not. It's dynamic underlying
-            middle_stone_pos = [(middle_pos[0] - (37 * j) - diff, middle_pos[1] + 5 + i * 42), False]
+            middle_stone_pos = [(middle_pos[0] - (37 * j) - diff, middle_pos[1] + diff + i * 37), False]
             middle_stone_pos_list.append(middle_stone_pos)
             print('middle_stone_pos', middle_stone_pos)
     middle_underlying_button = button.Underlying('middle u index', middle_stone_pos_list, 'middle underlying', middle_pos[0], middle_pos[1], middle_underlying_img, middle_underlying_img_hover, 0.2, 0.2)
@@ -171,7 +172,6 @@ def get_off_screen(stone):
 
 
 
-
 # crating all tables
 # 4 - number of players
 list_of_tables = create_board(4)
@@ -179,16 +179,6 @@ list_of_tables = create_board(4)
 # creating all underlyings
 list_of_underlyings = create_underlyings(4)
 
-
-# STONE MANUAL TESTING
-# MOVE X = 40
-# COORDINATES LINE 3, PLAYER 4
-blue_stone = button.Stone(1, 'not needed', 'blue_stone', 146, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
-blue_stone2 = button.Stone(1, 'not needed', 'blue_stone2', 186, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
-blue_stone3 = button.Stone(1, 'not needed', 'blue_stone3', 226, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
-blue_stone4 = button.Stone(1, 'not needed', 'blue_stone4', 356, 135, blue_stone_img, blue_stone_img, 0.2, 0.2)
-
-blue_stone8 = button.Stone(1, 'not needed', 'blue_stone8', 946, 535, blue_stone_img, blue_stone_img, 0.2, 0.2)
 
 
 def create_bag_of_stones():
@@ -238,7 +228,8 @@ def draw_stones_on_underlyings():
                 stone = button.Stone(value, underlying, 'green_stone' + str(counter), x, y, green_stone_img, green_stone_img, 0.2, 0.2)
             elif value == 5:
                 stone = button.Stone(value, underlying, 'red_stone' + str(counter), x, y, red_stone_img, red_stone_img, 0.2, 0.2)
-            print(id(stone))
+            # id of object for unique verification
+            # print(id(stone))
             # list of stones on underlying
             underlying.stones.append(stone)
             counter += 1
@@ -247,22 +238,18 @@ def draw_stones_on_underlyings():
 draw_stones_on_underlyings()
 
 
-# blue button just for testing
-blue_button = button.Stone('blue test value', 'test stone pos', 'blue test', 300, 200, blue_img, blue_img, 0.7, 0.7)
-
+# set up background color
 screen.fill((202, 228, 241))
 
-# appends stones from selected underlying, then used to compute how many fresh stones appended
-stone_move_handler = []
-
-# 
-middle_stone_move_handler = []
 
 
-possible_to_click_on_stones = True
+
 
 # MAIN GAME LOOP
 # drawing stuff and handling events (key presses)
+
+possible_to_click_on_stones = True
+
 run = True
 while run:
     # THERE MUST BE ALWAYS TWO PARTS IN THE MAIN PYGAME LOOP
@@ -284,7 +271,6 @@ while run:
             for stone in line.stones:
                 stone.draw(screen)
 
-
     # handle drawing underlyings
     for underlying in list_of_underlyings:
         underlying.draw(screen)
@@ -295,28 +281,6 @@ while run:
         for i in range(len(underlying.stones)):
             underlying.stones[i].draw(screen)
         
-
-
-
-    # blue stones testing
-    if blue_stone.draw(screen):
-        print(blue_stone.name)
-    if blue_stone2.draw(screen):
-        print(blue_stone2.name)
-    if blue_stone3.draw(screen):
-        print(blue_stone3.name)
-    if blue_stone4.draw(screen):
-        print(blue_stone4.name)
-    
-    blue_stone8.draw(screen)
-        # print(blue_stone8.name)
-
-    # test button after press changes background
-    if blue_button.draw(screen):
-        print('blue')
-        screen.fill((0, 228, 241))
-
-
 
 
 
@@ -333,7 +297,7 @@ while run:
 
             
 
-        # ONE CLICK
+        # *** CLICK ***
         if event.type == pygame.MOUSEBUTTONDOWN:
 
             # FIRST - CLICK MUST BE ON STONE ON UNDERLYING -> SEARCH ONLY FOR THOSE CLICKS
@@ -356,6 +320,7 @@ while run:
                                     to_line.append(tile)
                                 else:
                                     to_the_middle.append(tile)
+                            # help print what goes where
                             print('to line goes', to_line)
                             for item in to_line:
                                 print(item.name)
@@ -363,21 +328,41 @@ while run:
                             for item in to_the_middle:
                                 print(item.name)
 
+                            # if clicked on the middle - managing of coordinates
+                            for item in to_line:
+                                # handle of middle coordinates
+                                if item.placement == list_of_underlyings[-1]:
+                                    from_the_middle = True
+                                    print('taking from the middle')
+                                    for position in list_of_underlyings[-1].stone_pos:
+                                        print('position', position)
+                                        print('position of stone x', item.x, 'y:', item.y)
+                                        if position[0] == (item.x, item.y):
+                                            print('occupied middle position to be freed', position)
+                                            position[1] = False
+                                    # handle of middle stones
+                                    list_of_underlyings[-1].stones.remove(item)
+                                else:
+                                    from_the_middle = False
+
                             # HANDLE ADDING TILES TO MIDDLE
                             # append to the list of stones of middle underlying
-                            for tile in to_the_middle:
-                                list_of_underlyings[-1].stones.append(tile)
-                            # change coordinates of stone to the ones from the middle that are available
-                            for tile in to_the_middle:
-                                for stone_pos in list_of_underlyings[-1].stone_pos:
-                                    if stone_pos[1] == False:
-                                        tile.x = stone_pos[0][0]
-                                        tile.y = stone_pos[0][1]
-                                        stone_pos[1] = True
-                                        break
+                            # happens only when not taking from the middle
+                            if not from_the_middle:
+                                for tile in to_the_middle:
+                                    list_of_underlyings[-1].stones.append(tile)
+                                    tile.placement = list_of_underlyings[-1]
+                                # change coordinates of stone to the ones from the middle that are available
+                                for tile in to_the_middle:
+                                    for stone_pos in list_of_underlyings[-1].stone_pos:
+                                        if stone_pos[1] == False:
+                                            tile.x = stone_pos[0][0]
+                                            tile.y = stone_pos[0][1]
+                                            stone_pos[1] = True
+                                            break
             
 
-            # SEDOND CLICK MUST BE ON LINE OF PLAYER WHICH IS ON TURN - for now only player 1
+            # SEDOND - CLICK MUST BE ON LINE OF PLAYER WHICH IS ON TURN - for now only player 1
             if not possible_to_click_on_stones:
                 # now only player 1 - first table
                 for line in list_of_tables[0]:
@@ -388,10 +373,13 @@ while run:
                         # append to the line list of stones
                         for stone in to_line:
                             line.stones.append(stone)
+                            stone.placement = line
                         # change coordiates to the line coordinates
                         for i in range(len(line.stones)):
                             line.stones[i].x = line.stone_pos[i][0]
                             line.stones[i].y = line.stone_pos[i][1]
+
+                print('middle positions:', list_of_underlyings[-1].stone_pos)
                 
 
 
