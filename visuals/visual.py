@@ -10,41 +10,36 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('AZUL ONLINE')
 
 # load line images
-square_img1 = pygame.image.load('square.png').convert_alpha()
-square_img2 = pygame.image.load('square2.png').convert_alpha()
-square_img3 = pygame.image.load('square3.png').convert_alpha()
-square_img4 = pygame.image.load('square4.png').convert_alpha()
-square_img5 = pygame.image.load('square5.png').convert_alpha()
-table_right = pygame.image.load('table_right.png').convert_alpha()
+square_img1 = pygame.image.load('pictures\square.png').convert_alpha()
+square_img2 = pygame.image.load('pictures\square2.png').convert_alpha()
+square_img3 = pygame.image.load('pictures\square3.png').convert_alpha()
+square_img4 = pygame.image.load('pictures\square4.png').convert_alpha()
+square_img5 = pygame.image.load('pictures\square5.png').convert_alpha()
+table_right = pygame.image.load('pictures\\table_right.png').convert_alpha()
 
 # load line hover images
-square_img1_hover = pygame.image.load('square_hover.png').convert_alpha()
-square_img2_hover = pygame.image.load('square2_hover.png').convert_alpha()
-square_img3_hover = pygame.image.load('square3_hover.png').convert_alpha()
-square_img4_hover = pygame.image.load('square4_hover.png').convert_alpha()
-square_img5_hover = pygame.image.load('square5_hover.png').convert_alpha()
+square_img1_hover = pygame.image.load('pictures\square_hover.png').convert_alpha()
+square_img2_hover = pygame.image.load('pictures\square2_hover.png').convert_alpha()
+square_img3_hover = pygame.image.load('pictures\square3_hover.png').convert_alpha()
+square_img4_hover = pygame.image.load('pictures\square4_hover.png').convert_alpha()
+square_img5_hover = pygame.image.load('pictures\square5_hover.png').convert_alpha()
 
 # load underlying images
-underlying_img = pygame.image.load('underlying.png').convert_alpha()
-middle_underlying_img = pygame.image.load('underlying_middle.png').convert_alpha()
+underlying_img = pygame.image.load('pictures\\underlying.png').convert_alpha()
+middle_underlying_img = pygame.image.load('pictures\\underlying_middle.png').convert_alpha()
 
 # load underlying hover images
-underlying_img_hover = pygame.image.load('underlying_hover.png').convert_alpha()
-middle_underlying_img_hover = pygame.image.load('underlying_middle_hover.png').convert_alpha()
+underlying_img_hover = pygame.image.load('pictures\\underlying_hover.png').convert_alpha()
+middle_underlying_img_hover = pygame.image.load('pictures\\underlying_middle_hover.png').convert_alpha()
 
 # load stone images
-blue_stone_img = pygame.image.load('stone_blue.png').convert_alpha()        # VALUE 1
-yellow_stone_img = pygame.image.load('stone_yellow.png').convert_alpha()    # VALUE 2
-black_stone_img = pygame.image.load('stone_black.png').convert_alpha()      # VALUE 3
-green_stone_img = pygame.image.load('stone_green.png').convert_alpha()      # VALUE 4
-red_stone_img = pygame.image.load('stone_red.png').convert_alpha()          # VALUE 5
+blue_stone_img = pygame.image.load('pictures\stone_blue.png').convert_alpha()        # VALUE 1
+yellow_stone_img = pygame.image.load('pictures\stone_yellow.png').convert_alpha()    # VALUE 2
+black_stone_img = pygame.image.load('pictures\stone_black.png').convert_alpha()      # VALUE 3
+green_stone_img = pygame.image.load('pictures\stone_green.png').convert_alpha()      # VALUE 4
+red_stone_img = pygame.image.load('pictures\stone_red.png').convert_alpha()          # VALUE 5
 
 
-
-
-
-# just test image
-blue_img = pygame.image.load('blue.png').convert_alpha()
 
 
 # TODO create same list of coordinates for stones for each line
