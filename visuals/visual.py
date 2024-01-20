@@ -16,6 +16,8 @@ square_img3 = pygame.image.load('pictures\square3.png').convert_alpha()
 square_img4 = pygame.image.load('pictures\square4.png').convert_alpha()
 square_img5 = pygame.image.load('pictures\square5.png').convert_alpha()
 table_right_img = pygame.image.load('pictures\\table_right.png').convert_alpha()
+minus_points_img = pygame.image.load('pictures\minus_points.png').convert_alpha()
+# only to create table right without actual button
 # table_right_img = pygame.transform.scale(table_right_img, (int(0.2 * table_right_img.get_width()), (0.2 * table_right_img.get_height())))
 
 # load line hover images
@@ -79,6 +81,11 @@ def create_table(player_index, pos):
                             (x_stone - move_x * 2, y_stone + diff_line * 4),
                             (x_stone - move_x * 1, y_stone + diff_line * 4),
                             (x_stone, y_stone + diff_line * 4)]
+    
+    stone_pos_minus_points = [(x + 207 - move_x*6 + 6, y + 209), (x + 207 - move_x*5 + 5, y + 209), (x + 207 - move_x*4 + 4, y + 209), 
+                              (x + 206 - move_x*3 + 3, y + 209), (x + 207 - move_x*2 + 2, y + 209),
+                              (x + 207 - move_x*1 + 1, y + 209), (x + 207, y + 209)]
+
 
     # create button instance
     square_button = button.Line(player_index, stone_pos_list_line1, 'line 1', 1, x, y, square_img1, square_img1_hover, scale, scale)
@@ -88,8 +95,10 @@ def create_table(player_index, pos):
     square5_button = button.Line(player_index, stone_pos_list_line5, 'line 5', 5, x, y + diff_line * 4, square_img5, square_img5_hover, scale, scale)
     
     table_right_label = button.Line(player_index, 'stone pos here', 'table right', None, x + diff_tables, y, table_right_img, table_right_img, scale, scale)
+    minus_points_label = button.Line(player_index, stone_pos_minus_points, 'minus points', 7, x + diff_tables, y + diff_line * 5 + 5, minus_points_img, minus_points_img, scale-0.005, scale-0.005)
+    
 
-    player_table = [square_button, square2_button, square3_button, square4_button, square5_button, table_right_label]
+    player_table = [square_button, square2_button, square3_button, square4_button, square5_button, table_right_label, minus_points_label]
 
     return player_table
 
@@ -166,15 +175,16 @@ def create_underlyings(num_players):
 
     return underlyings_list
 
-# drawing right side of table
+# drawing right side of table -NOT USED - only when table right os not a BUTTON OBJECT
 def draw_table_right(num_players):
     table_right_pos_list = [(230, 450), (1060, 450), (1060, 70), (230, 70)]
     for i in range(num_players):
         screen.blit(table_right_img, table_right_pos_list[i])
 
+
 # drawing player backgrounds
 def draw_player_backgrounds(num_players):
-    background_pos_list = [(15, 390), (845 , 390), (845, 10), (15, 10)]
+    background_pos_list = [(15, 395), (845 , 395), (845, 15), (15, 15)]
     for i in range(num_players):
         screen.blit(player_background_img, background_pos_list[i])
 
@@ -246,6 +256,11 @@ def draw_stones_on_underlyings():
 
 draw_stones_on_underlyings()
 
+# last coordinates  ( 430 - 3, 450 + 205 + 4)
+                    #  427,     659
+                    #  349
+blue_stone1 = button.Stone('None', 'not needed', 'blue_stone2', 1050 + 207-40*6 + 6, 450 + 205 + 4, blue_stone_img, blue_stone_img, 0.2, 0.2)
+
 
 # set up background color
 screen.fill((202, 228, 241))
@@ -287,8 +302,10 @@ while run:
         # ALWAYS ALSO DRAW STONES THAT ARE ON UNDERLYING
         for i in range(len(underlying.stones)):
             underlying.stones[i].draw(screen)
-        
 
+
+
+    blue_stone1.draw(screen)
 
 
     # TODO HERE ADD SECOND LOOP FOR EACH PLAYERS PLAY
@@ -373,8 +390,8 @@ while run:
                 # now only player 1 - first table
                 for line in list_of_tables[0]:
                     if line.rect.collidepoint(event.pos):
-                        if line == list_of_tables[0][-1]:
-                            print('last line')
+                        if line == list_of_tables[0][-1] or line == list_of_tables[-2]:
+                            print('table right or minus points')
                             break
                         # first enable clicking on stone on underlying again
                         possible_to_click_on_stones = True
