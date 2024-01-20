@@ -15,7 +15,8 @@ square_img2 = pygame.image.load('pictures\square2.png').convert_alpha()
 square_img3 = pygame.image.load('pictures\square3.png').convert_alpha()
 square_img4 = pygame.image.load('pictures\square4.png').convert_alpha()
 square_img5 = pygame.image.load('pictures\square5.png').convert_alpha()
-table_right = pygame.image.load('pictures\\table_right.png').convert_alpha()
+table_right_img = pygame.image.load('pictures\\table_right.png').convert_alpha()
+table_right_img = pygame.transform.scale(table_right_img, (int(0.2 * table_right_img.get_width()), (0.2 * table_right_img.get_height())))
 
 # load line hover images
 square_img1_hover = pygame.image.load('pictures\square_hover.png').convert_alpha()
@@ -23,6 +24,10 @@ square_img2_hover = pygame.image.load('pictures\square2_hover.png').convert_alph
 square_img3_hover = pygame.image.load('pictures\square3_hover.png').convert_alpha()
 square_img4_hover = pygame.image.load('pictures\square4_hover.png').convert_alpha()
 square_img5_hover = pygame.image.load('pictures\square5_hover.png').convert_alpha()
+
+# load player background image
+player_background_img = pygame.image.load('pictures\player_background.png').convert_alpha()
+player_background_img = pygame.transform.scale(player_background_img, (int(0.2 * player_background_img.get_width()), (0.2 * player_background_img.get_height())))
 
 # load underlying images
 underlying_img = pygame.image.load('pictures\\underlying.png').convert_alpha()
@@ -41,8 +46,8 @@ red_stone_img = pygame.image.load('pictures\stone_red.png').convert_alpha()     
 
 
 
+NUM_PLAYERS = 4
 
-# TODO create same list of coordinates for stones for each line
 
 # creating sigle player table
 def create_table(player_index, pos):
@@ -76,14 +81,15 @@ def create_table(player_index, pos):
                             (x_stone, y_stone + diff_line * 4)]
 
     # create button instance
-    square_button = button.Line(player_index, stone_pos_list_line1, 'line 1', x, y, square_img1, square_img1_hover, scale, scale)
-    square2_button = button.Line(player_index, stone_pos_list_line2, 'line 2', x, y + diff_line, square_img2, square_img2_hover, scale, scale)
-    square3_button = button.Line(player_index, stone_pos_list_line3, 'line 3', x, y + diff_line * 2, square_img3, square_img3_hover, scale, scale)
-    square4_button = button.Line(player_index, stone_pos_list_line4, 'line 4', x, y + diff_line * 3, square_img4, square_img4_hover, scale, scale)
-    square5_button = button.Line(player_index, stone_pos_list_line5, 'line 5', x, y + diff_line * 4, square_img5, square_img5_hover, scale, scale)
-    table_right_label = button.Line(player_index, 'stone pos here', 'table right', x + diff_tables, y, table_right, table_right, scale, scale)
+    square_button = button.Line(player_index, stone_pos_list_line1, 'line 1', 1, x, y, square_img1, square_img1_hover, scale, scale)
+    square2_button = button.Line(player_index, stone_pos_list_line2, 'line 2', 2, x, y + diff_line, square_img2, square_img2_hover, scale, scale)
+    square3_button = button.Line(player_index, stone_pos_list_line3, 'line 3', 3, x, y + diff_line * 2, square_img3, square_img3_hover, scale, scale)
+    square4_button = button.Line(player_index, stone_pos_list_line4, 'line 4', 4, x, y + diff_line * 3, square_img4, square_img4_hover, scale, scale)
+    square5_button = button.Line(player_index, stone_pos_list_line5, 'line 5', 5, x, y + diff_line * 4, square_img5, square_img5_hover, scale, scale)
+    
+    # table_right_label = button.Line(player_index, 'stone pos here', 'table right', None, x + diff_tables, y, table_right, table_right, scale, scale)
 
-    player_table = [square_button, square2_button, square3_button, square4_button, square5_button, table_right_label]
+    player_table = [square_button, square2_button, square3_button, square4_button, square5_button]
 
     return player_table
 
@@ -99,8 +105,9 @@ def create_underlying(player_index, pos, stone_pos):
     
 
 # creating whole board -> all tables for all players
+# COORDINATES FOR TABLES
 def create_board(num_players):
-    table_pos_list = [(230, 450), (1030 , 450), (1030, 50), (230, 50)]
+    table_pos_list = [(220, 450), (1050 , 450), (1050, 70), (220, 70)]
     tables_list = []
     for i in range(num_players):
         table = create_table(i, table_pos_list[i])
@@ -112,7 +119,7 @@ def create_board(num_players):
 def create_underlyings(num_players):
     underlying_pos_list2 = [(645, 460), (825, 368), (745, 180), (600, 180), (520, 320)]
     underlying_pos_list3 = [(545, 430), (680, 460), (825, 390), (825, 278), (745, 180), (600, 180), (520, 320)]
-    underlying_pos_list4 = [(545, 430), (645, 460), (745, 460), (825, 368), (825, 278), (745, 180), (645, 180), (545, 210), (520, 320)]
+    underlying_pos_list4 = [(545, 430), (645, 460), (745, 460), (825, 368), (825, 278), (745, 180), (645, 180), (545, 210), (525, 320)]
 
 
     underlyings_list = []
@@ -159,20 +166,27 @@ def create_underlyings(num_players):
 
     return underlyings_list
 
+# drawing right side of table
+def draw_table_right(num_players):
+    table_right_pos_list = [(230, 450), (1060, 450), (1060, 70), (230, 70)]
+    for i in range(num_players):
+        screen.blit(table_right_img, table_right_pos_list[i])
 
-def get_off_screen(stone):
-    stone.x = 2000
-    stone.y = 2000
-    print(stone.x, stone.y)
+# drawing player backgrounds
+def draw_player_backgrounds(num_players):
+    background_pos_list = [(15, 390), (845 , 390), (845, 10), (15, 10)]
+    for i in range(num_players):
+        screen.blit(player_background_img, background_pos_list[i])
 
+        
 
 
 # crating all tables
 # 4 - number of players
-list_of_tables = create_board(4)
+list_of_tables = create_board(NUM_PLAYERS)
 
 # creating all underlyings
-list_of_underlyings = create_underlyings(4)
+list_of_underlyings = create_underlyings(NUM_PLAYERS)
 
 
 
@@ -254,14 +268,12 @@ while run:
     # DRAWING ---------------------------------------------------------------------->
 
     # handle drawing of tables
+    draw_player_backgrounds(NUM_PLAYERS)
+    draw_table_right(NUM_PLAYERS)
     for table in list_of_tables:
         for line in table:
             # print('screen', butt.draw(screen))
-            if line.draw(screen):
-                print('clicked true')
-                print(line.name)
-                print('player', line.player_index)
-                print(line.stone_pos)
+            line.draw(screen)
             # ALWAYS ALSO DRAW STONE THATS ON THE LINE
             for stone in line.stones:
                 stone.draw(screen)
@@ -291,7 +303,6 @@ while run:
             run = False
 
             
-
         # *** CLICK ***
         if event.type == pygame.MOUSEBUTTONDOWN:
 
