@@ -89,11 +89,11 @@ def create_table(player_index, pos):
 
 
     # create button instance
-    square_button = button.Line(player_index, stone_pos_list_line1, 'line 1', 1, x, y, square_img1, square_img1_hover, scale, scale)
-    square2_button = button.Line(player_index, stone_pos_list_line2, 'line 2', 2, x, y + diff_line, square_img2, square_img2_hover, scale, scale)
-    square3_button = button.Line(player_index, stone_pos_list_line3, 'line 3', 3, x, y + diff_line * 2, square_img3, square_img3_hover, scale, scale)
-    square4_button = button.Line(player_index, stone_pos_list_line4, 'line 4', 4, x, y + diff_line * 3, square_img4, square_img4_hover, scale, scale)
-    square5_button = button.Line(player_index, stone_pos_list_line5, 'line 5', 5, x, y + diff_line * 4, square_img5, square_img5_hover, scale, scale)
+    square_button = button.Line(player_index, stone_pos_list_line1, 'line', 1, x, y, square_img1, square_img1_hover, scale, scale)
+    square2_button = button.Line(player_index, stone_pos_list_line2, 'line', 2, x, y + diff_line, square_img2, square_img2_hover, scale, scale)
+    square3_button = button.Line(player_index, stone_pos_list_line3, 'line', 3, x, y + diff_line * 2, square_img3, square_img3_hover, scale, scale)
+    square4_button = button.Line(player_index, stone_pos_list_line4, 'line', 4, x, y + diff_line * 3, square_img4, square_img4_hover, scale, scale)
+    square5_button = button.Line(player_index, stone_pos_list_line5, 'line', 5, x, y + diff_line * 4, square_img5, square_img5_hover, scale, scale)
     
     table_right_label = button.Line(player_index, 'stone pos here', 'table right', None, x + diff_tables, y, table_right_img, table_right_img, scale, scale)
     minus_points_label = button.Line(player_index, stone_pos_minus_points, 'minus points', 7, x + diff_tables, y + diff_line * 5 + 5, minus_points_img, minus_points_img, scale-0.005, scale-0.005)
@@ -345,7 +345,12 @@ while run:
                     if possible_to_click_on_stones:
                         # when clicked stone found
                         if stone.rect.collidepoint(event.pos):
-                            # disable anotther stone click - now only line click is accepted - ONLY CLICK SWITCHES THIS TO FALSE
+                            # if stone clicked is not on line
+                            if stone.placement.name == 'line' or stone.placement.name == 'minus points' or stone.placement.name == 'table right':
+                                print('stone on line clicked')
+                                break
+
+                            # first disable another stone click - now only line click is accepted - ONLY CLICK SWITCHES THIS TO FALSE
                             possible_to_click_on_stones = False
                             print('possible_to_click_on_stones', possible_to_click_on_stones)
                             # helpful prints
@@ -417,6 +422,15 @@ while run:
                         if line == list_of_tables[0][-1] or line == list_of_tables[0][-2]:
                             print('table right or minus points')
                             break
+
+
+                        if len(line.stones) != 0 and len(line.stones) != line.limit:
+                            # check if line has different stones on it
+                            if to_line[-1].value != line.stones[0].value:
+                                print('different stones already on line')
+                                break
+
+
                         # first enable clicking on stone on underlying again
                         possible_to_click_on_stones = True
                         print('possible_to_click_on_stones', possible_to_click_on_stones)
