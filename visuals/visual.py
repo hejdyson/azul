@@ -349,7 +349,9 @@ while run:
                             if stone.placement.name == 'line' or stone.placement.name == 'minus points' or stone.placement.name == 'table right':
                                 print('stone on line clicked')
                                 break
-
+                            if stone.placement == list_of_underlyings[-1] and len(list_of_underlyings[-1].stones) == 1 and list_of_underlyings[-1].stones[0].value == -1:
+                                print('clicked on minus - when its the only stone on underlying')
+                                break
                             # first disable another stone click - now only line click is accepted - ONLY CLICK SWITCHES THIS TO FALSE
                             possible_to_click_on_stones = False
                             print('possible_to_click_on_stones', possible_to_click_on_stones)
