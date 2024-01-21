@@ -45,6 +45,7 @@ yellow_stone_img = pygame.image.load('pictures\stone_yellow.png').convert_alpha(
 black_stone_img = pygame.image.load('pictures\stone_black.png').convert_alpha()      # VALUE 3
 green_stone_img = pygame.image.load('pictures\stone_green.png').convert_alpha()      # VALUE 4
 red_stone_img = pygame.image.load('pictures\stone_red.png').convert_alpha()          # VALUE 5
+stone_minus_img = pygame.image.load('pictures\stone_minus.png').convert_alpha()      # VALUE -1
 
 
 
@@ -116,7 +117,7 @@ def create_underlying(player_index, pos, stone_pos):
 # creating whole board -> all tables for all players
 # COORDINATES FOR TABLES
 def create_board(num_players):
-    table_pos_list = [(220, 450), (1050 , 450), (1050, 70), (220, 70)]
+    table_pos_list = [(220, 445), (1050 , 445), (1050, 70), (220, 70)]
     tables_list = []
     for i in range(num_players):
         table = create_table(i, table_pos_list[i])
@@ -228,38 +229,52 @@ def draw_stones_on_underlyings():
     counter = 0
     for index, underlying in enumerate(list_of_underlyings):
 
-        # skip the middle underlying for now
+        # MIDDLE UNDERLYING - add -1
         if index + 1 == len(list_of_underlyings):
-            break
 
-        for i in range(4):
-            value = bag_of_tiles[counter]
-            x = underlying.stone_pos[i][0]
-            y = underlying.stone_pos[i][1]
-            # print('x', x, 'y', y)
-            if value == 1:
-                stone = button.Stone(value, underlying, 'blue_stone' + str(counter), x, y, blue_stone_img, blue_stone_img, 0.2, 0.2)
-            elif value == 2:
-                stone = button.Stone(value, underlying, 'yellow_stone' + str(counter), x, y, yellow_stone_img, yellow_stone_img, 0.2, 0.2)
-            elif value == 3:
-                stone = button.Stone(value, underlying, 'black_stone' + str(counter), x, y, black_stone_img, black_stone_img, 0.2, 0.2)
-            elif value == 4:
-                stone = button.Stone(value, underlying, 'green_stone' + str(counter), x, y, green_stone_img, green_stone_img, 0.2, 0.2)
-            elif value == 5:
-                stone = button.Stone(value, underlying, 'red_stone' + str(counter), x, y, red_stone_img, red_stone_img, 0.2, 0.2)
-            # id of object for unique verification
-            # print(id(stone))
-            # list of stones on underlying
+            x = underlying.stone_pos[0][0][0]
+            y = underlying.stone_pos[0][0][1]
+            underlying.stone_pos[0][1] = True
+            stone = button.Stone(-1, underlying, 'MINUS_STONE', x, y, stone_minus_img, stone_minus_img, 0.2, 0.2)
             underlying.stones.append(stone)
-            counter += 1
+            
+            print('middle underlying xxxxxxx')
+            print(underlying.name)
+            print(underlying.stone_pos)
+            print(underlying.stones)
+        
+        else:
+            # NORMAL UNDERLYINGS
+            for i in range(4):
+                value = bag_of_tiles[counter]
+                x = underlying.stone_pos[i][0]
+                y = underlying.stone_pos[i][1]
+                # print('x', x, 'y', y)
+                if value == 1:
+                    stone = button.Stone(value, underlying, 'blue_stone' + str(counter), x, y, blue_stone_img, blue_stone_img, 0.2, 0.2)
+                elif value == 2:
+                    stone = button.Stone(value, underlying, 'yellow_stone' + str(counter), x, y, yellow_stone_img, yellow_stone_img, 0.2, 0.2)
+                elif value == 3:
+                    stone = button.Stone(value, underlying, 'black_stone' + str(counter), x, y, black_stone_img, black_stone_img, 0.2, 0.2)
+                elif value == 4:
+                    stone = button.Stone(value, underlying, 'green_stone' + str(counter), x, y, green_stone_img, green_stone_img, 0.2, 0.2)
+                elif value == 5:
+                    stone = button.Stone(value, underlying, 'red_stone' + str(counter), x, y, red_stone_img, red_stone_img, 0.2, 0.2)
+                # id of object for unique verification
+                # print(id(stone))
+                # list of stones on underlying
+                underlying.stones.append(stone)
+                counter += 1
 
 
 draw_stones_on_underlyings()
 
+
+# TEST BLUE STONE  - RATHER KEEP
 # last coordinates  ( 430 - 3, 450 + 205 + 4)
                     #  427,     659
                     #  349
-blue_stone1 = button.Stone('None', 'not needed', 'blue_stone2', 1050 + 207-40*6 + 6, 450 + 205 + 4, blue_stone_img, blue_stone_img, 0.2, 0.2)
+# blue_stone1 = button.Stone('None', 'not needed', 'blue_stone2', 1050 + 207-40*6 + 6, 450 + 205 + 4, blue_stone_img, blue_stone_img, 0.2, 0.2)
 
 
 # set up background color
@@ -304,8 +319,8 @@ while run:
             underlying.stones[i].draw(screen)
 
 
-
-    blue_stone1.draw(screen)
+    # TEST BLUE STONE RATHER KEEP
+    # blue_stone1.draw(screen)
 
 
     # TODO HERE ADD SECOND LOOP FOR EACH PLAYERS PLAY
@@ -338,9 +353,15 @@ while run:
                             # loop through all stones on the placement - decide what will go to line and what to the middle
                             to_line = []
                             to_the_middle = []
+                            # appending to line same stones
                             for tile in stone.placement.stones:
                                 if tile.value == stone.value:
                                     to_line.append(tile)
+                                # IF TAKEN FIRST FORM THE MIDDLE
+                                elif tile.value == -1:
+                                    to_line.append(tile)
+                                    # TODO LATER HANDLE
+                                # different stones go to middle
                                 else:
                                     to_the_middle.append(tile)
                             # help print what goes where
@@ -351,6 +372,7 @@ while run:
                             for item in to_the_middle:
                                 print(item.name)
 
+                            # CLICKED ON MIDDLE UNDERLYING
                             # if clicked on the middle - managing of coordinates
                             for item in to_line:
                                 # handle of middle coordinates
@@ -360,6 +382,7 @@ while run:
                                     for position in list_of_underlyings[-1].stone_pos:
                                         print('position', position)
                                         print('position of stone x', item.x, 'y:', item.y)
+                                        # removing taken stones from the middle
                                         if position[0] == (item.x, item.y):
                                             print('occupied middle position to be freed', position)
                                             position[1] = False
@@ -387,23 +410,51 @@ while run:
 
             # SEDOND - CLICK MUST BE ON LINE OF PLAYER WHICH IS ON TURN - for now only player 1
             if not possible_to_click_on_stones:
-                # now only player 1 - first table
+                # now only player 1 - first table - list_of_tables [0]
                 for line in list_of_tables[0]:
                     if line.rect.collidepoint(event.pos):
-                        if line == list_of_tables[0][-1] or line == list_of_tables[-2]:
+                        # just check if not clicked on minus points or on table right
+                        if line == list_of_tables[0][-1] or line == list_of_tables[0][-2]:
                             print('table right or minus points')
                             break
                         # first enable clicking on stone on underlying again
                         possible_to_click_on_stones = True
                         print('possible_to_click_on_stones', possible_to_click_on_stones)
-                        # append to the line list of stones
+
+                        # Handling of stone click placement - either on line or to minus points if over the line limit: 1 APPEND 2 CHANGE COORDINATES
+                        # LINE: append to the line list of stones
                         for stone in to_line:
-                            line.stones.append(stone)
-                            stone.placement = line
-                        # change coordiates to the line coordinates
+                            if stone.value != -1:
+                                line.stones.append(stone)
+                                stone.placement = line
+                            # if -1 taken
+                            else:
+                                list_of_tables[0][-1].stones.append(stone)
+                                stone.placement = list_of_tables[0][-1]
+
+                        # minus points - if over line limit
+                        # MINUS_POINTS: append over the limit stones to minus points list of stones
+                        if len(line.stones) > line.limit:
+                            for i in range(len(line.stones) - line.limit):
+                                # change stone placement to minus point
+                                line.stones[-i-1].placement = list_of_tables[0][-1]
+                                # append stone to minus point point list (only of there is still place)
+                                # TODO HARD TO REACH EDGECASE - ALL LINES FULL AND ALSO MINUS POINTS FULL - STONES WONT GO TO MIDDLE
+                                if len(list_of_tables[0][-1].stones) < list_of_tables[0][-1].limit:
+                                    list_of_tables[0][-1].stones.append(line.stones[-i-1])
+                            # remove excessive stones from line.stones
+                            for i in range(len(line.stones) - line.limit):
+                                line.stones.pop()
+
+                        # LINE: change coordiates to the line coordinates
                         for i in range(len(line.stones)):
                             line.stones[i].x = line.stone_pos[i][0]
                             line.stones[i].y = line.stone_pos[i][1]
+
+                        # MINUS_POINTS: change coordinates to minus points coordinates 
+                        for i in range(len(list_of_tables[0][-1].stones)):
+                            list_of_tables[0][-1].stones[i].x = list_of_tables[0][-1].stone_pos[i][0]
+                            list_of_tables[0][-1].stones[i].y = list_of_tables[0][-1].stone_pos[i][1]
 
                 print('middle positions:', list_of_underlyings[-1].stone_pos)
                 
