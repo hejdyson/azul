@@ -289,6 +289,9 @@ screen.fill((202, 228, 241))
 
 possible_to_click_on_stones = True
 
+# test looping through list of players
+player_index = 0
+
 run = True
 while run:
     # THERE MUST BE ALWAYS TWO PARTS IN THE MAIN PYGAME LOOP
@@ -418,10 +421,10 @@ while run:
             # SEDOND - CLICK MUST BE ON LINE OF PLAYER WHICH IS ON TURN - for now only player 1
             if not possible_to_click_on_stones:
                 # now only player 1 - first table - list_of_tables [0]
-                for line in list_of_tables[0]:
+                for line in list_of_tables[player_index]:
                     if line.rect.collidepoint(event.pos):
                         # just check if not clicked on minus points or on table right
-                        if line == list_of_tables[0][-1] or line == list_of_tables[0][-2]:
+                        if line == list_of_tables[player_index][-1] or line == list_of_tables[player_index][-2]:
                             print('table right or minus points')
                             break
 
@@ -445,19 +448,19 @@ while run:
                                 stone.placement = line
                             # if -1 taken
                             else:
-                                list_of_tables[0][-1].stones.append(stone)
-                                stone.placement = list_of_tables[0][-1]
+                                list_of_tables[player_index][-1].stones.append(stone)
+                                stone.placement = list_of_tables[player_index][-1]
 
                         # minus points - if over line limit
                         # MINUS_POINTS: append over the limit stones to minus points list of stones
                         if len(line.stones) > line.limit:
                             for i in range(len(line.stones) - line.limit):
                                 # change stone placement to minus point
-                                line.stones[-i-1].placement = list_of_tables[0][-1]
+                                line.stones[-i-1].placement = list_of_tables[player_index][-1]
                                 # append stone to minus point point list (only of there is still place)
                                 # TODO HARD TO REACH EDGECASE - ALL LINES FULL AND ALSO MINUS POINTS FULL - STONES WONT GO TO MIDDLE
-                                if len(list_of_tables[0][-1].stones) < list_of_tables[0][-1].limit:
-                                    list_of_tables[0][-1].stones.append(line.stones[-i-1])
+                                if len(list_of_tables[player_index][-1].stones) < list_of_tables[player_index][-1].limit:
+                                    list_of_tables[player_index][-1].stones.append(line.stones[-i-1])
                             # remove excessive stones from line.stones
                             for i in range(len(line.stones) - line.limit):
                                 line.stones.pop()
@@ -468,10 +471,15 @@ while run:
                             line.stones[i].y = line.stone_pos[i][1]
 
                         # MINUS_POINTS: change coordinates to minus points coordinates 
-                        for i in range(len(list_of_tables[0][-1].stones)):
-                            list_of_tables[0][-1].stones[i].x = list_of_tables[0][-1].stone_pos[i][0]
-                            list_of_tables[0][-1].stones[i].y = list_of_tables[0][-1].stone_pos[i][1]
+                        for i in range(len(list_of_tables[player_index][-1].stones)):
+                            list_of_tables[player_index][-1].stones[i].x = list_of_tables[player_index][-1].stone_pos[i][0]
+                            list_of_tables[player_index][-1].stones[i].y = list_of_tables[player_index][-1].stone_pos[i][1]
 
+                        # player index increment
+                        player_index += 1
+                        if player_index == 4:
+                            player_index = 0
+                        
                 print('middle positions:', list_of_underlyings[-1].stone_pos)
                 
 
