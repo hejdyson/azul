@@ -162,15 +162,15 @@ def create_underlyings(num_players):
     # add middle underlying
     middle_pos = (720, 280)
     middle_stone_pos_list = []
-    # TODO MAYBE ADD MORE PLACES IN THE MIDDLE
+    # TODO MAYBE ADD MORE PLACES IN THE MIDDLE IN THE FUTURE
     for i in range(4):
         for j in range(4):
             diff = 7
-            print('i', i, 'j', j, 'diff', diff)
+            # print('i', i, 'j', j, 'diff', diff)
             # same coordinates logit as in normal underlying, but also Bool to track if stone is placed there or not. It's dynamic underlying
             middle_stone_pos = [(middle_pos[0] - (37 * j) - diff, middle_pos[1] + diff + i * 37), False]
             middle_stone_pos_list.append(middle_stone_pos)
-            print('middle_stone_pos', middle_stone_pos)
+            # print('middle_stone_pos', middle_stone_pos)
     middle_underlying_button = button.Underlying('middle u index', middle_stone_pos_list, 'middle underlying', middle_pos[0], middle_pos[1], middle_underlying_img, middle_underlying_img_hover, 0.2, 0.2)
     underlyings_list.append(middle_underlying_button)
 
@@ -185,7 +185,7 @@ def draw_table_right(num_players):
 
 # drawing player backgrounds
 def draw_player_backgrounds(num_players):
-    background_pos_list = [(15, 395), (845 , 395), (845, 15), (15, 15)]
+    background_pos_list = [(15, 390), (845 , 390), (845, 15), (15, 15)]
     for i in range(num_players):
         screen.blit(player_background_img, background_pos_list[i])
 
@@ -238,7 +238,6 @@ def draw_stones_on_underlyings():
             stone = button.Stone(-1, underlying, 'MINUS_STONE', x, y, stone_minus_img, stone_minus_img, 0.2, 0.2)
             underlying.stones.append(stone)
             
-            print('middle underlying xxxxxxx')
             print(underlying.name)
             print(underlying.stone_pos)
             print(underlying.stones)
@@ -428,13 +427,13 @@ while run:
                             print('table right or minus points')
                             break
 
-
+                        # condition cannot put stones of different color when line is not empty
                         if len(line.stones) != 0 and len(line.stones) != line.limit:
                             # check if line has different stones on it
                             if to_line[-1].value != line.stones[0].value:
                                 print('different stones already on line')
                                 break
-
+                        # NOTE - can place ANY stone on ANY line if line is full - stones will go to MINUS
 
                         # first enable clicking on stone on underlying again
                         possible_to_click_on_stones = True
