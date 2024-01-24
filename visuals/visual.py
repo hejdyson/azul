@@ -57,7 +57,7 @@ stone_minus_img = pygame.image.load('pictures\stone_minus.png').convert_alpha() 
 
 
 
-NUM_PLAYERS = 4
+NUM_PLAYERS = 2
 
 
 # creating sigle player table
@@ -141,8 +141,8 @@ def create_board(num_players):
 
 
 def create_underlyings(num_players):
-    underlying_pos_list2 = [(645, 460), (825, 368), (745, 180), (600, 180), (520, 320)]
-    underlying_pos_list3 = [(545, 430), (680, 460), (825, 390), (825, 278), (745, 180), (600, 180), (520, 320)]
+    underlying_pos_list2 = [(645, 460), (825, 368), (745, 180), (600, 180), (525, 320)]
+    underlying_pos_list3 = [(545, 430), (680, 460), (825, 390), (825, 278), (745, 180), (600, 180), (525, 320)]
     underlying_pos_list4 = [(545, 430), (645, 460), (745, 460), (825, 368), (825, 278), (745, 180), (645, 180), (545, 210), (525, 320)]
 
 
@@ -229,6 +229,7 @@ def create_bag_of_stones():
                 bag_of_tiles.append(4)
             else:
                 bag_of_tiles.append(5)  
+    shuffle(bag_of_tiles)
     print('bag of tiles', bag_of_tiles)
     return bag_of_tiles
     
@@ -236,10 +237,10 @@ def create_bag_of_stones():
 # button loop test stone on underlying WORKS
 # HERE STONES WILL APPEND ACCORDING TO BAG OF TILES - SAME AS IN BACKEND
 # IN GAME THE VALUE WILL COME FROM board.fill_in_underlyings - self.bag_of_tiles.pop()
-def draw_stones_on_underlyings():
-    bag_of_tiles = create_bag_of_stones()
-    shuffle(bag_of_tiles)
-    print('bag of tiles shuffled', bag_of_tiles)
+def draw_stones_on_underlyings(bag_of_tiles):
+    # bag_of_tiles = create_bag_of_stones()
+    #shuffle(bag_of_tiles)
+    #print('bag of tiles shuffled', bag_of_tiles)
     counter = 0
     for index, underlying in enumerate(list_of_underlyings):
 
@@ -259,7 +260,7 @@ def draw_stones_on_underlyings():
         else:
             # NORMAL UNDERLYINGS
             for i in range(4):
-                value = bag_of_tiles[counter]
+                value = bag_of_tiles.pop()
                 x = underlying.stone_pos[i][0]
                 y = underlying.stone_pos[i][1]
                 # print('x', x, 'y', y)
@@ -277,20 +278,15 @@ def draw_stones_on_underlyings():
                 # print(id(stone))
                 # list of stones on underlying
                 underlying.stones.append(stone)
-                counter += 1
-
-
-draw_stones_on_underlyings()
+                # counter += 1
+    print('len(bag_of_tiles)', len(bag_of_tiles))
 
 
 
 # move stones to right after round ends
 def move_stones_to_right():
-    player_index = 0
-
-    # 4 players
-    for player_index in range(4):
-
+    # for all players
+    for player_index in range(NUM_PLAYERS):
         for line in list_of_tables[player_index]:
             print('player_index', player_index)
             # dont loop over minus points and right table now
@@ -331,6 +327,10 @@ def move_stones_to_right():
                 line.stones.clear()
 
 
+# remove stones from inus points after end of round
+def clear_minus_points():
+    for player_index in range(NUM_PLAYERS):
+        list_of_tables[player_index][-1].stones.clear()
 
 
 
@@ -354,10 +354,16 @@ screen.fill((202, 228, 241))
 # MAIN GAME LOOP
 # drawing stuff and handling events (key presses)
 
+# create bag of tiles
+bag_of_tiles = create_bag_of_stones()
+
+# enable click on stone
 possible_to_click_on_stones = True
 
 # test looping through list of players
 player_index = 0
+
+ROUND = 1
 
 run = True
 while run:
@@ -367,9 +373,23 @@ while run:
 
     # DRAWING ---------------------------------------------------------------------->
 
+    empty = True
+    # check if underlyings empty - next round - also for slower drawing
+    for underlying in list_of_underlyings:
+        if len(underlying.stones) > 0:
+            empty = False
+
+
+    # drawing delay
+    if empty and ROUND > 1:
+        pygame.display.update()
+        pygame.time.wait(2000)
+        
+
     # handle drawing of tables
+    # draw background
     draw_player_backgrounds(NUM_PLAYERS)
-    # draw_table_right(NUM_PLAYERS)
+    # draw_table_right
     for table in list_of_tables:
         for line in table:
             # print('screen', butt.draw(screen))
@@ -377,26 +397,42 @@ while run:
             # ALWAYS ALSO DRAW STONE THATS ON THE LINE
             for stone in line.stones:
                 stone.draw(screen)
+    # drawing delay
+    if empty and ROUND > 1:
+        pygame.display.update()
+        pygame.time.wait(2000)
+
 
     # handle drawing underlyings
-    empty = True
     for underlying in list_of_underlyings:
         underlying.draw(screen)
-
-        if len(underlying.stones) > 0:
-            empty = False
-        
-        # print(underlying.player_index)
-        # print(underlying.name)
-        # print(underlying.stone_pos)
         # ALWAYS ALSO DRAW STONES THAT ARE ON UNDERLYING
         for i in range(len(underlying.stones)):
             underlying.stones[i].draw(screen)
+    # drawing delay
+    if empty and ROUND > 1:
+        pygame.display.update()
+        pygame.time.wait(2000)
+
+
 
     if empty:
-        move_stones_to_right()
         print('all empty - end of round')
-        cont = int(input('cont? '))
+        print('moving stones to right')
+        move_stones_to_right()
+
+        print('removing minus points')
+        clear_minus_points()
+
+        print('filling underlyings')
+        draw_stones_on_underlyings(bag_of_tiles)
+
+        # change starting player
+        # TODO STARTING PLAYER - WILL BE THE ONE WHO TOOK MIDDLE
+        player_index = 0
+        ROUND += 1
+
+        # cont = int(input('cont? '))
 
 
     # TEST BLUE STONE RATHER KEEP
@@ -569,7 +605,7 @@ while run:
 
                         # player index increment
                         player_index += 1
-                        if player_index == 4:
+                        if player_index == NUM_PLAYERS:
                             player_index = 0
                         
                 print('middle positions:', list_of_underlyings[-1].stone_pos)
