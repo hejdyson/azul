@@ -345,7 +345,7 @@ def clear_minus_points():
 # blue_stone3 = button.Stone('None', 'not needed', 'blue_stone2', 220 + 46 + 40, 445 + 5 + 40, blue_stone_img, blue_stone_img, 0.2, 0.2)
 
 # set up background color
-screen.fill((202, 228, 241))
+screen.fill(0xC7EDEC)
 
 
 
@@ -380,12 +380,6 @@ while run:
             empty = False
 
 
-    # drawing delay
-    if empty and ROUND > 1:
-        pygame.display.update()
-        pygame.time.wait(2000)
-        
-
     # handle drawing of tables
     # draw background
     draw_player_backgrounds(NUM_PLAYERS)
@@ -397,10 +391,6 @@ while run:
             # ALWAYS ALSO DRAW STONE THATS ON THE LINE
             for stone in line.stones:
                 stone.draw(screen)
-    # drawing delay
-    if empty and ROUND > 1:
-        pygame.display.update()
-        pygame.time.wait(2000)
 
 
     # handle drawing underlyings
@@ -409,11 +399,6 @@ while run:
         # ALWAYS ALSO DRAW STONES THAT ARE ON UNDERLYING
         for i in range(len(underlying.stones)):
             underlying.stones[i].draw(screen)
-    # drawing delay
-    if empty and ROUND > 1:
-        pygame.display.update()
-        pygame.time.wait(2000)
-
 
 
     if empty:
