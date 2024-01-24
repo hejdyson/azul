@@ -95,11 +95,11 @@ def create_table(player_index, pos):
                               (x + 206 - move_x*3 + 3, y + 209), (x + 207 - move_x*2 + 2, y + 209),
                               (x + 207 - move_x*1 + 1, y + 209), (x + 207, y + 209)]
 
-    stone_pos_table_right = [(1, (1, False, (x_stone + 46, y_stone)), (2, False, (x_stone + 46 + 1* move_x, y_stone)), (3, False, (x_stone + 46 + 2* move_x, y_stone)), (4, False, (x_stone + 46 + 3* move_x, y_stone)), (4, False, (x_stone + 46 + 4* move_x, y_stone))),
-                             (2, (1, False, (x_stone + 46, y_stone + move_x)), (2, False, (x_stone + 46 + 1* move_x, y_stone + move_x)), (3, False, (x_stone + 46 + 2* move_x, y_stone + move_x)), (4, False, (x_stone + 46 + 3* move_x, y_stone + move_x)), (4, False, (x_stone + 46 + 4 * move_x, y_stone + move_x))),
-                             (3, (1, False, (x_stone + 46, y_stone + move_x*2)), (2, False, (x_stone + 46 + 1* move_x, y_stone + move_x*2)), (3, False, (x_stone + 46 + 2* move_x, y_stone + move_x*2)), (4, False, (x_stone + 46 + 3* move_x, y_stone + move_x*2)), (4, False, (x_stone + 46 + 4 * move_x, y_stone + move_x*2))),
-                             (4, (1, False, (x_stone + 46, y_stone + move_x*3)), (2, False, (x_stone + 46 + 1* move_x, y_stone + move_x*3)), (3, False, (x_stone + 46 + 2* move_x, y_stone + move_x*3)), (4, False, (x_stone + 46 + 3* move_x, y_stone + move_x*3)), (4, False, (x_stone + 46 + 4 * move_x, y_stone + move_x*3))),
-                             (5, (1, False, (x_stone + 46, y_stone + move_x*4)), (2, False, (x_stone + 46 + 1* move_x, y_stone + move_x*4)), (3, False, (x_stone + 46 + 2* move_x, y_stone + move_x*4)), (4, False, (x_stone + 46 + 3* move_x, y_stone + move_x*4)), (4, False, (x_stone + 46 + 4 * move_x, y_stone + move_x*4))),
+    stone_pos_table_right = [((1, False, (x_stone + 50, y_stone)), (2, False, (x_stone + 50 + 1* move_x, y_stone)), (3, False, (x_stone + 50 + 2* move_x, y_stone)), (4, False, (x_stone + 50 + 3* move_x, y_stone)), (5, False, (x_stone + 50 + 4* move_x, y_stone))),
+                             ((5, False, (x_stone + 50, y_stone + move_x)), (1, False, (x_stone + 50 + 1* move_x, y_stone + move_x)), (2, False, (x_stone + 50 + 2* move_x, y_stone + move_x)), (3, False, (x_stone + 50 + 3* move_x, y_stone + move_x)), (4, False, (x_stone + 50 + 4 * move_x, y_stone + move_x))),
+                             ((4, False, (x_stone + 50, y_stone + move_x*2)), (5, False, (x_stone + 50 + 1* move_x, y_stone + move_x*2)), (1, False, (x_stone + 50 + 2* move_x, y_stone + move_x*2)), (2, False, (x_stone + 50 + 3* move_x, y_stone + move_x*2)), (3, False, (x_stone + 50 + 4 * move_x, y_stone + move_x*2))),
+                             ((3, False, (x_stone + 50, y_stone + move_x*3)), (4, False, (x_stone + 50 + 1* move_x, y_stone + move_x*3)), (5, False, (x_stone + 50 + 2* move_x, y_stone + move_x*3)), (1, False, (x_stone + 50 + 3* move_x, y_stone + move_x*3)), (2, False, (x_stone + 50 + 4 * move_x, y_stone + move_x*3))),
+                             ((2, False, (x_stone + 50, y_stone + move_x*4)), (3, False, (x_stone + 50 + 1* move_x, y_stone + move_x*4)), (4, False, (x_stone + 50 + 2* move_x, y_stone + move_x*4)), (5, False, (x_stone + 50 + 3* move_x, y_stone + move_x*4)), (1, False, (x_stone + 50 + 4 * move_x, y_stone + move_x*4))),
                              ]
 
     # create button instance
@@ -283,14 +283,66 @@ def draw_stones_on_underlyings():
 draw_stones_on_underlyings()
 
 
+
+# move stones to right after round ends
+def move_stones_to_right():
+    player_index = 0
+
+    # 4 players
+    for player_index in range(4):
+
+        for line in list_of_tables[player_index]:
+            print('player_index', player_index)
+            # dont loop over minus points and right table now
+            if line.name == 'table right' or line.name == 'minus points':
+                print('end of lines reached, moving to next player')
+                break
+
+            # if line is full
+            if len(line.stones) == line.limit:
+                print('line:', line.name)
+                moving_stone = line.stones[0]
+                print('stone taken', moving_stone.value)
+                # append to .stones
+                list_of_tables[player_index][-2].stones.append(moving_stone)
+                # and change stone placement
+                moving_stone.placement = list_of_tables[player_index][-2]
+
+                # loop through all lines on right and find same line
+                for index, row in enumerate(list_of_tables[player_index][-2].stone_pos):
+                    print('index', index + 1, 'line', line.limit)
+                    if index + 1 == line.limit:
+                        print('HIT     index', index + 1, 'line', line.limit)
+                        # loop through row items to find place for stone
+                        print('looking for placement')
+                        for item in row:
+                            print('item value', item[0])
+                            # when item found
+                            if item[0] == moving_stone.value:
+                                print('POSITION FOUND', item[0], '=', moving_stone.value)
+                                # change placed status to True - done on backend alreadz - maybe not needed
+                                # item[1] = True
+                                # assign new coordinates to moving stone
+                                moving_stone.x = item[2][0]
+                                moving_stone.y = item[2][1]
+                                break
+                
+                # clear line
+                line.stones.clear()
+
+
+
+
+
+
 # TEST BLUE STONE  - RATHER KEEP
 
 # player 1:  line1: x + 46, y + 5  | x + 46 + 40, y + 5
 #            line2: x + 46, y + 5 + 40  | x + 46 + 40, y + 5 + 40
 
-blue_stone1 = button.Stone('None', 'not needed', 'blue_stone2', 220 + 46, 445 + 5, blue_stone_img, blue_stone_img, 0.2, 0.2)
-blue_stone2 = button.Stone('None', 'not needed', 'blue_stone2', 220 + 46 + 40, 445 + 5, blue_stone_img, blue_stone_img, 0.2, 0.2)
-blue_stone3 = button.Stone('None', 'not needed', 'blue_stone2', 220 + 46 + 40, 445 + 5 + 40, blue_stone_img, blue_stone_img, 0.2, 0.2)
+# blue_stone1 = button.Stone('None', 'not needed', 'blue_stone2', 220 + 46, 445 + 5, blue_stone_img, blue_stone_img, 0.2, 0.2)
+# blue_stone2 = button.Stone('None', 'not needed', 'blue_stone2', 220 + 46 + 40, 445 + 5, blue_stone_img, blue_stone_img, 0.2, 0.2)
+# blue_stone3 = button.Stone('None', 'not needed', 'blue_stone2', 220 + 46 + 40, 445 + 5 + 40, blue_stone_img, blue_stone_img, 0.2, 0.2)
 
 # set up background color
 screen.fill((202, 228, 241))
@@ -342,13 +394,15 @@ while run:
             underlying.stones[i].draw(screen)
 
     if empty:
+        move_stones_to_right()
         print('all empty - end of round')
+        cont = int(input('cont? '))
 
 
     # TEST BLUE STONE RATHER KEEP
-    blue_stone1.draw(screen)
-    blue_stone2.draw(screen)
-    blue_stone3.draw(screen)
+    # blue_stone1.draw(screen)
+    # blue_stone2.draw(screen)
+    # blue_stone3.draw(screen)
 
 
     # TODO HERE ADD SECOND LOOP FOR EACH PLAYERS PLAY
