@@ -2,12 +2,18 @@ import pygame
 import button
 from random import shuffle
 
+
 # create display window
 SCREEN_HEIGHT = 700
 SCREEN_WIDTH = 1300
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('AZUL ONLINE')
+
+# set up clock
+clock = pygame.time.Clock()
+fps = 60
+
 
 # load line images
 square_img1 = pygame.image.load('pictures\square.png').convert_alpha()
@@ -46,6 +52,8 @@ black_stone_img = pygame.image.load('pictures\stone_black.png').convert_alpha() 
 green_stone_img = pygame.image.load('pictures\stone_green.png').convert_alpha()      # VALUE 4
 red_stone_img = pygame.image.load('pictures\stone_red.png').convert_alpha()          # VALUE 5
 stone_minus_img = pygame.image.load('pictures\stone_minus.png').convert_alpha()      # VALUE -1
+
+
 
 
 
@@ -514,6 +522,12 @@ while run:
                 
 
 
+    # Draw the game screen
     pygame.display.update()
+
+    # Limit the FPS by sleeping for the remainder of the frame time
+    clock.tick(fps)
+
+
 
 pygame.quit()
