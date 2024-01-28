@@ -2,6 +2,7 @@ import pygame
 import button
 from random import shuffle
 
+pygame.init()
 
 # create display window
 SCREEN_HEIGHT = 700
@@ -348,6 +349,15 @@ def clear_minus_points():
 screen.fill(0xC7EDEC)
 
 
+# font
+
+font = pygame.font.SysFont('calibri', 22)
+img = font.render('FPS: ' + str(fps), True, (0, 0, 0))
+rect = img.get_rect()
+pygame.draw.rect(img, (0, 0, 255), rect, 1)
+
+print(pygame.font.get_fonts())
+
 
 
 
@@ -372,6 +382,9 @@ while run:
         # HANDLING USER INPUTS
 
     # DRAWING ---------------------------------------------------------------------->
+    
+    screen.blit(img, (20, 20))
+
 
     empty = True
     # check if underlyings empty - next round - also for slower drawing
