@@ -16,6 +16,11 @@ clock = pygame.time.Clock()
 fps = 60
 
 
+# load LOGO
+logo_img = pygame.image.load('pictures\\azul_logo.png').convert_alpha()
+logo_img = pygame.transform.scale(logo_img, (int(0.44 * logo_img.get_width()), (0.44 * logo_img.get_height())))
+
+
 # load line images
 square_img1 = pygame.image.load('pictures\square.png').convert_alpha()
 square_img2 = pygame.image.load('pictures\square2.png').convert_alpha()
@@ -142,7 +147,7 @@ def create_board(num_players):
 
 
 def create_underlyings(num_players):
-    underlying_pos_list2 = [(645, 460), (825, 368), (745, 180), (600, 180), (525, 320)]
+    underlying_pos_list2 = [(645, 460), (825, 368), (755, 180), (600, 180), (530, 320)]
     underlying_pos_list3 = [(545, 430), (680, 460), (825, 390), (825, 278), (745, 180), (600, 180), (525, 320)]
     underlying_pos_list4 = [(545, 430), (645, 460), (745, 460), (825, 368), (825, 278), (745, 180), (645, 180), (545, 210), (525, 320)]
 
@@ -346,19 +351,14 @@ def clear_minus_points():
 # blue_stone3 = button.Stone('None', 'not needed', 'blue_stone2', 220 + 46 + 40, 445 + 5 + 40, blue_stone_img, blue_stone_img, 0.2, 0.2)
 
 # set up background color
-screen.fill(0xC7EDEC)
+screen.fill((219, 235, 234))
+
+
+ROUND = 0
 
 
 # font
-
-font = pygame.font.SysFont('calibri', 22)
-img = font.render('FPS: ' + str(fps), True, (0, 0, 0))
-rect = img.get_rect()
-pygame.draw.rect(img, (0, 0, 255), rect, 1)
-
-print(pygame.font.get_fonts())
-
-
+font = pygame.font.SysFont('calibri', 28, True)
 
 
 # MAIN GAME LOOP
@@ -373,7 +373,6 @@ possible_to_click_on_stones = True
 # test looping through list of players
 player_index = 0
 
-ROUND = 1
 
 run = True
 while run:
@@ -383,14 +382,18 @@ while run:
 
     # DRAWING ---------------------------------------------------------------------->
     
-    screen.blit(img, (20, 20))
 
+    if ROUND == 0:
+        print('filling underlyings')
+        draw_stones_on_underlyings(bag_of_tiles)
+        ROUND = 1
 
-    empty = True
-    # check if underlyings empty - next round - also for slower drawing
-    for underlying in list_of_underlyings:
-        if len(underlying.stones) > 0:
-            empty = False
+    # DISPLAY LOGO
+    screen.blit(logo_img, (SCREEN_WIDTH / 2 - logo_img.get_width() / 2 - 5, -20))
+
+    # ROUND COUNTER TEXT
+    img = font.render('Round: ' + str(ROUND), True, (0, 0, 0), (219, 235, 234))
+    screen.blit(img, (SCREEN_WIDTH / 2 - img.get_width() / 2, 120))
 
 
     # handle drawing of tables
@@ -412,6 +415,13 @@ while run:
         # ALWAYS ALSO DRAW STONES THAT ARE ON UNDERLYING
         for i in range(len(underlying.stones)):
             underlying.stones[i].draw(screen)
+
+
+    empty = True
+    # check if underlyings empty - next round - also for slower drawing
+    for underlying in list_of_underlyings:
+        if len(underlying.stones) > 0:
+            empty = False
 
 
     if empty:
