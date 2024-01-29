@@ -15,11 +15,17 @@ pygame.display.set_caption('AZUL ONLINE')
 clock = pygame.time.Clock()
 fps = 60
 
+# set up font
+font = pygame.font.SysFont('calibri', 27, True)
+
 
 # load LOGO
 logo_img = pygame.image.load('pictures\\azul_logo.png').convert_alpha()
 logo_img = pygame.transform.scale(logo_img, (int(0.44 * logo_img.get_width()), (0.44 * logo_img.get_height())))
 
+#load legend
+legend_img = pygame.image.load('pictures\\legend.png').convert_alpha()
+legend_img = pygame.transform.scale(legend_img, (int(0.38 * legend_img.get_width()), (0.38 * legend_img.get_height())))
 
 # load line images
 square_img1 = pygame.image.load('pictures\square.png').convert_alpha()
@@ -137,7 +143,7 @@ def create_underlying(player_index, pos, stone_pos):
 # creating whole board -> all tables for all players
 # COORDINATES FOR TABLES
 def create_board(num_players):
-    table_pos_list = [(220, 445), (1050 , 445), (1050, 70), (220, 70)]
+    table_pos_list = [(220, 445), (1060 , 445), (1060, 70), (220, 70)]
     tables_list = []
     for i in range(num_players):
         table = create_table(i, table_pos_list[i])
@@ -147,9 +153,9 @@ def create_board(num_players):
 
 
 def create_underlyings(num_players):
-    underlying_pos_list2 = [(645, 460), (825, 368), (755, 180), (600, 180), (530, 320)]
-    underlying_pos_list3 = [(545, 430), (680, 460), (825, 390), (825, 278), (745, 180), (600, 180), (525, 320)]
-    underlying_pos_list4 = [(545, 430), (645, 460), (745, 460), (825, 368), (825, 278), (745, 180), (645, 180), (545, 210), (525, 320)]
+    underlying_pos_list2 = [(650, 460), (830, 368), (760, 180), (605, 180), (535, 320)]
+    underlying_pos_list3 = [(550, 430), (685, 460), (830, 390), (830, 278), (750, 180), (605, 180), (530, 320)]
+    underlying_pos_list4 = [(550, 430), (650, 460), (750, 460), (830, 368), (830, 278), (750, 180), (650, 180), (550, 210), (535, 320)]
 
 
     underlyings_list = []
@@ -180,7 +186,7 @@ def create_underlyings(num_players):
             underlyings_list.append(underlying)
     
     # add middle underlying
-    middle_pos = (720, 280)
+    middle_pos = (725, 280)
     middle_stone_pos_list = []
     # TODO MAYBE ADD MORE PLACES IN THE MIDDLE IN THE FUTURE
     for i in range(4):
@@ -198,17 +204,27 @@ def create_underlyings(num_players):
 
 # drawing right side of table -NOT USED - only when table right os not a BUTTON OBJECT
 def draw_table_right(num_players):
-    table_right_pos_list = [(230, 450), (1060, 450), (1060, 70), (230, 70)]
+    table_right_pos_list = [(230, 450), (1070, 450), (1070, 70), (230, 70)]
     for i in range(num_players):
         screen.blit(table_right_img, table_right_pos_list[i])
 
 
 # drawing player backgrounds
 def draw_player_backgrounds(num_players):
-    background_pos_list = [(15, 390), (845 , 390), (845, 15), (15, 15)]
+    background_pos_list = [(15, 390), (855 , 390), (855, 15), (15, 15)]
     for i in range(num_players):
         screen.blit(player_background_img, background_pos_list[i])
 
+
+def draw_player_points(num_players):
+    points_pos_list = [(15, 390), (855 , 390), (855, 15), (15, 15)]
+    for i in range(num_players):
+        # render player name
+        name = font.render('Name here', True, (0, 0, 0), (200, 245, 249))
+        screen.blit(name, (points_pos_list[i][0] + 15, points_pos_list[i][1] + 13))
+        # render points
+        points = font.render('Points: ' + '33', True, (0, 0, 0), (200, 245, 249))
+        screen.blit(points, (points_pos_list[i][0] + 280, points_pos_list[i][1] + 13))
         
 
 
@@ -357,9 +373,6 @@ screen.fill((219, 235, 234))
 ROUND = 0
 
 
-# font
-font = pygame.font.SysFont('calibri', 28, True)
-
 
 # MAIN GAME LOOP
 # drawing stuff and handling events (key presses)
@@ -376,6 +389,8 @@ player_index = 0
 
 run = True
 while run:
+
+    screen.fill((219, 235, 234))
     # THERE MUST BE ALWAYS TWO PARTS IN THE MAIN PYGAME LOOP
         # DRAWING OF STUFF ON SCREEN and
         # HANDLING USER INPUTS
@@ -389,32 +404,11 @@ while run:
         ROUND = 1
 
     # DISPLAY LOGO
-    screen.blit(logo_img, (SCREEN_WIDTH / 2 - logo_img.get_width() / 2 - 5, -20))
-
-    # ROUND COUNTER TEXT
-    img = font.render('Round: ' + str(ROUND), True, (0, 0, 0), (219, 235, 234))
-    screen.blit(img, (SCREEN_WIDTH / 2 - img.get_width() / 2, 120))
+    screen.blit(logo_img, (SCREEN_WIDTH / 2 - logo_img.get_width() / 2, -20))
+    # DISPLAY LEGEND
+    screen.blit(legend_img, (SCREEN_WIDTH / 2 - legend_img.get_width() / 2, 595))
 
 
-    # handle drawing of tables
-    # draw background
-    draw_player_backgrounds(NUM_PLAYERS)
-    # draw_table_right
-    for table in list_of_tables:
-        for line in table:
-            # print('screen', butt.draw(screen))
-            line.draw(screen)
-            # ALWAYS ALSO DRAW STONE THATS ON THE LINE
-            for stone in line.stones:
-                stone.draw(screen)
-
-
-    # handle drawing underlyings
-    for underlying in list_of_underlyings:
-        underlying.draw(screen)
-        # ALWAYS ALSO DRAW STONES THAT ARE ON UNDERLYING
-        for i in range(len(underlying.stones)):
-            underlying.stones[i].draw(screen)
 
 
     empty = True
@@ -422,6 +416,16 @@ while run:
     for underlying in list_of_underlyings:
         if len(underlying.stones) > 0:
             empty = False
+
+
+    # ROUND COUNTER TEXT
+    if not empty:
+        img = font.render('Round: ' + str(ROUND), True, (0, 0, 0), (219, 235, 234))
+    else:
+        img = font.render('Moving stones to right...', True, (0, 0, 0), (219, 235, 234))
+
+    screen.blit(img, (SCREEN_WIDTH / 2 - img.get_width() / 2, 120))
+    
 
 
     if empty:
@@ -440,7 +444,39 @@ while run:
         player_index = 0
         ROUND += 1
 
+
+    # handle drawing of tables
+    # draw background
+    draw_player_backgrounds(NUM_PLAYERS)
+    # draw_table_right
+    for table in list_of_tables:
+        if empty:
+            pygame.display.update()
+            pygame.time.wait(1000)
+        for line in table:
+            # print('screen', butt.draw(screen))
+            line.draw(screen)
+            # ALWAYS ALSO DRAW STONE THATS ON THE LINE
+            for stone in line.stones:
+                stone.draw(screen)
+    # display points count
+    draw_player_points(NUM_PLAYERS)
+
+
+    # EMPTY UNDERLYING CHECK - END OF ROUND
+    if empty:
+        pygame.display.update()
+        pygame.time.wait(1500)
+
+    # handle drawing underlyings
+    for underlying in list_of_underlyings:
+        underlying.draw(screen)
+        # ALWAYS ALSO DRAW STONES THAT ARE ON UNDERLYING
+        for i in range(len(underlying.stones)):
+            underlying.stones[i].draw(screen)
+
         # cont = int(input('cont? '))
+
 
 
     # TEST BLUE STONE RATHER KEEP
