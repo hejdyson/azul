@@ -3,10 +3,11 @@ import pygame
 
 # button class
 class Line():
-    def __init__(self, player_index, stone_pos, name, x, y, image, image_hover, width_scale, height_scale):
+    def __init__(self, player_index, stone_pos, name, limit, x, y, image, image_hover, width_scale, height_scale):
         self.player_index = player_index
         self.stone_pos = stone_pos
         self.name = name
+        self.limit = limit
         width = image.get_width()
         height = image.get_height()
         self.image = pygame.transform.scale(image, (int(width*width_scale), int(height*height_scale)))
@@ -42,7 +43,7 @@ class Line():
         else:
             surface.blit(self.image, (self.rect.x, self.rect.y))
 
-        return action
+        return
 
 
 
@@ -87,7 +88,7 @@ class Underlying():
         else:
             surface.blit(self.image, (self.rect.x, self.rect.y))
 
-        return action
+        return
     
 
 
@@ -130,3 +131,19 @@ class Stone():
         surface.blit(self.image, (self.rect.x, self.rect.y))
 
         return
+
+
+class BoardVisual():
+    def __init__(self, round, list_of_tables, list_of_underlyings, bag_of_tiles, possible_to_click_on_stones, player_index):
+        self.round = round
+        self.list_of_tables = list_of_tables
+        self.list_of_underlyings = list_of_underlyings
+        self.bag_of_tiles = bag_of_tiles
+        self.possible_to_click_on_stones = possible_to_click_on_stones
+        self.player_index = player_index
+        self.empty = False
+        self.underlying_to_clear = None
+        self.to_line = []
+        self.to_the_middle = []
+        self.middle_remove = []
+        self.player_list = []
