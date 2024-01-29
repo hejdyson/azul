@@ -73,9 +73,6 @@ stone_minus_img = pygame.image.load('pictures\stone_minus.png').convert_alpha() 
 
 
 
-NUM_PLAYERS = 2
-
-
 # creating sigle player table
 def create_table(player_index, pos):
     # PLAYER
@@ -259,7 +256,7 @@ def create_bag_of_stones():
 # button loop test stone on underlying WORKS
 # HERE STONES WILL APPEND ACCORDING TO BAG OF TILES - SAME AS IN BACKEND
 # IN GAME THE VALUE WILL COME FROM board.fill_in_underlyings - self.bag_of_tiles.pop()
-def draw_stones_on_underlyings(bag_of_tiles):
+def add_stones_on_underlyings(bag_of_tiles):
     # bag_of_tiles = create_bag_of_stones()
     #shuffle(bag_of_tiles)
     #print('bag of tiles shuffled', bag_of_tiles)
@@ -356,15 +353,6 @@ def clear_minus_points():
 
 
 
-
-# TEST BLUE STONE  - RATHER KEEP
-
-# player 1:  line1: x + 46, y + 5  | x + 46 + 40, y + 5
-#            line2: x + 46, y + 5 + 40  | x + 46 + 40, y + 5 + 40
-
-# blue_stone1 = button.Stone('None', 'not needed', 'blue_stone2', 220 + 46, 445 + 5, blue_stone_img, blue_stone_img, 0.2, 0.2)
-# blue_stone2 = button.Stone('None', 'not needed', 'blue_stone2', 220 + 46 + 40, 445 + 5, blue_stone_img, blue_stone_img, 0.2, 0.2)
-# blue_stone3 = button.Stone('None', 'not needed', 'blue_stone2', 220 + 46 + 40, 445 + 5 + 40, blue_stone_img, blue_stone_img, 0.2, 0.2)
 
 
 # ##############################
@@ -525,48 +513,14 @@ def click_function():
         print('middle positions:', bv.list_of_underlyings[-1].stone_pos)
 
 
+#############################
+# DRAWING FUNCTIONS
 
-ROUND = 0
-
-
-# crating all tables
-# 4 - number of players
-list_of_tables = create_board(NUM_PLAYERS)
-
-# creating all underlyings
-list_of_underlyings = create_underlyings(NUM_PLAYERS)
-
-
-# MAIN GAME LOOP
-# drawing stuff and handling events (key presses)
-
-# create bag of tiles
-bag_of_tiles = create_bag_of_stones()
-
-# enable click on stone
-possible_to_click_on_stones = True
-
-# test looping through list of players
-player_index = 0
-
-bv = button.BoardVisual(ROUND, list_of_tables, list_of_underlyings, bag_of_tiles, possible_to_click_on_stones, player_index)
-
-
-
-run = True
-while run:
-    # set up background color
-    screen.fill((219, 235, 234))
-    # THERE MUST BE ALWAYS TWO PARTS IN THE MAIN PYGAME LOOP
-        # DRAWING OF STUFF ON SCREEN and
-        # HANDLING USER INPUTS
-
-    # DRAWING ---------------------------------------------------------------------->
-    
-
+def new_round_init():    
+    # ADDING STONES ON UNDERLYINGS ROUND 1
     if bv.round == 0:
         print('filling underlyings')
-        draw_stones_on_underlyings(bv.bag_of_tiles)
+        add_stones_on_underlyings(bv.bag_of_tiles)
         bv.round = 1
 
     # DISPLAY LOGO
@@ -574,33 +528,33 @@ while run:
     # DISPLAY LEGEND
     screen.blit(legend_img, (SCREEN_WIDTH / 2 - legend_img.get_width() / 2, 595))
 
-
-
-
+    # EMPTY CHECK
     bv.empty = True
     # check if underlyings empty - next round - also for slower drawing
     for underlying in bv.list_of_underlyings:
         if len(underlying.stones) > 0:
             bv.empty = False
 
-
     # ROUND COUNTER TEXT
     if not bv.empty:
         img = font.render('Round: ' + str(bv.round), True, (0, 0, 0), (219, 235, 234))
         screen.blit(img, (SCREEN_WIDTH / 2 - img.get_width() / 2, 120))
     
-
-
+    # EMPTY HANDLING FUNCTION CALLS
     if bv.empty:
+        # move stones to right
         print('all empty - end of round')
         print('moving stones to right')
         move_stones_to_right()
 
+        # clearing minus points
+        # TODO SOME DELAY HERE
         print('removing minus points')
         clear_minus_points()
 
+        # add stones on underlzing next rounds
         print('filling underlyings')
-        draw_stones_on_underlyings(bv.bag_of_tiles)
+        add_stones_on_underlyings(bv.bag_of_tiles)
 
         # change starting player
         # TODO STARTING PLAYER - WILL BE THE ONE WHO TOOK MIDDLE
@@ -608,11 +562,11 @@ while run:
         bv.round += 1
 
 
+def draw_bg_lines_info_stones_left():
     # handle drawing of tables
     # draw background
     draw_player_backgrounds(NUM_PLAYERS)
-    # draw_table_right
-    # TODO SEPARATELY DISPLAYING LEFT SIDE AND RIGHT SIDE TO CORRECTLY IMPLEMENT DELAY
+    # drawing lines
     for table in bv.list_of_tables:
         for line in table:
             # print('screen', butt.draw(screen))
@@ -621,15 +575,19 @@ while run:
     # draw player info
     draw_player_info(NUM_PLAYERS)
 
-    # drawing lines and stones on the left side and on minus points
+    # drawing stones on the left side and on minus points
     for table in bv.list_of_tables:
         for line in table:    
             # ALWAYS ALSO DRAW STONE THATS ON THE LINE - separately
             if line.name != 'table right':
                 for stone in line.stones:
                     stone.draw(screen)
+    
+    if bv.empty:
+        pygame.time.wait(1500)
 
-    # drawing points on the right side and after round end
+
+def draw_points_right_end_round():
     for table in bv.list_of_tables:
         for line in table:    
             if line.name == 'table right':
@@ -642,7 +600,7 @@ while run:
                     stone.draw(screen)
 
 
-
+def draw_underlyings_and_stones():
     # EMPTY UNDERLYING CHECK - END OF ROUND
     if bv.empty:
         # pause and text change before filling underlyings
@@ -658,19 +616,61 @@ while run:
         for i in range(len(underlying.stones)):
             underlying.stones[i].draw(screen)
 
-        # cont = int(input('cont? '))
 
 
-
-    # TEST BLUE STONE RATHER KEEP
-    # blue_stone1.draw(screen)
-    # blue_stone2.draw(screen)
-    # blue_stone3.draw(screen)
+NUM_PLAYERS = 2
 
 
-  
+# ASSIGNING bv OBJECT TO HANLDE GAME UPDATES
+# game round
+ROUND = 0
+
+# crating all tables
+# 4 - number of players
+list_of_tables = create_board(NUM_PLAYERS)
+
+# creating all underlyings
+list_of_underlyings = create_underlyings(NUM_PLAYERS)
+
+# create bag of tiles
+bag_of_tiles = create_bag_of_stones()
+
+# enable click on stone
+possible_to_click_on_stones = True
+
+# test looping through list of players
+player_index = 0
+
+# create board visual class instance that holds all info displayed on visual board
+bv = button.BoardVisual(ROUND, list_of_tables, list_of_underlyings, bag_of_tiles, possible_to_click_on_stones, player_index)
+
+
+# MAIN GAME LOOP
+# drawing stuff and handling events (key presses)
+run = True
+while run:
+    # set up background color
+    screen.fill((219, 235, 234))
+    # THERE MUST BE ALWAYS TWO PARTS IN THE MAIN PYGAME LOOP
+        # DRAWING OF STUFF ON SCREEN and
+        # HANDLING USER INPUTS
+
+
+    # DRAWING ---------------------------------------------------------------------->
     
+    # INITIALIZING EVERY NEW ROUND
+    new_round_init()
 
+    # drawing everything for player apart from right table
+    draw_bg_lines_info_stones_left()
+
+    # drawing points on the right side and after round end
+    draw_points_right_end_round()
+
+    # draw stones on underlying and undelrying and handles end of round drawing + its text
+    draw_underlyings_and_stones()
+
+    
     # HANDLING OF PLAYER INPUTS -------------------------------------------------->
 
     # event handler
