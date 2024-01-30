@@ -361,7 +361,6 @@ class Player():
 
     # adding minus points to score from round
     def add_minus_points_to_points_from_round(self, board):
-        print()
         print('Points from round after tiles placed to the right: ', self.points_from_round)
         print('Adding minus points...')
         minus_points = 0
@@ -376,6 +375,9 @@ class Player():
         print('Minus points this round:', minus_points)
         print('Points from round after minus points accounted:', self.points_from_round)
         self.points_total += self.points_from_round
+        # POINTS CANT BE NEGATIVE - IF BELOW 0 - RESET TO 0
+        if self.points_total < 0:
+            self.points_total = 0
         print()
         print('Total points so far: ', self.points_total)
         # TODO HERE IS THE PLACE TO ADD FUNCTION TO TAKE STATS FOR EVERY ROUND FOR ALL PLAYERS
@@ -396,9 +398,9 @@ class Player():
     def place_tile_to_right(self, board, i):
         points_from_value_placed = 0
         print()
-        print('start placing full tiles to right, line', i + 1)
+        # print('start placing full tiles to right, line', i + 1)
         if len(self.table_left[i][0]) == self.table_left[i][1]:
-            print('line full - will be placed to the right, value:', self.table_left[i][0][0])
+            # print('line full - will be placed to the right, value:', self.table_left[i][0][0])
             # go through right and place to right place on the right side of the table
             for index, item in enumerate(self.table_right[i]):
                 if item[0] == self.table_left[i][0][0]:
@@ -413,7 +415,7 @@ class Player():
                     points_from_value_placed += points_from_row
                     points_from_value_placed += points_from_col
                     points_from_value_placed += row_col_substraction
-                    print('Total points from value placed: ', points_from_value_placed)
+                    # print('Total points from value placed: ', points_from_value_placed)
                     self.points_from_round += points_from_value_placed
             # remove 1 tile from left line
             self.table_left[i][0].pop()
