@@ -130,14 +130,15 @@ class Player():
     # FUNCTIONS TO HANDLE INPUT OF TAKEN TILE TO THE LEFT OF THE BOARD #
     def tile_already_placed_on_right(self, line, take):
         for i in range(len(self.table_right[line])):
+            print('i', i, 'self.table_right[line][i]', self.table_right[line][i])
             if self.table_right[line][i][0] == take:
                 index = i
                 break
         if self.table_right[line][index][1] == True:
-            # print('tile already placed on the right')
+            print('tile already placed on the right')
             return True
         else:
-            # print('tile is not on the right, free to place here')
+            print('tile is not on the right, free to place here')
             return False
 
     def line_has_free_space(self, line):
@@ -166,6 +167,14 @@ class Player():
                 return True
         # print('different tiles on line ', line + 1, 'cannot place here')
         return False
+    
+    def line_full(self, line):
+        # edit to make posible clicking on full line - points go to minus
+        # KEEP it like this for bot?
+        if self.table_left[line][1] == len(self.table_left[line][0]):
+            print('line full - points will go to minus') 
+            return True
+        return False
 
     
     def is_line_placeable(self, line, take):
@@ -179,6 +188,8 @@ class Player():
                     if self.same_tile_on_line(line, take):
                         print('Line placeable - same tiles')
                         return True
+        if self.line_full(line):
+            return True
         print('Line not placeable')
         return False
     
@@ -222,7 +233,10 @@ class Player():
                 self.to_the_middle.clear()
                 break
             else:
-                continue
+                # choosing takes place int this while loop for in input or bot, but for visual its done bz click - loop wont end because if fails - cant select another within the loop
+                # for bot it needs to keep continue - perhaps separate 2 taking functions in main loop and condition if bot
+                # continue
+                break
     
 
     # BOT LINE CHOICE
@@ -343,7 +357,8 @@ class Player():
         # if line is fully free - dont do this calculation
         if self.line_fully_free(line[1] - 1):
             return
-        value = line[0][0]
+        # value is the last element on line, not first - important when removing
+        value = line[0][-1]
         # if there are more tiles on line than allowed
         if len(line[0]) > line[1]:
             num_to_move = len(line[0]) - line[1]
@@ -354,7 +369,9 @@ class Player():
                 self.minus_points.append(value)
             # and remove them from the line - kepp only the number of tiles that is allowed
             for _ in range(num_to_move):
-                line[0].remove(value)
+                # edit for when clicked on full line
+                if value in line[0]:
+                    line[0].remove(value)
         else:
             print('Line: ', line[1],': Nothing to move')
 

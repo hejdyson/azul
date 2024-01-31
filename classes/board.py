@@ -13,6 +13,7 @@ class Board:
         self.tiles = dict()
         self.list_of_players = []
         self.minus_points = [-1, -1, -2, -2, -2, -3, -3]
+        self.line_value = None
     
     # INITIALIZING FUNCTION - only happens once at the beginning
     def select_num_players(self):
@@ -91,12 +92,13 @@ class Board:
         for item in self.tiles:
             print(item, ' : ', self.tiles[item])
     
-    def valid_tile_selected(self, tile_choice):
-        if tile_choice in self.tiles:
-            return True
-        else:
-            print('Select a valid tile. ')
-            return False
+    # NOT NEEDED FOR CLICKS
+    # def valid_tile_selected(self, tile_choice):
+    #     if tile_choice in self.tiles:
+    #         return True
+    #     else:
+    #         print('Select a valid tile. ')
+    #         return False
         
     # check if all underlyings are empty - end of round
     def all_underlyings_empty(self):

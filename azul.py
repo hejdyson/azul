@@ -24,50 +24,50 @@ font = pygame.font.SysFont('calibri', 27, True)
 
 
 # load LOGO
-logo_img = pygame.image.load('pictures\\azul_logo.png').convert_alpha()
+logo_img = pygame.image.load('visuals\pictures\\azul_logo.png').convert_alpha()
 logo_img = pygame.transform.scale(logo_img, (int(0.44 * logo_img.get_width()), (0.44 * logo_img.get_height())))
 
 #load legend
-legend_img = pygame.image.load('pictures\\legend.png').convert_alpha()
+legend_img = pygame.image.load('visuals\pictures\\legend.png').convert_alpha()
 legend_img = pygame.transform.scale(legend_img, (int(0.38 * legend_img.get_width()), (0.38 * legend_img.get_height())))
 
 # load line images
-square_img1 = pygame.image.load('pictures\square.png').convert_alpha()
-square_img2 = pygame.image.load('pictures\square2.png').convert_alpha()
-square_img3 = pygame.image.load('pictures\square3.png').convert_alpha()
-square_img4 = pygame.image.load('pictures\square4.png').convert_alpha()
-square_img5 = pygame.image.load('pictures\square5.png').convert_alpha()
-table_right_img = pygame.image.load('pictures\\table_right.png').convert_alpha()
-minus_points_img = pygame.image.load('pictures\minus_points.png').convert_alpha()
+square_img1 = pygame.image.load('visuals\pictures\square.png').convert_alpha()
+square_img2 = pygame.image.load('visuals\pictures\square2.png').convert_alpha()
+square_img3 = pygame.image.load('visuals\pictures\square3.png').convert_alpha()
+square_img4 = pygame.image.load('visuals\pictures\square4.png').convert_alpha()
+square_img5 = pygame.image.load('visuals\pictures\square5.png').convert_alpha()
+table_right_img = pygame.image.load('visuals\pictures\\table_right.png').convert_alpha()
+minus_points_img = pygame.image.load('visuals\pictures\minus_points.png').convert_alpha()
 # only to create table right without actual button
 # table_right_img = pygame.transform.scale(table_right_img, (int(0.2 * table_right_img.get_width()), (0.2 * table_right_img.get_height())))
 
 # load line hover images
-square_img1_hover = pygame.image.load('pictures\square_hover.png').convert_alpha()
-square_img2_hover = pygame.image.load('pictures\square2_hover.png').convert_alpha()
-square_img3_hover = pygame.image.load('pictures\square3_hover.png').convert_alpha()
-square_img4_hover = pygame.image.load('pictures\square4_hover.png').convert_alpha()
-square_img5_hover = pygame.image.load('pictures\square5_hover.png').convert_alpha()
+square_img1_hover = pygame.image.load('visuals\pictures\square_hover.png').convert_alpha()
+square_img2_hover = pygame.image.load('visuals\pictures\square2_hover.png').convert_alpha()
+square_img3_hover = pygame.image.load('visuals\pictures\square3_hover.png').convert_alpha()
+square_img4_hover = pygame.image.load('visuals\pictures\square4_hover.png').convert_alpha()
+square_img5_hover = pygame.image.load('visuals\pictures\square5_hover.png').convert_alpha()
 
 # load player background image
-player_background_img = pygame.image.load('pictures\player_background.png').convert_alpha()
+player_background_img = pygame.image.load('visuals\pictures\player_background.png').convert_alpha()
 player_background_img = pygame.transform.scale(player_background_img, (int(0.2 * player_background_img.get_width()), (0.2 * player_background_img.get_height())))
 
 # load underlying images
-underlying_img = pygame.image.load('pictures\\underlying.png').convert_alpha()
-middle_underlying_img = pygame.image.load('pictures\\underlying_middle.png').convert_alpha()
+underlying_img = pygame.image.load('visuals\pictures\\underlying.png').convert_alpha()
+middle_underlying_img = pygame.image.load('visuals\pictures\\underlying_middle.png').convert_alpha()
 
 # load underlying hover images
-underlying_img_hover = pygame.image.load('pictures\\underlying_hover.png').convert_alpha()
-middle_underlying_img_hover = pygame.image.load('pictures\\underlying_middle_hover.png').convert_alpha()
+underlying_img_hover = pygame.image.load('visuals\pictures\\underlying_hover.png').convert_alpha()
+middle_underlying_img_hover = pygame.image.load('visuals\pictures\\underlying_middle_hover.png').convert_alpha()
 
 # load stone images
-blue_stone_img = pygame.image.load('pictures\stone_blue.png').convert_alpha()        # VALUE 1
-yellow_stone_img = pygame.image.load('pictures\stone_yellow.png').convert_alpha()    # VALUE 2
-black_stone_img = pygame.image.load('pictures\stone_black.png').convert_alpha()      # VALUE 3
-green_stone_img = pygame.image.load('pictures\stone_green.png').convert_alpha()      # VALUE 4
-red_stone_img = pygame.image.load('pictures\stone_red.png').convert_alpha()          # VALUE 5
-stone_minus_img = pygame.image.load('pictures\stone_minus.png').convert_alpha()      # VALUE -1
+blue_stone_img = pygame.image.load('visuals\pictures\stone_blue.png').convert_alpha()        # VALUE 1
+yellow_stone_img = pygame.image.load('visuals\pictures\stone_yellow.png').convert_alpha()    # VALUE 2
+black_stone_img = pygame.image.load('visuals\pictures\stone_black.png').convert_alpha()      # VALUE 3
+green_stone_img = pygame.image.load('visuals\pictures\stone_green.png').convert_alpha()      # VALUE 4
+red_stone_img = pygame.image.load('visuals\pictures\stone_red.png').convert_alpha()          # VALUE 5
+stone_minus_img = pygame.image.load('visuals\pictures\stone_minus.png').convert_alpha()      # VALUE -1
 
 
 
@@ -359,6 +359,7 @@ def clear_minus_points():
         list_of_tables[player_index][-1].stones.clear()
 
 
+# TODO player order change
 
 
 
@@ -372,7 +373,8 @@ def main():
     brd.append_bag_of_tiles()
     #print('after addition', brd.bag_of_tiles)
     brd.scramble_bag_of_tiles()
-    bag_of_tiles = brd.bag_of_tiles_front
+    brd.bag_of_tiles_front = copy.deepcopy(brd.bag_of_tiles)
+
 
     while True:
 
@@ -404,7 +406,7 @@ def main():
         print('choosing order')
         backend.choose_player_order(brd)
 
-        pygame.time.wait(2000)
+        pygame.time.wait(500)
 
         for index, player in enumerate(brd.list_of_players):
             print('index:', index, 'Player:', player.name, 'first player', player.first_player, 'position on board', player.position_on_board)
@@ -441,7 +443,7 @@ def main():
 
             if ROUND == 0:
                 print('filling underlyings')
-                draw_stones_on_underlyings(bag_of_tiles)
+                draw_stones_on_underlyings(brd.bag_of_tiles_front)
                 ROUND = 1
 
             # DISPLAY LOGO
@@ -476,9 +478,9 @@ def main():
 
                 print('filling underlyings')
                 
-                brd.fill_in_underlyings()
                 brd.bag_of_tiles_front = copy.deepcopy(brd.bag_of_tiles)
-                draw_stones_on_underlyings(bag_of_tiles)
+                brd.fill_in_underlyings()
+                draw_stones_on_underlyings(brd.bag_of_tiles_front)
 
                 # change starting player
                 # TODO STARTING PLAYER - WILL BE THE ONE WHO TOOK MIDDLE
@@ -572,6 +574,7 @@ def main():
                 # print('Print all board attributes')
                 # brd.print_board_stats()
                 print('bag of tiles: ', brd.bag_of_tiles, '(', len(brd.bag_of_tiles), ')')
+                print('bag of tiles front: ', brd.bag_of_tiles_front, '(', len(brd.bag_of_tiles_front), ')')
                 print('bag of used tiles: ', brd.bag_of_used_tiles, '(', len(brd.bag_of_used_tiles), ')')
                 print()
 
@@ -651,10 +654,10 @@ def main():
 
                                     # tile + underlying info from frontend
                                     if len(to_line) > 1:
-                                        line_value = to_line[1].value
+                                        brd.line_value = to_line[1].value
                                     elif len(to_line) == 1:
-                                        line_value = to_line[0].value
-                                    player.choose_tile(brd, line_value, index)
+                                        brd.line_value = to_line[0].value
+                                    player.choose_tile(brd, brd.line_value, index)
 
 
 
@@ -716,8 +719,11 @@ def main():
                                         print('different stones already on line')
                                         break
                                 # NOT THAT SIMPLE TODO SOMEHOW
-                                # # # if player.tile_already_placed_on_right(line.limit, line_value):
-                                # # #     break
+                                if player.tile_already_placed_on_right(line.limit - 1, brd.line_value) and not player.line_full(line.limit - 1):
+                                    print('already on right +++++++++')
+                                    break
+                                    
+
                                 # NOTE - can place ANY stone on ANY line if line is full - stones will go to MINUS
 
                                 # first enable clicking on stone on underlying again
@@ -725,6 +731,7 @@ def main():
                                 print('possible_to_click_on_stones', possible_to_click_on_stones)
 
                                 player.choose_line(line.limit)
+
 
                                 # Handling of stone click placement - either on line or to minus points if over the line limit: 1 APPEND 2 CHANGE COORDINATES
                                 # LINE: append to the line list of stones
