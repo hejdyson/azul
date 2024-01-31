@@ -1,5 +1,5 @@
 from random import shuffle
-
+import copy
 
 class Board:
     def __init__(self):
@@ -8,6 +8,7 @@ class Board:
         self.tiles_on_underlying = 4
         self.underlyings = []
         self.bag_of_tiles = []
+        self.bag_of_tiles_front = []
         self.bag_of_used_tiles = [] # used tiles after plays, wait for bag of tiles to be low on tiles to refill it wit everything
         self.tiles = dict()
         self.list_of_players = []
@@ -17,7 +18,7 @@ class Board:
     def select_num_players(self):
         # input from player for testing
         # self.number_of_players = int(input('How many players will play? <2-4>: '))
-        self.number_of_players = 3
+        self.number_of_players = 2
     
     # INITIALIZING FUNCTION
     def draw_underlyings(self):
@@ -44,6 +45,7 @@ class Board:
     # Functions for every round:
     def scramble_bag_of_tiles(self):
         shuffle(self.bag_of_tiles)
+        self.bag_of_tiles_front = copy.deepcopy(self.bag_of_tiles)
         
         # FOR TESTING -  to play with the number of tiles
         # self.bag_of_tiles = self.bag_of_tiles[:15]
