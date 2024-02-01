@@ -12,6 +12,7 @@ class Board:
         self.bag_of_used_tiles = [] # used tiles after plays, wait for bag of tiles to be low on tiles to refill it wit everything
         self.tiles = dict()
         self.list_of_players = []
+        self.default_list_of_players = []
         self.minus_points = [-1, -1, -2, -2, -2, -3, -3]
         self.line_value = None
     

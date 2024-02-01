@@ -232,14 +232,6 @@ def draw_player_info(num_players, player_list):
         
 
 
-# crating all tables
-# 4 - number of players
-list_of_tables = create_board(NUM_PLAYERS)
-
-# creating all underlyings
-list_of_underlyings = create_underlyings(NUM_PLAYERS)
-
-
 
 # def create_bag_of_stones():
 #     bag_of_tiles = []
@@ -353,10 +345,19 @@ def move_stones_to_right():
                 line.stones.clear()
 
 
-# remove stones from inus points after end of round
+# remove stones from minus points after end of round
 def clear_minus_points():
     for player_index in range(NUM_PLAYERS):
         list_of_tables[player_index][-1].stones.clear()
+
+
+
+# crating all tables
+# 4 - number of players
+list_of_tables = create_board(NUM_PLAYERS)
+
+# creating all underlyings
+list_of_underlyings = create_underlyings(NUM_PLAYERS)
 
 
 # TODO player order change
@@ -368,7 +369,7 @@ def main():
     brd = Board()
 
     brd.select_num_players()
-    backend.create_players(brd)
+    backend.create_players(brd, list_of_tables)
     brd.draw_underlyings()
     brd.append_bag_of_tiles()
     #print('after addition', brd.bag_of_tiles)
@@ -403,7 +404,7 @@ def main():
         print('Round:', brd.round_counter)
         brd.fill_in_underlyings()
         # Assign player order
-        print('choosing order')
+        print('choosing order START')
         backend.choose_player_order(brd)
 
         pygame.time.wait(500)
@@ -411,11 +412,6 @@ def main():
         for index, player in enumerate(brd.list_of_players):
             print('index:', index, 'Player:', player.name, 'first player', player.first_player, 'position on board', player.position_on_board)
         # cont = int(input('cont?'))
-        # REMOVING FIRST PLAYER MARK
-        for player in brd.list_of_players:
-            if player.first_player == True:
-                player.first_player = False
-
 
 
         # ONE ROUND
@@ -485,7 +481,18 @@ def main():
                 # change starting player
                 # TODO STARTING PLAYER - WILL BE THE ONE WHO TOOK MIDDLE
                 player_index = 0
+                # TODO manage to have only one round counter for both front and end
                 ROUND += 1
+                brd.round_counter = ROUND
+                
+                # first choose the order
+                print('choosing order GAME')
+                backend.choose_player_order(brd)
+
+                # then REMOVING the old FIRST PLAYER MARK
+                for player in brd.list_of_players:
+                    if player.first_player == True:
+                        player.first_player = False
 
 
             # handle drawing of tables
@@ -499,7 +506,7 @@ def main():
                     line.draw(screen)
 
             # draw player info
-            draw_player_info(NUM_PLAYERS, brd.list_of_players)
+            draw_player_info(NUM_PLAYERS, brd.default_list_of_players)
 
             # drawing lines and stones on the left side and on minus points
             for table in list_of_tables:
@@ -559,13 +566,14 @@ def main():
                 
 
                 if game_over:
+                    draw_player_info(NUM_PLAYERS, brd.default_list_of_players)
                     print('GAME ENDS, round', brd.round_counter)
                     print('Counting final points for all players')
                     for player in brd.list_of_players:
                         player.print_player_table()
                         player.count_ending_points()
                     backend.display_final_score(brd)
-                    break
+                    # break
                 
                 # another = int(input('Continue?'))
 
@@ -578,6 +586,7 @@ def main():
                 print('bag of used tiles: ', brd.bag_of_used_tiles, '(', len(brd.bag_of_used_tiles), ')')
                 print()
 
+                # MAYBE DELETE
                 brd.round_counter += 1
 
 
@@ -671,11 +680,11 @@ def main():
                                             from_the_middle = True
                                             print('taking from the middle')
                                             for position in list_of_underlyings[-1].stone_pos:
-                                                print('position', position)
-                                                print('position of stone x', item.x, 'y:', item.y)
+                                                # print('position', position)
+                                                # print('position of stone x', item.x, 'y:', item.y)
                                                 # removing taken stones from the middle
                                                 if position[0] == (item.x, item.y):
-                                                    print('occupied middle position to be freed', position)
+                                                    # print('occupied middle position to be freed', position)
                                                     position[1] = False
                                             # handle of middle stones
                                             middle_remove.append(item)
@@ -705,10 +714,11 @@ def main():
                     # SEDOND - CLICK MUST BE ON LINE OF PLAYER WHICH IS ON TURN - for now only player 1
                     if not possible_to_click_on_stones:
                         # now only player 1 - first table - list_of_tables [0]
-                        for line in list_of_tables[player_index]:
+                        # # # # REPLACE list_of_tables[player_index] WITH player.table_front
+                        for line in player.table_front:
                             if line.rect.collidepoint(event.pos):
                                 # just check if not clicked on minus points or on table right
-                                if line == list_of_tables[player_index][-1] or line == list_of_tables[player_index][-2]:
+                                if line == player.table_front[-1] or line == player.table_front[-2]:
                                     print('table right or minus points')
                                     break
 
@@ -741,19 +751,19 @@ def main():
                                         stone.placement = line
                                     # if -1 taken
                                     else:
-                                        list_of_tables[player_index][-1].stones.append(stone)
-                                        stone.placement = list_of_tables[player_index][-1]
+                                        player.table_front[-1].stones.append(stone)
+                                        stone.placement = player.table_front[-1]
 
                                 # minus points - if over line limit
                                 # MINUS_POINTS: append over the limit stones to minus points list of stones
                                 if len(line.stones) > line.limit:
                                     for i in range(len(line.stones) - line.limit):
                                         # change stone placement to minus point
-                                        line.stones[-i-1].placement = list_of_tables[player_index][-1]
+                                        line.stones[-i-1].placement = player.table_front[-1]
                                         # append stone to minus point point list (only of there is still place)
                                         # TODO HARD TO REACH EDGECASE - ALL LINES FULL AND ALSO MINUS POINTS FULL - STONES WONT GO TO MIDDLE
-                                        if len(list_of_tables[player_index][-1].stones) < list_of_tables[player_index][-1].limit:
-                                            list_of_tables[player_index][-1].stones.append(line.stones[-i-1])
+                                        if len(player.table_front[-1].stones) < player.table_front[-1].limit:
+                                            player.table_front[-1].stones.append(line.stones[-i-1])
                                     # remove excessive stones from line.stones
                                     for i in range(len(line.stones) - line.limit):
                                         line.stones.pop()
@@ -764,9 +774,9 @@ def main():
                                     line.stones[i].y = line.stone_pos[i][1]
 
                                 # MINUS_POINTS: change coordinates to minus points coordinates 
-                                for i in range(len(list_of_tables[player_index][-1].stones)):
-                                    list_of_tables[player_index][-1].stones[i].x = list_of_tables[player_index][-1].stone_pos[i][0]
-                                    list_of_tables[player_index][-1].stones[i].y = list_of_tables[player_index][-1].stone_pos[i][1]
+                                for i in range(len(player.table_front[-1].stones)):
+                                    player.table_front[-1].stones[i].x = player.table_front[-1].stone_pos[i][0]
+                                    player.table_front[-1].stones[i].y = player.table_front[-1].stone_pos[i][1]
 
                                 # after placing tiles to line, clear selected underlying.stones
                                 print('clearing underlying')

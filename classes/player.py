@@ -27,6 +27,8 @@ class Player():
                             [[2, False], [3, False], [4, False], [5, False], [1, False]]]
         
         self.table_right_transposed = [list(i) for i in zip(*self.table_right)]
+
+        self.table_front = None
         
 
     # Function to print player table
@@ -76,6 +78,7 @@ class Player():
                         self.first_player = True
                         self.minus_points.append(-1)
                         print('first to take the middle')
+                        print('self.name, self.first_player', self.name, self.first_player)
                 return underlying_choice
 
 
@@ -121,6 +124,7 @@ class Player():
             else:     
                 board.underlyings[index] = [value for value in board.underlyings[index] if value != tile_choice]
                 break 
+            #### maybe for bot
             # # # # if not - select another tile       
             # # # else:
             # # #     counter_index += 1

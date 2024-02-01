@@ -3,11 +3,16 @@ from classes.player import Player
 
 
 # create players with generic names
-def create_players(board):
+def create_players(board, list_of_tables):
+    # create list of players for game order - order will change according to first player
     for i in range(board.number_of_players):
         player = Player('Player ' + str(i + 1))
         player.position_on_board = i + 1
+        # important - link player from backend to his frontend table
+        player.table_front = list_of_tables[i]
         board.list_of_players.append(player)
+        # this wont change - for drawing still on same places
+        board.default_list_of_players.append(player)
     
     for player in board.list_of_players:
         print('player name', player.name)
@@ -26,13 +31,14 @@ def choose_player_order(board):
         player_order = []
         # creating looped list 1 -> 2 -> 3 -> 4 -> 1   - first will be the one with first player mark - every round this can change
         while True:
-            if board.list_of_players[index].first_player == True:
+            if board.default_list_of_players[index].first_player == True:
+                print('FIRST PLAYER HIT')
                 start_appending = True
             if start_appending:
-                player_order.append(board.list_of_players[index])
-            if index + 1 == len(board.list_of_players):
+                player_order.append(board.default_list_of_players[index])
+            if index + 1 == len(board.default_list_of_players):
                 index = -1
-            if len(player_order) == len(board.list_of_players):
+            if len(player_order) == len(board.default_list_of_players):
                 break
 
             index += 1
@@ -40,7 +46,7 @@ def choose_player_order(board):
         for i in range(len(player_order)):
             board.list_of_players.append(player_order[i])
         for player in board.list_of_players:
-            print('player ', player.name)
+            print('player ORDER', player.name)
         player_order.clear()
 
 
