@@ -220,14 +220,14 @@ def draw_player_backgrounds(num_players):
         screen.blit(player_background_img, background_pos_list[i])
 
 
-def draw_player_info(num_players):
+def draw_player_info(num_players, player_list):
     points_pos_list = [(15, 390), (855 , 390), (855, 15), (15, 15)]
     for i in range(num_players):
         # render player name
-        name = font.render('Name here', True, (0, 0, 0), (200, 245, 249))
+        name = font.render(player_list[i].name, True, (0, 0, 0), (200, 245, 249))
         screen.blit(name, (points_pos_list[i][0] + 15, points_pos_list[i][1] + 13))
         # render points
-        points = font.render('Points: ' + '33', True, (0, 0, 0), (200, 245, 249))
+        points = font.render('Points: ' + str(player_list[i].points_total), True, (0, 0, 0), (200, 245, 249))
         screen.blit(points, (points_pos_list[i][0] + 280, points_pos_list[i][1] + 13))
         
 
@@ -499,7 +499,7 @@ def main():
                     line.draw(screen)
 
             # draw player info
-            draw_player_info(NUM_PLAYERS)
+            draw_player_info(NUM_PLAYERS, brd.list_of_players)
 
             # drawing lines and stones on the left side and on minus points
             for table in list_of_tables:
@@ -514,7 +514,7 @@ def main():
                 for line in table:    
                     if line.name == 'table right':
                         if empty:
-                            img = font.render('Counting points... ' + 'Player ' + str(line.player_index), True, (0, 0, 0), (219, 235, 234))
+                            img = font.render('Counting points... ' + 'Player ' + str(line.player_index + 1), True, (0, 0, 0), (219, 235, 234))
                             screen.blit(img, (SCREEN_WIDTH / 2 - img.get_width() / 2, 120))
                             pygame.display.update()
                             pygame.time.wait(2000)
