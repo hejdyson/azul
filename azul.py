@@ -383,7 +383,7 @@ def main():
         screen.fill((219, 235, 234))
 
 
-        ROUND = 0
+        ROUND = 1
 
 
 
@@ -396,15 +396,15 @@ def main():
         # enable click on stone
         possible_to_click_on_stones = True
 
-        # test looping through list of players
-        player_index = 0
 
-
+        brd.round_counter = ROUND
         print('Round:', brd.round_counter)
         brd.fill_in_underlyings()
+
         # Assign player order
-        print('choosing order')
+        print('choosing order start of game')
         backend.choose_player_order(brd)
+
 
         pygame.time.wait(500)
 
@@ -417,9 +417,12 @@ def main():
                 player.first_player = False
 
 
+        print('filling underlyings')
+        draw_stones_on_underlyings(brd.bag_of_tiles_front)
+
 
         # ONE ROUND
-        player_index = 0
+        player_index = brd.list_of_players[0].position_on_board - 1
         run = True
         # while not brd.all_underlyings_empty():
         while run:
@@ -440,11 +443,6 @@ def main():
 
             # DRAWING ---------------------------------------------------------------------->
             
-
-            if ROUND == 0:
-                print('filling underlyings')
-                draw_stones_on_underlyings(brd.bag_of_tiles_front)
-                ROUND = 1
 
             # DISPLAY LOGO
             screen.blit(logo_img, (SCREEN_WIDTH / 2 - logo_img.get_width() / 2, -20))
@@ -484,8 +482,12 @@ def main():
 
                 # change starting player
                 # TODO STARTING PLAYER - WILL BE THE ONE WHO TOOK MIDDLE
-                player_index = 0
+                player_index = brd.list_of_players[0].position_on_board - 1
                 ROUND += 1
+
+                # Assign player order - AFTER ROUND CHANGE
+                print('choosing order')
+                backend.choose_player_order(brd)
 
 
             # handle drawing of tables
@@ -499,7 +501,7 @@ def main():
                     line.draw(screen)
 
             # draw player info
-            draw_player_info(NUM_PLAYERS, brd.list_of_players)
+            draw_player_info(NUM_PLAYERS, brd.default_list_of_players)
 
             # drawing lines and stones on the left side and on minus points
             for table in list_of_tables:
@@ -671,8 +673,8 @@ def main():
                                             from_the_middle = True
                                             print('taking from the middle')
                                             for position in list_of_underlyings[-1].stone_pos:
-                                                print('position', position)
-                                                print('position of stone x', item.x, 'y:', item.y)
+                                                # print('position', position)
+                                                # print('position of stone x', item.x, 'y:', item.y)
                                                 # removing taken stones from the middle
                                                 if position[0] == (item.x, item.y):
                                                     print('occupied middle position to be freed', position)
@@ -705,6 +707,7 @@ def main():
                     # SEDOND - CLICK MUST BE ON LINE OF PLAYER WHICH IS ON TURN - for now only player 1
                     if not possible_to_click_on_stones:
                         # now only player 1 - first table - list_of_tables [0]
+                        print('list_of_tables[player_index]', player_index)
                         for line in list_of_tables[player_index]:
                             if line.rect.collidepoint(event.pos):
                                 # just check if not clicked on minus points or on table right
