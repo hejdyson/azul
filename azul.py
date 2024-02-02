@@ -35,6 +35,12 @@ legend_img = pygame.transform.scale(legend_img, (int(0.38 * legend_img.get_width
 first_player_img = pygame.image.load('visuals\pictures\\first_player.png').convert_alpha()
 first_player_img = pygame.transform.scale(first_player_img, (int(0.105 * first_player_img.get_width()), (0.105 * first_player_img.get_height())))
 
+# load ending rankings
+rank_winner_img = pygame.image.load('visuals\pictures\\rank_winner.png').convert_alpha()
+rank_second_img = pygame.image.load('visuals\pictures\\rank_second.png').convert_alpha()
+rank_third_img = pygame.image.load('visuals\pictures\\rank_third.png').convert_alpha()
+rank_fourth_img = pygame.image.load('visuals\pictures\\rank_fourth.png').convert_alpha()
+
 # load line images
 square_img1 = pygame.image.load('visuals\pictures\square.png').convert_alpha()
 square_img2 = pygame.image.load('visuals\pictures\square2.png').convert_alpha()
@@ -220,7 +226,7 @@ def draw_player_backgrounds(num_players):
         screen.blit(player_background_img, background_pos_list[i])
 
 
-def draw_player_info(num_players, player_list, ordered_player_list, player):
+def draw_player_info(num_players, player_list, ordered_player_list, ranked_player_list, player):
     points_pos_list = [(15, 390), (855 , 390), (855, 15), (15, 15)]
     for i in range(num_players):
         # render player name
@@ -236,6 +242,18 @@ def draw_player_info(num_players, player_list, ordered_player_list, player):
         # player from default order list matches first in ordered according to first player list
         if player_list[i] == ordered_player_list[0]:
             screen.blit(first_player_img, (points_pos_list[i][0] + 15, points_pos_list[i][1] + 45))
+        # display player rankings in the end
+        if len(ranked_player_list) > 0:
+            x = 15
+            y = 50
+            if player_list[i] == ranked_player_list[0]:
+                screen.blit(rank_winner_img, (points_pos_list[i][0] + x, points_pos_list[i][1] + y))
+            elif player_list[i] == ranked_player_list[1]:
+                screen.blit(rank_second_img, (points_pos_list[i][0] + x, points_pos_list[i][1] + y))
+            elif player_list[i] == ranked_player_list[2]:
+                screen.blit(rank_third_img, (points_pos_list[i][0] + x, points_pos_list[i][1] + y))
+            elif player_list[i] == ranked_player_list[3]:
+                screen.blit(rank_fourth_img, (points_pos_list[i][0] + x, points_pos_list[i][1] + y))
 
          
         
@@ -361,7 +379,11 @@ def clear_minus_points():
 
 
 
-NUM_PLAYERS = 3
+    
+
+
+
+NUM_PLAYERS = 2
 
 # crating all tables
 # 4 - number of players
@@ -515,8 +537,6 @@ def main():
                     # print('screen', butt.draw(screen))
                     line.draw(screen)
 
-            # draw player info
-            draw_player_info(NUM_PLAYERS, brd.default_list_of_players, brd.list_of_players, player)
 
             # drawing lines and stones on the left side and on minus points
             for table in list_of_tables:
@@ -525,6 +545,9 @@ def main():
                     if line.name != 'table right':
                         for stone in line.stones:
                             stone.draw(screen)
+
+            # draw player info
+            draw_player_info(NUM_PLAYERS, brd.default_list_of_players, brd.list_of_players, brd.ending_list_of_players, player)
 
             # drawing points on the right side and after round end
             for table in list_of_tables:
@@ -576,13 +599,15 @@ def main():
                 
 
                 if game_over:
-                    draw_player_info(NUM_PLAYERS, brd.default_list_of_players, brd.list_of_players, player)
+                    draw_player_info(NUM_PLAYERS, brd.default_list_of_players, brd.list_of_players, brd.ending_list_of_players, player)
                     print('GAME ENDS, round', brd.round_counter)
                     print('Counting final points for all players')
                     for player in brd.list_of_players:
                         player.print_player_table()
                         player.count_ending_points()
                     backend.display_final_score(brd)
+
+
                     # break
                 
                 # another = int(input('Continue?'))

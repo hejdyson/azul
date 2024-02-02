@@ -13,6 +13,7 @@ class Board:
         self.tiles = dict()
         self.list_of_players = []
         self.default_list_of_players = []
+        self.ending_list_of_players = []
         self.minus_points = [-1, -1, -2, -2, -2, -3, -3]
         self.line_value = None
     

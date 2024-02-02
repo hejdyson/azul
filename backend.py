@@ -61,20 +61,20 @@ def display_final_score(board):
     players_to_sort = []
     for player in board.list_of_players:
         players_to_sort.append(player)
-    players_sorted = sorted(players_to_sort, key=lambda player: player.points_total, reverse=True)
+    board.ending_list_of_players = sorted(players_to_sort, key=lambda player: player.points_total, reverse=True)
     print('')
     print('----------------------------')
-    print('The Winner is: ', players_sorted[0].name)
+    print('The Winner is: ', board.ending_list_of_players[0].name)
     print('----------------------------')
     print()
     print('Final score:')
     print('----------------------------')
     print('Player Name\tTotal Points')
     print('-------------+--------------')
-    for player in players_sorted:
+    for player in board.ending_list_of_players:
         print(player.name, '\t', player.points_total)
     
-    display_stats_from_rounds(players_sorted)
+    display_stats_from_rounds(board.ending_list_of_players)
 
 
 # Displaying stats from all rounds
