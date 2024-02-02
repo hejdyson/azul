@@ -72,10 +72,6 @@ stone_minus_img = pygame.image.load('visuals\pictures\stone_minus.png').convert_
 
 
 
-
-NUM_PLAYERS = 2
-
-
 # creating sigle player table
 def create_table(player_index, pos):
     # PLAYER
@@ -352,12 +348,16 @@ def clear_minus_points():
 
 
 
+NUM_PLAYERS = 3
+
 # crating all tables
 # 4 - number of players
 list_of_tables = create_board(NUM_PLAYERS)
 
 # creating all underlyings
 list_of_underlyings = create_underlyings(NUM_PLAYERS)
+
+
 
 
 # TODO player order change
@@ -368,7 +368,9 @@ list_of_underlyings = create_underlyings(NUM_PLAYERS)
 def main():
     brd = Board()
 
-    brd.select_num_players()
+    # when ingame selecting num of players - now default NUM_PLAYERS
+    # brd.select_num_players()
+    brd.number_of_players = NUM_PLAYERS
     backend.create_players(brd, list_of_tables)
     brd.draw_underlyings()
     brd.append_bag_of_tiles()
@@ -489,10 +491,7 @@ def main():
                 print('choosing order GAME')
                 backend.choose_player_order(brd)
 
-                # then REMOVING the old FIRST PLAYER MARK
-                for player in brd.list_of_players:
-                    if player.first_player == True:
-                        player.first_player = False
+
 
 
             # handle drawing of tables

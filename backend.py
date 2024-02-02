@@ -1,4 +1,4 @@
-from random import shuffle
+from random import randint
 from classes.player import Player
 
 
@@ -7,7 +7,7 @@ def create_players(board, list_of_tables):
     # create list of players for game order - order will change according to first player
     for i in range(board.number_of_players):
         player = Player('Player ' + str(i + 1))
-        player.position_on_board = i + 1
+        player.position_on_board = i
         # important - link player from backend to his frontend table
         player.table_front = list_of_tables[i]
         board.list_of_players.append(player)
@@ -19,35 +19,41 @@ def create_players(board, list_of_tables):
 
 # choose player order - starts player with first player = True
 def choose_player_order(board):
-    # first round - random order
+    # first round - assign random FIRST PLAYER
     if board.round_counter == 1:
-        shuffle(board.list_of_players)
+        first_index = randint(0, len(board.default_list_of_players) - 1)
         for player in board.list_of_players:
-            print('player ', player.name, 'position on board', player.position_on_board)
-        # cont = int(input('after shuffle'))
-    else:
-        index = 0
-        start_appending = False
-        player_order = []
-        # creating looped list 1 -> 2 -> 3 -> 4 -> 1   - first will be the one with first player mark - every round this can change
-        while True:
-            if board.default_list_of_players[index].first_player == True:
-                print('FIRST PLAYER HIT')
-                start_appending = True
-            if start_appending:
-                player_order.append(board.default_list_of_players[index])
-            if index + 1 == len(board.default_list_of_players):
-                index = -1
-            if len(player_order) == len(board.default_list_of_players):
-                break
-
-            index += 1
-        board.list_of_players.clear()
-        for i in range(len(player_order)):
-            board.list_of_players.append(player_order[i])
-        for player in board.list_of_players:
-            print('player ORDER', player.name)
-        player_order.clear()
+            if player.position_on_board == first_index:
+                player.first_player = True
+    # for every round - choose the correct player order - first player first
+    index = 0
+    start_appending = False
+    player_order = []
+    # creating looped list 1 -> 2 -> 3 -> 4 -> 1   - first will be the one with first player mark - every round this can change
+    while True:
+        if board.default_list_of_players[index].first_player == True:
+            print('FIRST PLAYER HIT')
+            start_appending = True
+        if start_appending:
+            player_order.append(board.default_list_of_players[index])
+        if index + 1 == len(board.default_list_of_players):
+            index = -1
+        if len(player_order) == len(board.default_list_of_players):
+            break
+        index += 1
+    board.list_of_players.clear()
+    for i in range(len(player_order)):
+        board.list_of_players.append(player_order[i])
+    for player in board.list_of_players:
+        print('player ORDER', player.name)
+    player_order.clear()
+    # then REMOVING the old FIRST PLAYER MARK
+    for player in board.list_of_players:
+        if player.first_player == True:
+            player.first_player = False
+    # help print
+    for player in board.list_of_players:
+        print('player ', player.name, 'position on board', player.position_on_board)
 
 
 # Displaying final score
