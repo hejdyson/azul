@@ -27,9 +27,13 @@ font = pygame.font.SysFont('calibri', 27, True)
 logo_img = pygame.image.load('visuals\pictures\\azul_logo.png').convert_alpha()
 logo_img = pygame.transform.scale(logo_img, (int(0.44 * logo_img.get_width()), (0.44 * logo_img.get_height())))
 
-#load legend
+# load legend
 legend_img = pygame.image.load('visuals\pictures\\legend.png').convert_alpha()
 legend_img = pygame.transform.scale(legend_img, (int(0.38 * legend_img.get_width()), (0.38 * legend_img.get_height())))
+
+# load first player icon
+first_player_img = pygame.image.load('visuals\pictures\\first_player.png').convert_alpha()
+first_player_img = pygame.transform.scale(first_player_img, (int(0.105 * first_player_img.get_width()), (0.105 * first_player_img.get_height())))
 
 # load line images
 square_img1 = pygame.image.load('visuals\pictures\square.png').convert_alpha()
@@ -216,15 +220,24 @@ def draw_player_backgrounds(num_players):
         screen.blit(player_background_img, background_pos_list[i])
 
 
-def draw_player_info(num_players, player_list):
+def draw_player_info(num_players, player_list, ordered_player_list, player):
     points_pos_list = [(15, 390), (855 , 390), (855, 15), (15, 15)]
     for i in range(num_players):
         # render player name
-        name = font.render(player_list[i].name, True, (0, 0, 0), (200, 245, 249))
+        if player_list[i] == player:
+            name = font.render(player_list[i].name, True, (0, 0, 0), (250, 250, 50))
+        else:
+            name = font.render(player_list[i].name, True, (0, 0, 0), (200, 245, 249))
         screen.blit(name, (points_pos_list[i][0] + 15, points_pos_list[i][1] + 13))
         # render points
         points = font.render('Points: ' + str(player_list[i].points_total), True, (0, 0, 0), (200, 245, 249))
         screen.blit(points, (points_pos_list[i][0] + 280, points_pos_list[i][1] + 13))
+        # render firts player mark
+        # player from default order list matches first in ordered according to first player list
+        if player_list[i] == ordered_player_list[0]:
+            screen.blit(first_player_img, (points_pos_list[i][0] + 15, points_pos_list[i][1] + 45))
+
+         
         
 
 
@@ -251,7 +264,7 @@ def draw_player_info(num_players, player_list):
 # button loop test stone on underlying WORKS
 # HERE STONES WILL APPEND ACCORDING TO BAG OF TILES - SAME AS IN BACKEND
 # IN GAME THE VALUE WILL COME FROM board.fill_in_underlyings - self.bag_of_tiles.pop()
-def draw_stones_on_underlyings(bag_of_tiles):
+def draw_stones_on_underlyings(backend_underlyings):
     # bag_of_tiles = create_bag_of_stones()
     #shuffle(bag_of_tiles)
     #print('bag of tiles shuffled', bag_of_tiles)
@@ -273,8 +286,8 @@ def draw_stones_on_underlyings(bag_of_tiles):
         
         else:
             # NORMAL UNDERLYINGS
-            for i in range(4):
-                value = bag_of_tiles.pop()
+            for i in range(len(backend_underlyings[index])):
+                value = backend_underlyings[index][i]
                 x = underlying.stone_pos[i][0]
                 y = underlying.stone_pos[i][1]
                 # print('x', x, 'y', y)
@@ -293,7 +306,7 @@ def draw_stones_on_underlyings(bag_of_tiles):
                 # list of stones on underlying
                 underlying.stones.append(stone)
                 # counter += 1
-    print('len(bag_of_tiles)', len(bag_of_tiles))
+    # print('len(bag_of_tiles)', len(bag_of_tiles))
 
 
 
@@ -376,7 +389,6 @@ def main():
     brd.append_bag_of_tiles()
     #print('after addition', brd.bag_of_tiles)
     brd.scramble_bag_of_tiles()
-    brd.bag_of_tiles_front = copy.deepcopy(brd.bag_of_tiles)
 
 
     while True:
@@ -441,7 +453,7 @@ def main():
 
             if ROUND == 0:
                 print('filling underlyings')
-                draw_stones_on_underlyings(brd.bag_of_tiles_front)
+                draw_stones_on_underlyings(brd.underlyings)
                 ROUND = 1
 
             # DISPLAY LOGO
@@ -476,9 +488,8 @@ def main():
 
                 print('filling underlyings')
                 
-                brd.bag_of_tiles_front = copy.deepcopy(brd.bag_of_tiles)
                 brd.fill_in_underlyings()
-                draw_stones_on_underlyings(brd.bag_of_tiles_front)
+                draw_stones_on_underlyings(brd.underlyings)
 
                 # change starting player
                 # TODO STARTING PLAYER - WILL BE THE ONE WHO TOOK MIDDLE
@@ -505,7 +516,7 @@ def main():
                     line.draw(screen)
 
             # draw player info
-            draw_player_info(NUM_PLAYERS, brd.default_list_of_players)
+            draw_player_info(NUM_PLAYERS, brd.default_list_of_players, brd.list_of_players, player)
 
             # drawing lines and stones on the left side and on minus points
             for table in list_of_tables:
@@ -565,7 +576,7 @@ def main():
                 
 
                 if game_over:
-                    draw_player_info(NUM_PLAYERS, brd.default_list_of_players)
+                    draw_player_info(NUM_PLAYERS, brd.default_list_of_players, brd.list_of_players, player)
                     print('GAME ENDS, round', brd.round_counter)
                     print('Counting final points for all players')
                     for player in brd.list_of_players:
@@ -581,7 +592,6 @@ def main():
                 # print('Print all board attributes')
                 # brd.print_board_stats()
                 print('bag of tiles: ', brd.bag_of_tiles, '(', len(brd.bag_of_tiles), ')')
-                print('bag of tiles front: ', brd.bag_of_tiles_front, '(', len(brd.bag_of_tiles_front), ')')
                 print('bag of used tiles: ', brd.bag_of_used_tiles, '(', len(brd.bag_of_used_tiles), ')')
                 print()
 
