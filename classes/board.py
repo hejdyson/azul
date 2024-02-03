@@ -95,12 +95,12 @@ class Board:
             print(item, ' : ', self.tiles[item])
     
     # NOT NEEDED FOR CLICKS
-    # def valid_tile_selected(self, tile_choice):
-    #     if tile_choice in self.tiles:
-    #         return True
-    #     else:
-    #         print('Select a valid tile. ')
-    #         return False
+    def valid_tile_selected(self, tile_choice):
+        if tile_choice in self.tiles:
+            return True
+        else:
+            print('Select a valid tile. ')
+            return False
         
     # check if all underlyings are empty - end of round
     def all_underlyings_empty(self):

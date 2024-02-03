@@ -2,8 +2,9 @@ from random import randint, shuffle
 
 
 class Player():
-    def __init__(self, name):
+    def __init__(self, name, bot):
         self.name = name
+        self.bot = bot
         self.position_on_board = 0
         self.first_player = False
         self.points_from_round = 0
@@ -50,7 +51,7 @@ class Player():
         
 
     # Function to choose underlying
-    def choose_underlying(self, board, click_under):
+    def choose_underlying(self, board, click_under, bot):
         while True:
             # choose underlying
             print('Board underlyings: ' , board.underlyings)
@@ -58,9 +59,12 @@ class Player():
             # underlying_choice = int(input('Which underlying do you choose? ')) - 1
             # RANDOM BOT FOR TESTING
             # underlying_choice = self.bot_underlying_choice_simple(board) - 1
-            # BETTER BOT FOR TESTING
-            # # underlying_choice = self.bot_underlying_choice_advanced(board)
-            underlying_choice = click_under
+            # BETTER BOT FOR TESTING BOT CHOICE
+            if bot:
+                underlying_choice = self.bot_underlying_choice_advanced(board)
+            # CLICK CHOICE
+            else:
+                underlying_choice = click_under
             print('underlying choice: ', underlying_choice + 1)
             # check if not empty
             if board.underlying_is_empty(underlying_choice):
@@ -83,52 +87,77 @@ class Player():
 
 
     # Function to choose specific tile from the the underlying
-    def choose_tile(self, board, click_tile, click_under):
-        index = self.choose_underlying(board, click_under)
+    def choose_tile(self, board, click_tile, click_under, bot):
+        index = self.choose_underlying(board, click_under, bot)
         middle_underlying = False
         if index == board.number_of_players + 3 + (board.number_of_players - 2) * 1:
             print('middle underlying')
             middle_underlying = True
         # max 5 tiles can be selected - counter will run max 5 times
         counter_index = 0
-        tile_choice = click_tile
-        print('tile choice: ', tile_choice)
-        while True:
-            # choose specific tiles
-            # PLAYER
-            # tile_choice = int(input('Which tile do you want? '))
-            # ADVANCED BOT
-            # # list_of_ideal_tiles = self.bot_tile_choice_advanced(board)
-            # # tile_choice = list_of_ideal_tiles[counter_index][0]
-            # RANDOM BOT
-            # tile_choice = randint(1, 5)
-            # CLICK TILE CHOICE
-            # check if tiles available
-            # # # # if board.valid_tile_selected(tile_choice):
-            # if yes - give them to players hand
-            for tile in board.underlyings[index]:
-                if tile == tile_choice:
-                    self.take.append(tile)
+        if not bot:
+            tile_choice = click_tile
+            print('tile choice: ', tile_choice)
+            # CHOOSING LOOP NOT BOT
+            while True:
+                # if yes - give them to players hand
+                for tile in board.underlyings[index]:
+                    if tile == tile_choice:
+                        self.take.append(tile)
+                    else:
+                        self.to_the_middle.append(tile)
+                    
+                print(self.name, 'took ', self.take)                         
+                print('to the middle goes ', self.to_the_middle)  
+                # if not middle underlying selected
+                if not middle_underlying:
+                    for item in self.to_the_middle:
+                        board.underlyings[-1].append(item)
+                    board.underlyings[index].clear()
+                    break
+                # if middle underlying
+                else:     
+                    board.underlyings[index] = [value for value in board.underlyings[index] if value != tile_choice]
+                    break 
+        # choosing loop BOT
+        if bot:
+            while True:
+                # choose specific tiles
+                # PLAYER
+                # tile_choice = int(input('Which tile do you want? '))
+                # RANDOM BOT
+                # tile_choice = randint(1, 5)
+                # ADVANCED BOT
+                list_of_ideal_tiles = self.bot_tile_choice_advanced(board)
+                tile_choice = list_of_ideal_tiles[counter_index][0]
+                # CLICK TILE CHOICE
+                # check if tiles available
+                if board.valid_tile_selected(tile_choice):
+                    # if yes - give them to players hand
+                    for tile in board.underlyings[index]:
+                        if tile == tile_choice:
+                            self.take.append(tile)
+                        else:
+                            self.to_the_middle.append(tile)
+                        
+                    print(self.name, 'took ', self.take)                         
+                    print('to the middle goes ', self.to_the_middle)  
+                    # if not middle underlying selected
+                    if not middle_underlying:
+                        for item in self.to_the_middle:
+                            board.underlyings[-1].append(item)
+                        board.underlyings[index].clear()
+                        break
+                    # if middle underlying
+                    else:     
+                        board.underlyings[index] = [value for value in board.underlyings[index] if value != tile_choice]
+                        break 
+                #### maybe for bot
+                # if not - select another tile       
                 else:
-                    self.to_the_middle.append(tile)
-                
-            print(self.name, 'took ', self.take)                         
-            print('to the middle goes ', self.to_the_middle)  
-            # if not middle underlying selected
-            if not middle_underlying:
-                for item in self.to_the_middle:
-                    board.underlyings[-1].append(item)
-                board.underlyings[index].clear()
-                break
-            # if middle underlying
-            else:     
-                board.underlyings[index] = [value for value in board.underlyings[index] if value != tile_choice]
-                break 
-            #### maybe for bot
-            # # # # if not - select another tile       
-            # # # else:
-            # # #     counter_index += 1
-            # # #     continue
+                    counter_index += 1
+                    continue
+
 
     
     # FUNCTIONS TO HANDLE INPUT OF TAKEN TILE TO THE LEFT OF THE BOARD #
@@ -209,7 +238,7 @@ class Player():
         return True
 
     # Main functions that takes all checking functions above and places seleted tiles to the line
-    def choose_line(self, line_front):
+    def choose_line(self, line_front, bot):
         while True:
             # if there are no lines to place selected tiles, tiles ppend to self.minus_points
             if self.no_lines_placeable_v2(self.take[0]):
@@ -222,10 +251,12 @@ class Player():
             self.print_player_table()
             # PLAYER CHOICE
             # line_choice = int(input('Which line do you choose to place your tiles? ' + str(self.take) + ' :')) - 1
-            # RANDOM BOT CHOICE
-            # # line_choice = self.bot_line_choice()
+            # BOT CHOICE
+            if bot:
+                line_choice = self.bot_line_choice()
             # FRONTEND CHOICE
-            line_choice = line_front
+            else:
+                line_choice = line_front
             print('line choice: ', line_choice)
             line_choice -= 1
             if self.is_line_placeable(line_choice, self.take[0]):
@@ -239,11 +270,13 @@ class Player():
             else:
                 # choosing takes place int this while loop for in input or bot, but for visual its done bz click - loop wont end because if fails - cant select another within the loop
                 # for bot it needs to keep continue - perhaps separate 2 taking functions in main loop and condition if bot
-                # continue
-                break
+                if bot:
+                    continue
+                else:
+                    break
     
 
-    # BOT LINE CHOICE
+    # bot LINE CHOICE
     def bot_line_choice(self):
         # list of line indexes
         line_choice_list = [1, 2, 3, 4, 4, 5, 5]

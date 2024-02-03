@@ -6,7 +6,7 @@ from classes.player import Player
 def create_players(board, list_of_tables):
     # create list of players for game order - order will change according to first player
     for i in range(board.number_of_players):
-        player = Player('Player ' + str(i + 1))
+        player = Player('Player ' + str(i + 1), False)
         player.position_on_board = i
         # important - link player from backend to his frontend table
         player.table_front = list_of_tables[i]
@@ -14,8 +14,14 @@ def create_players(board, list_of_tables):
         # this wont change - for drawing still on same places
         board.default_list_of_players.append(player)
     
+    # set up bots
+    for index, player in enumerate(board.list_of_players):
+        if index == 1:
+            player.bot = True
+            player.name = player.name + ' BOT'
+    
     for player in board.list_of_players:
-        print('player name', player.name)
+        print('player name', player.name, 'player bot', player.bot)
 
 # choose player order - starts player with first player = True
 def choose_player_order(board):
