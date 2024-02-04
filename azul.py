@@ -256,27 +256,6 @@ def draw_player_info(num_players, player_list, ordered_player_list, ranked_playe
                 screen.blit(rank_fourth_img, (points_pos_list[i][0] + x, points_pos_list[i][1] + y))
 
          
-        
-
-
-
-# def create_bag_of_stones():
-#     bag_of_tiles = []
-#     for i in range(5):
-#         for _ in range(20):
-#             if i == 0:
-#                 bag_of_tiles.append(1)
-#             elif i == 1:
-#                 bag_of_tiles.append(2)
-#             elif i == 2:
-#                 bag_of_tiles.append(3)
-#             elif i == 3:
-#                 bag_of_tiles.append(4)
-#             else:
-#                 bag_of_tiles.append(5)  
-#     shuffle(bag_of_tiles)
-#     print('bag of tiles', bag_of_tiles)
-#     return bag_of_tiles
     
 
 # button loop test stone on underlying WORKS
@@ -383,7 +362,7 @@ def clear_minus_points():
 
 
 
-NUM_PLAYERS = 2
+NUM_PLAYERS = 4
 
 # crating all tables
 # 4 - number of players
@@ -456,6 +435,7 @@ def main():
         # while not brd.all_underlyings_empty():
         while run:
             player = brd.list_of_players[player_index]
+
 
 
             
@@ -625,14 +605,146 @@ def main():
 
 
 
-            if player.bot == True:
+            if player.bot == True and not empty:
+                print()
+                print('+++++++++++ PLAYER ON TURN IS', player.name, '+++++++++++++++')
+                print()
+                pygame.time.wait(400)
                 player.choose_tile(brd, brd.line_value, index, player.bot)
                 player.choose_line(line.limit, player.bot)
                 player.move_all_minus_points()
                 player.print_player_table()
+
                 player_index += 1
                 if player_index == NUM_PLAYERS:
                     player_index = 0
+
+                for index, underlying in enumerate(list_of_underlyings):
+                    # select taken underlying
+                    if index == player.underlying_choice:
+                        print('bot underlying choice: ', index + 1)
+                        to_line = []
+                        to_the_middle = []
+                        for stone in underlying.stones:
+                            # select taken stone
+                            # appending to line same stones
+                            print('BOT stone value, ', stone.value)
+                            print('BOT player.tile_choice, ', player.tile_choice)
+                            if stone.value == player.tile_choice:
+                                to_line.append(stone)
+                            # IF TAKEN FIRST FORM THE MIDDLE
+                            elif stone.value == -1:
+                                to_line.append(stone)
+                                # TODO LATER HANDLE
+                            # different stones go to middle
+                            else:
+                                to_the_middle.append(stone)
+                            
+                        # help print what goes where
+                        print('to line goes bot')
+                        for item in to_line:
+                            print(item.name)
+                        print('to the middle goes bot')
+                        for item in to_the_middle:
+                            print(item.name)
+                        
+
+                        # CLICKED ON MIDDLE UNDERLYING
+                        # if clicked on the middle - managing of coordinates
+                        # middle remove - to handle removes AFTER line is clicked, not before - end of round management
+                        middle_remove = []
+                        for item in to_line:
+                            # handle of middle coordinates
+                            print('item value, item placement', item.value, ' , ', item.placement.name)
+                            if item.placement == list_of_underlyings[-1]:
+                                print('PLACED IN MIDDLE')
+                                from_the_middle = True
+                                print('taking from the middle')
+                                for position in list_of_underlyings[-1].stone_pos:
+                                    # print('position', position)
+                                    # print('position of stone x', item.x, 'y:', item.y)
+                                    # removing taken stones from the middle
+                                    if position[0] == (item.x, item.y):
+                                        # print('occupied middle position to be freed', position)
+                                        position[1] = False
+                                # handle of middle stones
+                                middle_remove.append(item)
+                            else:
+                                from_the_middle = False
+
+                        print('from the middle', from_the_middle)
+
+                        # HANDLE ADDING TILES TO MIDDLE
+                        # append to the list of stones of middle underlying
+                        # happens only when not taking from the middle
+                        if not from_the_middle:
+                            for tile in to_the_middle:
+                                list_of_underlyings[-1].stones.append(tile)
+                                tile.placement = list_of_underlyings[-1]
+                            # change coordinates of stone to the ones from the middle that are available
+                            for tile in to_the_middle:
+                                for stone_pos in list_of_underlyings[-1].stone_pos:
+                                    if stone_pos[1] == False:
+                                        tile.x = stone_pos[0][0]
+                                        tile.y = stone_pos[0][1]
+                                        stone_pos[1] = True
+                                        break
+
+                            # and removing stones from .stones of non middle underlying - to track if all empty to end round
+                            underlying_to_clear = underlying.stones
+                            for item in underlying_to_clear:
+                                print(item.value)
+
+                for line in player.table_front:
+                    print('player line choice******', player.line_choice + 1)
+                    if line.limit == player.line_choice + 1:
+                        # Handling of stone click placement - either on line or to minus points if over the line limit: 1 APPEND 2 CHANGE COORDINATES
+                        # LINE: append to the line list of stones
+                        for stone in to_line:
+                            if stone.value != -1:
+                                line.stones.append(stone)
+                                stone.placement = line
+                            # if -1 taken
+                            else:
+                                player.table_front[-1].stones.append(stone)
+                                stone.placement = player.table_front[-1]
+
+                        # minus points - if over line limit
+                        # MINUS_POINTS: append over the limit stones to minus points list of stones
+                        if len(line.stones) > line.limit:
+                            for i in range(len(line.stones) - line.limit):
+                                # change stone placement to minus point
+                                line.stones[-i-1].placement = player.table_front[-1]
+                                # append stone to minus point point list (only of there is still place)
+                                # TODO HARD TO REACH EDGECASE - ALL LINES FULL AND ALSO MINUS POINTS FULL - STONES WONT GO TO MIDDLE
+                                if len(player.table_front[-1].stones) < player.table_front[-1].limit:
+                                    player.table_front[-1].stones.append(line.stones[-i-1])
+                            # remove excessive stones from line.stones
+                            for i in range(len(line.stones) - line.limit):
+                                line.stones.pop()
+
+                        # LINE: change coordiates to the line coordinates
+                        for i in range(len(line.stones)):
+                            line.stones[i].x = line.stone_pos[i][0]
+                            line.stones[i].y = line.stone_pos[i][1]
+
+                        # MINUS_POINTS: change coordinates to minus points coordinates 
+                        for i in range(len(player.table_front[-1].stones)):
+                            player.table_front[-1].stones[i].x = player.table_front[-1].stone_pos[i][0]
+                            player.table_front[-1].stones[i].y = player.table_front[-1].stone_pos[i][1]
+
+                        # after placing tiles to line, clear selected underlying.stones
+                        print('clearing underlying')
+                        underlying_to_clear.clear()
+
+                        for i in range(len(middle_remove)):
+                            print('removing from middle')
+                            list_of_underlyings[-1].stones.remove(middle_remove[i])
+                        
+                        break
+
+
+
 
 
             # TODO HERE ADD SECOND LOOP FOR EACH PLAYERS PLAY
@@ -703,6 +815,7 @@ def main():
                                             brd.line_value = to_line[1].value
                                         elif len(to_line) == 1:
                                             brd.line_value = to_line[0].value
+                                        # backend function to calculate tile choice
                                         player.choose_tile(brd, brd.line_value, index, player.bot)
 
 

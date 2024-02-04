@@ -16,7 +16,7 @@ def create_players(board, list_of_tables):
     
     # set up bots
     for index, player in enumerate(board.list_of_players):
-        if index == 1:
+        if index > 1:
             player.bot = True
             player.name = player.name + ' BOT'
     

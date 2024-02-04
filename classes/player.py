@@ -30,6 +30,11 @@ class Player():
         self.table_right_transposed = [list(i) for i in zip(*self.table_right)]
 
         self.table_front = None
+
+        # mainly for bot for drawing state backto frontend - maybe also for clicks prettier version for the future
+        self.underlying_choice = None
+        self.tile_choice = None
+        self.line_choice = None
         
 
     # Function to print player table
@@ -83,6 +88,7 @@ class Player():
                         self.minus_points.append(-1)
                         print('first to take the middle')
                         print('self.name, self.first_player', self.name, self.first_player)
+                self.underlying_choice = underlying_choice
                 return underlying_choice
 
 
@@ -139,7 +145,8 @@ class Player():
                             self.take.append(tile)
                         else:
                             self.to_the_middle.append(tile)
-                        
+                    
+                    self.tile_choice = tile_choice
                     print(self.name, 'took ', self.take)                         
                     print('to the middle goes ', self.to_the_middle)  
                     # if not middle underlying selected
@@ -163,7 +170,7 @@ class Player():
     # FUNCTIONS TO HANDLE INPUT OF TAKEN TILE TO THE LEFT OF THE BOARD #
     def tile_already_placed_on_right(self, line, take):
         for i in range(len(self.table_right[line])):
-            print('i', i, 'self.table_right[line][i]', self.table_right[line][i])
+            # print('i', i, 'self.table_right[line][i]', self.table_right[line][i])
             if self.table_right[line][i][0] == take:
                 index = i
                 break
@@ -260,6 +267,7 @@ class Player():
             print('line choice: ', line_choice)
             line_choice -= 1
             if self.is_line_placeable(line_choice, self.take[0]):
+                self.line_choice = line_choice
                 # place all tiles from hand to table left line choice
                 for item in self.take:
                     self.table_left[line_choice][0].append(item)
